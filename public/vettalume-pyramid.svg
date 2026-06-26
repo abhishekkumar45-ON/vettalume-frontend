@@ -1,0 +1,25 @@
+<svg width="720" height="540" viewBox="0 0 720 540" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M48 448L356 64L664 448H48Z" fill="url(#pyramidMain)"/>
+  <path d="M350 448C350 277.344 488.344 139 659 139V448H350Z" fill="url(#pyramidArc)"/>
+  <circle cx="511" cy="303" r="54" fill="url(#sunCore)"/>
+  <path d="M511 249V357" stroke="#8a5d16" stroke-width="9" stroke-linecap="round"/>
+  <path d="M457 303H565" stroke="#8a5d16" stroke-width="9" stroke-linecap="round"/>
+  <path d="M48 448H664" stroke="#f0f1ee" stroke-width="8" stroke-linecap="round"/>
+  <defs>
+    <linearGradient id="pyramidMain" x1="82" y1="444" x2="466" y2="71" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#c8932e"/>
+      <stop offset="0.48" stop-color="#dcdedb"/>
+      <stop offset="1" stop-color="#f0f1ee"/>
+    </linearGradient>
+    <linearGradient id="pyramidArc" x1="342" y1="448" x2="664" y2="145" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8a5d16"/>
+      <stop offset="0.55" stop-color="#c8932e"/>
+      <stop offset="1" stop-color="#e3e5e1"/>
+    </linearGradient>
+    <radialGradient id="sunCore" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(511 303) rotate(90) scale(54)">
+      <stop stop-color="#f0f1ee"/>
+      <stop offset="0.64" stop-color="#c8932e"/>
+      <stop offset="1" stop-color="#8a5d16"/>
+    </radialGradient>
+  </defs>
+</svg>

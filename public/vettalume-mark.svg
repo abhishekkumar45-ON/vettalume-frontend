@@ -1,0 +1,16 @@
+<svg width="84" height="68" viewBox="0 0 84 68" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M8 54L37.5 8L68 54H8Z" fill="url(#markGold)"/>
+  <path d="M42 54C42 37.4315 55.4315 24 72 24V54H42Z" fill="url(#markWarm)"/>
+  <circle cx="56" cy="39" r="9" fill="#f0f1ee"/>
+  <path d="M8 54H68" stroke="#8a5d16" stroke-width="3" stroke-linecap="round"/>
+  <defs>
+    <linearGradient id="markGold" x1="15" y1="52" x2="55" y2="8" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#c8932e"/>
+      <stop offset="1" stop-color="#f0f1ee"/>
+    </linearGradient>
+    <linearGradient id="markWarm" x1="42" y1="54" x2="73" y2="24" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8a5d16"/>
+      <stop offset="1" stop-color="#c8932e"/>
+    </linearGradient>
+  </defs>
+</svg>
