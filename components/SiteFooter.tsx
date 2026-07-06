@@ -31,11 +31,12 @@ export default function SiteFooter() {
         </div>
       </div>
       <div className="legalLinks">
-        <Link href="/">Privacy Policy</Link>
+        <Link href="/privacy">Privacy Policy</Link>
         <Link href="/">Terms &amp; Conditions</Link>
         <Link href="/">Content License</Link>
         <Link href="/">Sitemap</Link>
         <Link href="/">Return &amp; Refund Policy</Link>
+        <Link href="/contact">Contact us</Link>
       </div>
     </footer>
   );

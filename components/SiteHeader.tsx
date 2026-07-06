@@ -17,7 +17,7 @@ export default function SiteHeader({ showAnnouncement = false }: SiteHeaderProps
     <>
       <header className="siteHeader">
         <nav className="navShell" aria-label="Main navigation">
-          <Logo />
+          <Logo compact />
           <div className="navLinks">
             <Link href="/dashboard">Dashboard</Link>
             <Link href="/courses/cat">Explore courses</Link>

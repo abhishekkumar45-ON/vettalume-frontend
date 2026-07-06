@@ -1,21 +1,22 @@
 "use client";
 
-import { useState, type CSSProperties } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
+import { useRouter } from "next/navigation";
 import { ArrowRight, X } from "lucide-react";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 
 const abilityCards = [
-  { title: "Quants", score: 40, accent: "blue", action: "Enter Quants" },
-  { title: "VARC", score: 40, accent: "rose", action: "Enter VARC" },
-  { title: "DILR", score: 40, accent: "green", action: "Enter DILR" }
+  { title: "Quants", score: 40, accent: "blue", action: "Enter Quants", href: "/learn/cat/qa" },
+  { title: "VARC", score: 40, accent: "rose", action: "Enter VARC", href: "/learn/cat/varc" },
+  { title: "DILR", score: 40, accent: "green", action: "Enter DILR", href: "/learn/cat/dilr" }
 ];
 
 const recommendations = [
-  ["Sentence Correction", "DILR · lowest ability section", "62%"],
-  ["Data Sufficiency", "DILR · lowest ability section", "62%"],
-  ["Multi-Source Reasoning", "DILR · lowest ability section", "60%"],
-  ["Critical Reasoning", "DILR · lowest ability section", "62%"]
+  ["Sentence Correction", "DILR · lowest ability section", "62%", "blue"],
+  ["Data Sufficiency", "DILR · lowest ability section", "62%", "rose"],
+  ["Multi-Source Reasoning", "DILR · lowest ability section", "60%", "green"],
+  ["Critical Reasoning", "DILR · lowest ability section", "62%", "rose"]
 ];
 
 const mockCards = [
@@ -26,25 +27,59 @@ const mockCards = [
 ];
 
 const practiceCards = [
-  ["Sectional mocks", "22", "/77"],
-  ["Full mocks", "7", "/100"],
-  ["Topic Practice", "38", "/184"]
+  ["Sectional mocks", "22", "/77", "/mocks/cat/sectional"],
+  ["Full mocks", "7", "/100", "/mocks/cat/full"]
 ];
 
 export default function DashboardPage() {
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [diagnostic, setDiagnostic] = useState<{ percentile: number } | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("vetta:diagnostic");
+      if (raw) {
+        setDiagnostic(JSON.parse(raw));
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
 
   return (
     <>
       <SiteHeader />
       <main className="dashboardPage">
         <section className="dashboardGreeting">
-          <div className="sectionInner">
-            <h1>Good Evening, Aanya.</h1>
-            <p>
-              Good week overall, QA is carrying you at 82. But DILR needs you
-              to buckle up, it&apos;s sitting at 54 and dragging the average.
-            </p>
+          <div className="sectionInner dashboardGreetingInner">
+            <div className="greetingText">
+              <h1>Good Evening, Aanya.</h1>
+              <p>
+                Good week overall, QA is carrying you at 82. But DILR needs you
+                to buckle up, it&apos;s sitting at 54 and dragging the average.
+              </p>
+            </div>
+            <div className="diagnosticBox">
+              <small>PRACTICE</small>
+              <h3>Diagnostic Test</h3>
+              {diagnostic ? (
+                <div className="diagScore">
+                  <strong>
+                    {diagnostic.percentile}
+                    <em>ile</em>
+                  </strong>
+                  <a className="diagRetake" href="/mock-attempt.html?exam=cat&diagnostic=1">
+                    Retake
+                  </a>
+                </div>
+              ) : (
+                <a className="diagBtn" href="/mock-attempt.html?exam=cat&diagnostic=1">
+                  START MOCK
+                  <ArrowRight size={14} aria-hidden="true" />
+                </a>
+              )}
+            </div>
           </div>
         </section>
 
@@ -62,7 +97,7 @@ export default function DashboardPage() {
                   <b>40%</b>
                   <i />
                 </div>
-                <button type="button">
+                <button type="button" onClick={() => router.push(card.href)}>
                   {card.action}
                   <ArrowRight size={34} aria-hidden="true" />
                 </button>
@@ -71,8 +106,8 @@ export default function DashboardPage() {
             <aside className="recommendPanel">
               <h2>Recommended for you</h2>
               <div className="recommendList">
-                {recommendations.map(([title, text, width]) => (
-                  <article className="recommendItem" key={title}>
+                {recommendations.map(([title, text, width, tone]) => (
+                  <article className={`recommendItem ${tone}`} key={title}>
                     <b>{title}</b>
                     <span>{text}</span>
                     <i style={{ "--progress": width } as CSSProperties} />
@@ -97,8 +132,13 @@ export default function DashboardPage() {
           </div>
 
           <div className="practiceTiles">
-            {practiceCards.map(([title, done, total]) => (
-              <article className="practiceTile" key={title}>
+            {practiceCards.map(([title, done, total, href]) => (
+              <article
+                className="practiceTile"
+                key={title}
+                onClick={() => router.push(href)}
+                style={{ cursor: "pointer" }}
+              >
                 <small>PRACTICE</small>
                 <h3>{title}</h3>
                 <div>
@@ -106,7 +146,13 @@ export default function DashboardPage() {
                   <span>{total}</span>
                 </div>
                 <i />
-                <button type="button" onClick={() => setConfirmOpen(true)}>
+                <button
+                  type="button"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    router.push(href);
+                  }}
+                >
                   START MOCK
                   <ArrowRight size={14} aria-hidden="true" />
                 </button>

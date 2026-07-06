@@ -376,7 +376,7 @@ export default function Home() {
         <div className="heroInner">
           <div className="heroCopy">
             <h1 id="hero-heading">
-              Fastest path to your <span>target percentile</span>
+              Fastest path to your <span>target</span> percentile
             </h1>
             <p>
               Most aspirants follow the same study plan. We build one around
@@ -394,10 +394,10 @@ export default function Home() {
           </div>
           <div className="heroVisual" aria-hidden="true">
             <Image
-              src="/vettalume-pyramid.svg"
+              src="/hero-art.png"
               alt=""
-              width={720}
-              height={540}
+              width={1204}
+              height={745}
               priority
             />
           </div>

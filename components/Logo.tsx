@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 type LogoProps = {
   compact?: boolean;
@@ -6,20 +7,20 @@ type LogoProps = {
 
 export default function Logo({ compact = false }: LogoProps) {
   return (
-    <a className="brand" href="#top" aria-label="VettaLume home">
+    <Link className="brand" href="/" aria-label="VettaLume home">
       <Image
         className="brandLogo"
-        src="/Vettalume-LOGO.png"
-        alt=""
-        width={96}
-        height={60}
+        src="/logo-mark.png"
+        alt="VettaLume"
+        width={112}
+        height={68}
         priority
       />
       {!compact ? (
         <span className="brandText">
-          VettaLume
+          VETTA<em>LUME</em>
         </span>
       ) : null}
-    </a>
+    </Link>
   );
 }

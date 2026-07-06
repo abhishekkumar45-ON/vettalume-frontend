@@ -1,10 +1,17 @@
 import type { Metadata } from "next";
-import { Hanken_Grotesk } from "next/font/google";
+import { Hanken_Grotesk, Montserrat } from "next/font/google";
 import "./globals.css";
 
 const hankenGrotesk = Hanken_Grotesk({
   subsets: ["latin"],
   variable: "--font-hanken-grotesk",
+  display: "swap"
+});
+
+const montserrat = Montserrat({
+  subsets: ["latin"],
+  weight: ["600", "700", "800", "900"],
+  variable: "--font-montserrat",
   display: "swap"
 });
 
@@ -21,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={hankenGrotesk.variable}>{children}</body>
+      <body className={`${hankenGrotesk.variable} ${montserrat.variable}`}>{children}</body>
     </html>
   );
 }

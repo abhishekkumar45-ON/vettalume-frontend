@@ -1,71 +1,77 @@
 "use client";
 
 import { useEffect, useMemo, useRef } from "react";
-import { ArrowRight, BarChart3, BookOpen, Brain, CheckCircle2 } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 const exams = {
   CAT: {
-    title: "CAT with VettaLume",
-    summary:
-      "The IIM gateway: 120 minutes, three sections, and a DILR block that quietly decides who gets the call.",
+    rest: "with VettaLume",
+    blurb:
+      "The IIM gateway. 120 minutes, three sections, and a DILR block that quietly decides who gets the call.",
     stats: [
       ["120 min", "Test length"],
       ["3", "Sections"],
-      ["99%", "Avg. target"],
-      ["4x", "Prep speed"]
+      ["99%", "What we aim at"]
     ],
-    insights: [
-      "Reading comprehension and verbal ability",
-      "Data interpretation and logical reasoning",
-      "Quantitative aptitude across arithmetic and algebra"
+    rows: [
+      ["VARC", "Reading comprehension and verbal ability."],
+      ["DILR", "Data interpretation and logical reasoning. The cutoff decider since 2020."],
+      ["QA", "Quantitative aptitude, mostly arithmetic, algebra and geometry."]
     ],
-    cards: [
-      "Adaptive learning arms all three sections, with micro routes built from logged misses.",
-      "DILR set selection trainer shows when to skip, solve, or return.",
-      "Drill with section timers that mirror actual CAT pressure."
-    ]
+    trap:
+      "DILR decides your percentile, and the real skill is set selection, not knowledge. Most students sink time into the wrong set and finish none. Nothing on the market trains that judgment.",
+    instead:
+      "Adaptive learning across all three sections, with mock review built into the loop instead of left to your willpower.",
+    only: {
+      title: "DILR set-selection trainer",
+      body: "We drill the one meta-skill nothing else teaches: reading a set in seconds and deciding attempt or skip."
+    }
   },
   GMAT: {
-    title: "GMAT Focus with VettaLume",
-    summary:
-      "A compact adaptive plan for Quant, Verbal, and Data Insights with daily calibration.",
+    rest: "with VettaLume",
+    blurb:
+      "Computer-adaptive and unforgiving early. A shared IRT core keeps your ability estimate honest, question by question.",
     stats: [
       ["2h 15m", "Test length"],
       ["3", "Sections"],
-      ["705+", "Target band"],
-      ["18", "Skill lanes"]
+      ["705+", "What we aim at"]
     ],
-    insights: [
-      "Quant fundamentals with timed pattern detection",
-      "Critical reasoning and reading comprehension",
-      "Data insights from tables, charts, and multi-source prompts"
+    rows: [
+      ["QUANT", "Problem solving with timed pattern detection."],
+      ["VERBAL", "Critical reasoning and reading comprehension."],
+      ["DATA", "Data insights from tables, charts and multi-source prompts."]
     ],
-    cards: [
-      "Diagnostic routing highlights the next highest-return topic.",
-      "Error logs separate concept gaps from timing mistakes.",
-      "Mock review turns every miss into one focused drill set."
-    ]
+    trap:
+      "Pacing and early accuracy dominate the score, yet most prep ignores how the adaptive engine actually moves.",
+    instead:
+      "Practice against a real IRT engine so the difficulty you see matches the difficulty on test day.",
+    only: {
+      title: "Adaptive pacing trainer",
+      body: "Live ability tracking that shows when to push and when to protect a lead."
+    }
   },
   GRE: {
-    title: "GRE with VettaLume",
-    summary:
-      "Build balanced verbal and quant performance with a plan that keeps vocabulary, timing, and accuracy in sync.",
+    rest: "with VettaLume",
+    blurb:
+      "Section-adaptive with a wide score band. The win is knowing where a few points actually come from.",
     stats: [
       ["1h 58m", "Test length"],
-      ["2", "Core areas"],
-      ["330+", "Top target"],
-      ["30", "Daily mins"]
+      ["5", "Sections"],
+      ["330+", "What we aim at"]
     ],
-    insights: [
-      "Text completion and sentence equivalence",
-      "Quant comparison and problem solving",
-      "Adaptive vocabulary review before retention drops"
+    rows: [
+      ["VERBAL", "Text completion and sentence equivalence."],
+      ["QUANT", "Quantitative comparison and problem solving."],
+      ["VOCAB", "Adaptive vocabulary review before retention drops."]
     ],
-    cards: [
-      "Vocabulary queues reorder based on recall strength.",
-      "Quant sets target the exact trap patterns behind misses.",
-      "Score forecasts show which gains affect the final band."
-    ]
+    trap:
+      "Vocabulary drilling feels productive but rarely moves the sections that carry the score.",
+    instead:
+      "Effort weighted to your highest-leverage sections, verified against real outcomes.",
+    only: {
+      title: "Section-leverage planner",
+      body: "Shows the few question types where your next points are hiding."
+    }
   }
 } as const;
 
@@ -145,32 +151,35 @@ export default function ExamShowcase({ active, onChange }: ExamShowcaseProps) {
     <section className="section examSection" id="courses" aria-labelledby="exam-heading">
       <div className="sectionInner">
         <div className="sectionHeader compactHeader">
-          <p className="eyebrow">Same engine</p>
-          <h2 id="exam-heading">Tuned for your test.</h2>
+          <h2 id="exam-heading">
+            Same engine.
+            <br />
+            Tuned for your test.
+          </h2>
           <p>
-            The adaptive core is shared. What changes is the question bank,
-            section weighting, and the one feature each exam needs.
+            The adaptive core is shared. What changes is the question bank, the
+            section weighting, and the one feature each exam needs. Switch
+            anytime, your profile carries over.
           </p>
         </div>
-
       </div>
 
       <div ref={sentinelRef} className="examSentinel" aria-hidden="true" />
       <div ref={barRef} className="examTabsShell">
         <div className="sectionInner">
           <div className="tabs" role="tablist" aria-label="Exam selection">
-          {tabItems.map((item) => (
-            <button
-              className={item === active ? "tab active" : "tab"}
-              key={item}
-              type="button"
-              role="tab"
-              aria-selected={item === active}
-              onClick={() => selectExam(item)}
-            >
-              {item}
-            </button>
-          ))}
+            {tabItems.map((item) => (
+              <button
+                className={item === active ? "tab active" : "tab"}
+                key={item}
+                type="button"
+                role="tab"
+                aria-selected={item === active}
+                onClick={() => selectExam(item)}
+              >
+                {item}
+              </button>
+            ))}
           </div>
         </div>
       </div>
@@ -179,9 +188,10 @@ export default function ExamShowcase({ active, onChange }: ExamShowcaseProps) {
       <div ref={panelRef} className="sectionInner">
         <div className="examGrid">
           <div className="examMain">
-            <p className="eyebrow">{active} prep</p>
-            <h3>{exam.title}</h3>
-            <p>{exam.summary}</p>
+            <h3>
+              <span className="examKey">{active}</span> {exam.rest}
+            </h3>
+            <p>{exam.blurb}</p>
 
             <div className="statPills">
               {exam.stats.map(([value, label]) => (
@@ -191,46 +201,39 @@ export default function ExamShowcase({ active, onChange }: ExamShowcaseProps) {
                 </div>
               ))}
             </div>
-
-            <div className="examActions">
-              <a className="button primary small" href="#trial">
-                Start Free {active} Diagnostic
-                <ArrowRight size={16} aria-hidden="true" />
-              </a>
-              <a className="button ghost small" href="#how-it-works">
-                See how the engine works
-              </a>
-            </div>
           </div>
 
-          <div className="examInsights" aria-label={`${active} insights`}>
-            <div className="insightTop">
-              <BarChart3 size={24} aria-hidden="true" />
-              <span>VAIQ</span>
-              <p>{exam.insights[0]}.</p>
-            </div>
-            {exam.insights.map((item, index) => (
-              <div className="insightRow" key={item}>
-                {index === 0 ? (
-                  <BookOpen size={20} aria-hidden="true" />
-                ) : index === 1 ? (
-                  <Brain size={20} aria-hidden="true" />
-                ) : (
-                  <CheckCircle2 size={20} aria-hidden="true" />
-                )}
-                <span>{item}</span>
+          <div className="examInsights" aria-label={`${active} sections`}>
+            {exam.rows.map(([code, desc]) => (
+              <div className="insightRow" key={code}>
+                <span className="code">{code}</span>
+                <span className="desc">{desc}</span>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="miniCards">
-          {exam.cards.map((card) => (
-            <article className="miniCard" key={card}>
-              <CheckCircle2 size={18} aria-hidden="true" />
-              <p>{card}</p>
-            </article>
-          ))}
+        <div className="examBoxes">
+          <article className="examBox">
+            <span className="label">The trap</span>
+            <p>{exam.trap}</p>
+          </article>
+          <article className="examBox">
+            <span className="label">What we do instead</span>
+            <p>{exam.instead}</p>
+          </article>
+          <article className="examBox only">
+            <span className="label">Only on VettaLume</span>
+            <h4>{exam.only.title}</h4>
+            <p>{exam.only.body}</p>
+          </article>
+        </div>
+
+        <div className="examActions">
+          <a className="button primary small" href="#trial">
+            Start Free {active} Diagnostic
+            <ArrowRight size={16} aria-hidden="true" />
+          </a>
         </div>
       </div>
     </section>
