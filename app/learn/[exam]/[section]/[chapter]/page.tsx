@@ -57,13 +57,15 @@ export default async function ChapterAnalysisPage({
   const chapterName = located ? located.chapter.name : titleFromSlug(chapterSlug);
   const groupTitle = located ? located.group.title : "Recommended";
 
+  const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001";
   const src =
     `/learning-chapter-analysis.html?exam=${exam.slug}` +
     `&section=${section.slug}` +
     `&sectionName=${encodeURIComponent(section.name)}` +
     `&group=${encodeURIComponent(groupTitle)}` +
     `&chapter=${chapterSlug}` +
-    `&chapterName=${encodeURIComponent(chapterName)}`;
+    `&chapterName=${encodeURIComponent(chapterName)}` +
+    `&api=${encodeURIComponent(apiBase)}`;
 
   return (
     <>

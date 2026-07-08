@@ -61,6 +61,8 @@ async function apiSend<T = unknown>(method: string, path: string, body: unknown)
       method,
       headers: {
         "Content-Type": "application/json",
+        // lets an ngrok dev tunnel skip its browser-warning interstitial; ignored by a normal backend
+        "ngrok-skip-browser-warning": "true",
         ...(token ? { Authorization: `Bearer ${token}` } : {})
       },
       body: JSON.stringify(body)
@@ -101,7 +103,10 @@ export async function apiGet<T = unknown>(path: string): Promise<T> {
   let res: Response;
   try {
     res = await fetch(`${BASE}${path}`, {
-      headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) }
+      headers: {
+        "ngrok-skip-browser-warning": "true",
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      }
     });
   } catch {
     throw new ApiError(`Cannot reach the server at ${BASE}.`, 0, "network");
@@ -136,6 +141,42 @@ export type Profile = {
   city: string;
   about: string;
   target_exam: string;
+};
+
+export type OverviewSubtopic = { id: string; name: string; pct: number };
+export type OverviewChapter = { id: string; name: string; pct: number; subtopics: OverviewSubtopic[] };
+export type OverviewSection = {
+  key: string;
+  name: string;
+  syllabus: number;
+  ability: number;
+  mastery: number;
+  chapters: OverviewChapter[];
+};
+export type Overview = { exam: string; sections: OverviewSection[] };
+
+export type ConceptDetail = {
+  concept_id: string;
+  name: string;
+  mastery: number;
+  learning_progress: number;
+  attempts: number;
+  content: { body: string; videos: { title?: string; url?: string; duration?: string }[] };
+};
+
+export type QuizQuestion = {
+  id: string;
+  stem: string;
+  options: string[];
+  correct_answer: string;
+  solution: string;
+};
+export type ConceptQuiz = { concept_id: string; name: string; questions: QuizQuestion[] };
+
+export const learnApi = {
+  overview: (exam: string) => apiGet<Overview>(`/learn/overview?exam=${encodeURIComponent(exam)}`),
+  concept: (nodeId: string) => apiGet<ConceptDetail>(`/learn/concept/${encodeURIComponent(nodeId)}`),
+  quiz: (nodeId: string) => apiGet<ConceptQuiz>(`/learn/concept/${encodeURIComponent(nodeId)}/quiz`)
 };
 
 // Password strength rules — must mirror the backend (services/security.password_problems).

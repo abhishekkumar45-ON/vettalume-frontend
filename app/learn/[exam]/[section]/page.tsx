@@ -1,30 +1,20 @@
-import type { Metadata } from "next";
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { useParams } from "next/navigation";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
-import { EXAMS, getExam, getSection, slugify, type Tone } from "@/app/learn/sectionData";
+import { learnApi, type Overview, type OverviewSection } from "@/lib/api";
 
-type PageParams = { exam: string; section: string };
+const TONES = ["green", "purple", "rose"] as const;
 
-export function generateStaticParams(): PageParams[] {
-  return EXAMS.flatMap((exam) =>
-    exam.sections.map((section) => ({ exam: exam.slug, section: section.slug }))
-  );
-}
-
-export async function generateMetadata({
-  params
-}: {
-  params: Promise<PageParams>;
-}): Promise<Metadata> {
-  const { exam: examSlug, section: sectionSlug } = await params;
-  const exam = getExam(examSlug);
-  const section = exam ? getSection(exam, sectionSlug) : undefined;
-  if (!exam || !section) {
-    return { title: "Section | VettaLume" };
-  }
-  return { title: `${section.name} · ${exam.label} | VettaLume` };
+function slugify(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
 }
 
 function Wave({ tone }: { tone: "rose" | "green" | "purple" }) {
@@ -58,122 +48,112 @@ function MetricCard({
   );
 }
 
-function ProgressBar({
-  name,
-  pct,
-  variant,
-  tone,
-  clickable = false
-}: {
-  name: string;
-  pct: number;
-  variant: "rec" | "chapter";
-  tone?: Tone;
-  clickable?: boolean;
-}) {
-  const className =
-    variant === "rec"
-      ? "progressBar rec"
-      : `progressBar chapter ${tone ?? "green"}${clickable ? " clickable" : ""}`;
-  const rightBound = clickable ? "calc(100% - 96px)" : "calc(100% - 60px)";
-  return (
-    <div className={className}>
-      <i className="progressFill" style={{ width: `${pct}%` }} aria-hidden="true" />
-      <span className="progressName">{name}</span>
-      <span
-        className="progressPct"
-        style={{ left: `clamp(240px, calc(${pct}% + 14px), ${rightBound})` }}
-      >
-        {pct}%
-      </span>
-      {clickable ? (
-        <span className="progressGo" aria-hidden="true">
-          →
-        </span>
-      ) : null}
-    </div>
+export default function SectionDashboardPage() {
+  const params = useParams();
+  const exam = String(params.exam || "");
+  const sectionSlug = String(params.section || "");
+
+  const [overview, setOverview] = useState<Overview | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    setLoading(true);
+    setError(null);
+    learnApi
+      .overview(exam)
+      .then((data) => {
+        if (alive) setOverview(data);
+      })
+      .catch((err) => {
+        if (alive) setError(err instanceof Error ? err.message : "Could not load this section.");
+      })
+      .finally(() => {
+        if (alive) setLoading(false);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [exam]);
+
+  const section: OverviewSection | undefined = overview?.sections.find(
+    (s) => s.key.toLowerCase() === sectionSlug.toLowerCase()
   );
-}
-
-export default async function SectionDashboardPage({
-  params
-}: {
-  params: Promise<PageParams>;
-}) {
-  const { exam: examSlug, section: sectionSlug } = await params;
-  const exam = getExam(examSlug);
-  const section = exam ? getSection(exam, sectionSlug) : undefined;
-
-  if (!exam || !section) {
-    notFound();
-  }
 
   return (
     <>
       <SiteHeader />
       <main className="sectionDash">
         <div className="sectionInner">
-          <div className="sectionDashTabs" role="tablist" aria-label={`${exam.label} sections`}>
-            {exam.sections.map((item) => (
-              <Link
-                key={item.slug}
-                href={`/learn/${exam.slug}/${item.slug}`}
-                className={item.slug === section.slug ? "active" : ""}
-                aria-current={item.slug === section.slug ? "page" : undefined}
-              >
-                {item.name}
-              </Link>
-            ))}
-          </div>
-
-          <div className="sectionDashTitle">
-            <h1>{section.name}</h1>
-            <p>{section.full}</p>
-          </div>
-
-          <div className="secMetricGrid">
-            <MetricCard label="Syllabus Covered" value={`${section.syllabus}%`} sub="Covered" tone="rose" />
-            <MetricCard label="Ability Level" value={`${section.ability}`} sub="Out of 100" tone="green" />
-            <MetricCard label="Concept Mastery" value={`${section.mastery}%`} sub="Mastered" tone="purple" />
-          </div>
-
-          <h2 className="sectionDashHeading">Recommendations</h2>
-          <div className="barList">
-            {section.recommendations.map((rec) => (
-              <Link
-                key={rec.name}
-                href={`/learn/${exam.slug}/${section.slug}/${slugify(rec.name)}`}
-                className="chapterLink"
-              >
-                <ProgressBar name={rec.name} pct={rec.pct} variant="rec" clickable />
-              </Link>
-            ))}
-          </div>
-
-          {section.groups.map((group) => (
-            <div key={group.title}>
-              <h2 className="sectionDashHeading">
-                {group.title} <span>{group.chapters.length} Chapters</span>
-              </h2>
-              <div className="barList">
-                {group.chapters.map((chapter) => (
-                  <Link
-                    key={chapter.name}
-                    href={`/learn/${exam.slug}/${section.slug}/${slugify(chapter.name)}`}
-                    className="chapterLink"
-                  >
-                    <ProgressBar
-                      name={chapter.name}
-                      pct={chapter.pct}
-                      variant="chapter"
-                      tone={chapter.tone}
-                      clickable
-                    />
-                  </Link>
-                ))}
-              </div>
+          {overview ? (
+            <div className="sectionDashTabs" role="tablist" aria-label={`${overview.exam} sections`}>
+              {overview.sections.map((item) => (
+                <Link
+                  key={item.key}
+                  href={`/learn/${exam}/${item.key.toLowerCase()}`}
+                  className={item.key === section?.key ? "active" : ""}
+                  aria-current={item.key === section?.key ? "page" : undefined}
+                >
+                  {item.key}
+                </Link>
+              ))}
             </div>
-          ))}
+          ) : null}
+
+          {loading ? (
+            <p className="sectionDashHeading" style={{ marginTop: 24 }}>Loading…</p>
+          ) : error ? (
+            <p className="sectionDashHeading" style={{ marginTop: 24 }}>{error}</p>
+          ) : !section ? (
+            <p className="sectionDashHeading" style={{ marginTop: 24 }}>Section not found.</p>
+          ) : (
+            <>
+              <div className="sectionDashTitle">
+                <h1>{section.key}</h1>
+                <p>{section.name}</p>
+              </div>
+
+              <div className="secMetricGrid">
+                <MetricCard label="Syllabus Covered" value={`${section.syllabus}%`} sub="Covered" tone="rose" />
+                <MetricCard label="Ability Level" value={`${section.ability}`} sub="Out of 100" tone="green" />
+                <MetricCard label="Concept Mastery" value={`${section.mastery}%`} sub="Mastered" tone="purple" />
+              </div>
+
+              <h2 className="sectionDashHeading">
+                Chapters <span>{section.chapters.length} Chapters</span>
+              </h2>
+              {section.chapters.length === 0 ? (
+                <p className="sectionDashTitle" style={{ opacity: 0.7 }}>
+                  No chapters yet — an admin can add them from the content portal.
+                </p>
+              ) : (
+                <div className="barList">
+                  {section.chapters.map((chapter, index) => (
+                    <Link
+                      key={chapter.id}
+                      href={`/learn/${exam}/${sectionSlug}/${slugify(chapter.name)}`}
+                      className="chapterLink"
+                    >
+                      <div className={`progressBar chapter ${TONES[index % TONES.length]} clickable`}>
+                        <i className="progressFill" style={{ width: `${chapter.pct}%` }} aria-hidden="true" />
+                        <span className="progressName">{chapter.name}</span>
+                        <span
+                          className="progressPct"
+                          style={{ left: `clamp(240px, calc(${chapter.pct}% + 14px), calc(100% - 96px))` }}
+                        >
+                          {chapter.pct}%
+                        </span>
+                        <span className="progressGo" aria-hidden="true">
+                          →
+                        </span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
         </div>
       </main>
       <SiteFooter />

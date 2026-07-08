@@ -38,6 +38,8 @@ export default async function SubtopicLearningPage({
   const located = getChapter(section, chapterSlug);
   const chapterName = located ? located.chapter.name : titleFromSlug(chapterSlug);
   const subtopicName = titleFromSlug(subtopic);
+  // matches the seeded knowledge-node id: {exam}-{sectionKey}-{chapterSlug}-{subtopicSlug}
+  const conceptId = `${examSlug}-${sectionSlug}-${chapterSlug}-${subtopic}`;
 
   return (
     <>
@@ -49,6 +51,7 @@ export default async function SubtopicLearningPage({
         sectionName={chapterName}
         groupTitle={section.name}
         chapterName={subtopicName}
+        conceptId={conceptId}
       />
       <SiteFooter />
     </>

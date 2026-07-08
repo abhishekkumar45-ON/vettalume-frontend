@@ -92,6 +92,19 @@ export function UserProvider({ children }: { children: ReactNode }) {
     } catch {
       // ignore corrupt storage
     }
+    // Dev-only escape hatch: NEXT_PUBLIC_DEV_BYPASS_AUTH=true lets a teammate browse the full UI
+    // without a reachable backend (no real login). Data-driven pages still need the API.
+    if (process.env.NEXT_PUBLIC_DEV_BYPASS_AUTH === "true") {
+      setState((prev) => ({
+        ...prev,
+        firstName: prev.firstName || "Guest",
+        fullName: prev.fullName || "Guest",
+        email: prev.email || "guest@dev.local"
+      }));
+      setAuthed(true);
+      setHydrated(true);
+      return;
+    }
     const token = getToken();
     if (!token) {
       setAuthed(false);

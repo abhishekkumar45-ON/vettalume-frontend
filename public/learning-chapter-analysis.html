@@ -453,20 +453,41 @@ startSea();
   var exam=(p.get('exam')||'cat').toLowerCase(), EX=exam.toUpperCase();
   var section=p.get('section')||'', sectionName=p.get('sectionName')||'';
   var group=p.get('group')||'', chapter=p.get('chapter')||'', chapterName=p.get('chapterName')||'';
+  var api=p.get('api')||'http://localhost:8001';
   document.body.setAttribute('data-exam',EX);
   function slug(s){return (s||'').toLowerCase().replace(/&/g,'and').replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');}
   var h1=document.querySelector('.chero h1'); if(h1&&chapterName) h1.textContent=chapterName;
   var ck=document.querySelector('.chero .ck'); if(ck) ck.innerHTML=(sectionName||EX)+(group?(' &middot; '+group):'');
   var back=document.querySelector('.back');
   if(back){ back.innerHTML='&larr; '+(sectionName||'Back'); back.addEventListener('click',function(){top.location.href='/learn/'+exam+'/'+section;}); }
-  document.querySelectorAll('.chap').forEach(function(ch){
-    var nm=(ch.querySelector('.cname')||{}).textContent||'';
-    ch.addEventListener('click',function(){ top.location.href='/learn/'+exam+'/'+section+'/'+chapter+'/'+slug(nm); });
-  });
   function postH(){try{parent.postMessage({type:'mockFrameHeight',height:document.documentElement.scrollHeight},'*');}catch(e){}}
-  window.addEventListener('load',function(){postH();setTimeout(postH,300);setTimeout(postH,1200);});
+  window.addEventListener('load',function(){postH();setTimeout(postH,400);setTimeout(postH,1400);});
   window.addEventListener('resize',postH);
   try{new ResizeObserver(postH).observe(document.body);}catch(e){}
+  function pctColor(v){var rose=[188,116,104],peri=[121,126,164],sage=[90,150,112],a,b,t;if(v<50){a=rose;b=peri;t=Math.max(0,Math.min(1,(v-10)/40));}else{a=peri;b=sage;t=(v-50)/50;}return 'rgb('+Math.round(a[0]+(b[0]-a[0])*t)+','+Math.round(a[1]+(b[1]-a[1])*t)+','+Math.round(a[2]+(b[2]-a[2])*t)+')';}
+  function renderSubs(subs){
+    var wrap=document.querySelector('.stsec .chaps'); if(!wrap) return;
+    var cnt=document.querySelector('.stsec .cbox-sub'); if(cnt) cnt.textContent=subs.length+' concepts in this chapter';
+    wrap.innerHTML=subs.map(function(s){
+      return '<div class="chap"><div class="ctrack"><div class="cfill" style="width:'+s.pct+'%"></div></div>'+
+        '<div class="cface"><div class="cleft"><span class="cbul"></span><span class="cname">'+s.name+'</span></div>'+
+        '<span class="cpct">'+s.pct+'%</span><span class="car">&#8594;</span></div></div>';
+    }).join('');
+    wrap.querySelectorAll('.chap').forEach(function(ch){
+      var nm=(ch.querySelector('.cname')||{}).textContent||'';
+      ch.style.setProperty('--sec', pctColor(parseFloat((ch.querySelector('.cpct')||{}).textContent)||0));
+      ch.addEventListener('click',function(){ top.location.href='/learn/'+exam+'/'+section+'/'+chapter+'/'+slug(nm); });
+    });
+    postH();
+  }
+  function setStats(cp,n){var x=document.querySelectorAll('.cstats .cstat .num');if(x[0])x[0].textContent='0';if(x[1])x[1].textContent=cp+'%';if(x[2])x[2].innerHTML='0<small>/'+n+'</small>';if(x[3])x[3].textContent='0%';}
+  var token=null; try{token=localStorage.getItem('vetta:token');}catch(e){}
+  fetch(api+'/learn/overview?exam='+exam,{headers:token?{Authorization:'Bearer '+token}:{}}).then(function(r){return r.json();}).then(function(d){
+    var sec=(d.sections||[]).find(function(s){return s.key.toLowerCase()===section.toLowerCase();}); if(!sec) return;
+    var ch=(sec.chapters||[]).find(function(c){return slug(c.name)===chapter;}); if(!ch) return;
+    setStats(ch.pct||0,(ch.subtopics||[]).length);
+    renderSubs(ch.subtopics||[]);
+  }).catch(function(){});
 })();
 </script>
 </body>
