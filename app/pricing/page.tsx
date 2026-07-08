@@ -1,37 +1,42 @@
+"use client";
+
 import Link from "next/link";
 import { Check } from "lucide-react";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
-
-const pricingPlans = [
-  ["Spark", "₹499", "1 month", "Adaptive CAT engine", "2 full-length mocks", "Unlimited sectional drills"],
-  ["Kindle", "₹999", "3 months", "Full CAT question bank", "Personalized roadmap", "6 full-length mocks"],
-  ["Glow", "₹1,999", "6 months", "Root-cause analytics", "Mock review workflow", "DILR set-selection trainer"],
-  ["Blaze", "₹3,499", "12 months", "Priority doubt support", "30 full-length mocks", "2 mentor strategy calls"],
-  ["Lumen", "₹5,999", "Till exam", "Unlimited mocks", "Weekly mentor calls", "Valid till exam day"]
-];
+import { EXAM_CATALOG } from "@/app/examCatalog";
+import { useUser } from "@/components/UserContext";
 
 export default function PricingPage() {
+  const { activeExam, isOwned } = useUser();
+  const catalog = EXAM_CATALOG[activeExam];
+  const owned = isOwned(activeExam);
+
   return (
     <>
-      <SiteHeader />
+      <SiteHeader showExamSwitcher />
       <main className="pricingRoute">
         <section className="pageHero darkHero">
           <div className="pageHeroInner">
-            <h1>Pricing</h1>
-            <p>Pick the plan that matches your exam window and prep intensity.</p>
+            <h1>{catalog.label} Pricing</h1>
+            <p>
+              Pick the plan that matches your exam window and prep intensity.
+              {owned ? " You already own this course." : ""}
+            </p>
           </div>
         </section>
         <section className="sectionInner pricingRouteGrid">
-          {pricingPlans.map(([name, price, period, ...features], index) => (
-            <article className={index === 2 ? "priceCard featured" : "priceCard"} key={name}>
-              {index === 2 ? <span className="popularBadge">Most popular</span> : null}
-              <p>{name}</p>
-              <strong>{price}</strong>
-              <span>{period}</span>
-              <Link className="button priceButton" href="/cart">Choose {name}</Link>
+          {catalog.plans.map((plan) => (
+            <article className={plan.popular ? "priceCard featured" : "priceCard"} key={plan.name}>
+              {plan.popular ? <span className="popularBadge">Most popular</span> : null}
+              <p>{plan.name}</p>
+              <strong>{plan.price}</strong>
+              <span>{plan.period}</span>
+              <Link className="button priceButton" href="/cart">
+                Choose {plan.name}
+              </Link>
               <ul>
-                {features.map((feature) => (
+                {plan.features.map((feature) => (
                   <li key={feature}>
                     <Check size={14} aria-hidden="true" />
                     {feature}

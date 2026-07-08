@@ -4,14 +4,21 @@ import { useState } from "react";
 import Link from "next/link";
 import { ShoppingCart, UserRound } from "lucide-react";
 import AuthModal, { type AuthModalMode } from "@/components/AuthModal";
+import ExamSwitcher from "@/components/ExamSwitcher";
 import Logo from "@/components/Logo";
+import { useUser } from "@/components/UserContext";
 
 type SiteHeaderProps = {
   showAnnouncement?: boolean;
+  showExamSwitcher?: boolean;
 };
 
-export default function SiteHeader({ showAnnouncement = false }: SiteHeaderProps) {
+export default function SiteHeader({
+  showAnnouncement = false,
+  showExamSwitcher = false
+}: SiteHeaderProps) {
   const [authMode, setAuthMode] = useState<AuthModalMode | null>(null);
+  const { signIn, authed, hydrated } = useUser();
 
   return (
     <>
@@ -24,16 +31,34 @@ export default function SiteHeader({ showAnnouncement = false }: SiteHeaderProps
             <Link href="/pricing">Pricing</Link>
           </div>
           <div className="navActions">
+            {showExamSwitcher && authed ? <ExamSwitcher /> : null}
+            {hydrated && !authed ? (
+              <button className="button ghost navButton" type="button" onClick={() => setAuthMode("login")}>
+                Log in
+              </button>
+            ) : null}
             <button className="button primary navButton" type="button" onClick={() => setAuthMode("trial")}>
               Start Free Trial
             </button>
-            <Link className="button dark navButton" href="/dashboard">
-              Dashboard
-            </Link>
+            {authed ? (
+              <Link className="button dark navButton" href="/dashboard">
+                Dashboard
+              </Link>
+            ) : null}
             <Link className="iconButton" href="/cart" aria-label="Cart">
               <ShoppingCart size={24} aria-hidden="true" />
             </Link>
-            <Link className="iconButton" href="/account" aria-label="Account">
+            <Link
+              className="iconButton"
+              href={authed ? "/account" : "#"}
+              aria-label="Account"
+              onClick={(event) => {
+                if (!authed) {
+                  event.preventDefault();
+                  setAuthMode("login");
+                }
+              }}
+            >
               <UserRound size={24} aria-hidden="true" />
             </Link>
           </div>
@@ -44,7 +69,12 @@ export default function SiteHeader({ showAnnouncement = false }: SiteHeaderProps
           </Link>
         ) : null}
       </header>
-      <AuthModal mode={authMode} onClose={() => setAuthMode(null)} onModeChange={setAuthMode} />
+      <AuthModal
+        mode={authMode}
+        onClose={() => setAuthMode(null)}
+        onModeChange={setAuthMode}
+        onSignIn={signIn}
+      />
     </>
   );
 }

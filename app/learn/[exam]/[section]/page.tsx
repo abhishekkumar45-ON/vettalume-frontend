@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
-import { EXAMS, getExam, getSection, type Tone } from "@/app/learn/sectionData";
+import { EXAMS, getExam, getSection, slugify, type Tone } from "@/app/learn/sectionData";
 
 type PageParams = { exam: string; section: string };
 
@@ -62,25 +62,35 @@ function ProgressBar({
   name,
   pct,
   variant,
-  tone
+  tone,
+  clickable = false
 }: {
   name: string;
   pct: number;
   variant: "rec" | "chapter";
   tone?: Tone;
+  clickable?: boolean;
 }) {
   const className =
-    variant === "rec" ? "progressBar rec" : `progressBar chapter ${tone ?? "green"}`;
+    variant === "rec"
+      ? "progressBar rec"
+      : `progressBar chapter ${tone ?? "green"}${clickable ? " clickable" : ""}`;
+  const rightBound = clickable ? "calc(100% - 96px)" : "calc(100% - 60px)";
   return (
     <div className={className}>
       <i className="progressFill" style={{ width: `${pct}%` }} aria-hidden="true" />
       <span className="progressName">{name}</span>
       <span
         className="progressPct"
-        style={{ left: `clamp(240px, calc(${pct}% + 14px), calc(100% - 60px))` }}
+        style={{ left: `clamp(240px, calc(${pct}% + 14px), ${rightBound})` }}
       >
         {pct}%
       </span>
+      {clickable ? (
+        <span className="progressGo" aria-hidden="true">
+          →
+        </span>
+      ) : null}
     </div>
   );
 }
@@ -127,10 +137,16 @@ export default async function SectionDashboardPage({
             <MetricCard label="Concept Mastery" value={`${section.mastery}%`} sub="Mastered" tone="purple" />
           </div>
 
-          <h2 className="sectionDashHeading">Vettalume Recommendations</h2>
+          <h2 className="sectionDashHeading">Recommendations</h2>
           <div className="barList">
             {section.recommendations.map((rec) => (
-              <ProgressBar key={rec.name} name={rec.name} pct={rec.pct} variant="rec" />
+              <Link
+                key={rec.name}
+                href={`/learn/${exam.slug}/${section.slug}/${slugify(rec.name)}`}
+                className="chapterLink"
+              >
+                <ProgressBar name={rec.name} pct={rec.pct} variant="rec" clickable />
+              </Link>
             ))}
           </div>
 
@@ -141,13 +157,19 @@ export default async function SectionDashboardPage({
               </h2>
               <div className="barList">
                 {group.chapters.map((chapter) => (
-                  <ProgressBar
+                  <Link
                     key={chapter.name}
-                    name={chapter.name}
-                    pct={chapter.pct}
-                    variant="chapter"
-                    tone={chapter.tone}
-                  />
+                    href={`/learn/${exam.slug}/${section.slug}/${slugify(chapter.name)}`}
+                    className="chapterLink"
+                  >
+                    <ProgressBar
+                      name={chapter.name}
+                      pct={chapter.pct}
+                      variant="chapter"
+                      tone={chapter.tone}
+                      clickable
+                    />
+                  </Link>
                 ))}
               </div>
             </div>

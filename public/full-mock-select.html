@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VettaLume · Section Selection</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#e8e9e6; --ink-2:#e3e5e1;
+  --panel:#f0f1ee; --panel-2:#e9ebe7; --panel-3:#dcded9;
+  --line:rgba(22,26,22,.14); --line-soft:rgba(22,26,22,.085);
+  --text:#181a18; --text-2:#43473f; --text-3:#74786e; --text-4:#9a9d93;
+  --brand:#c8932e; --gold-ink:#8a5d16;
+  --varc:#b2847a; --dilr:#7d9a84; --qa:#797ea4;
+  --ok:#5c8f72; --warn:#bb7d49;
+  --maxw:1080px;
+  --f-display:"Hanken Grotesk",system-ui,sans-serif;
+  --f-body:"Hanken Grotesk",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+  --course:#c8932e;
+}
+body[data-exam="CAT"]{--course:#c8932e}
+body[data-exam="GMAT"]{--course:#a8705f}
+body[data-exam="GRE"]{--course:#6a6f9c}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--f-body);color:var(--text);-webkit-font-smoothing:antialiased;line-height:1.5;
+  min-height:100vh;position:relative;overflow-x:hidden;background:linear-gradient(168deg,var(--ink),var(--ink-2))}
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(860px 560px at 50% -12%, color-mix(in srgb,var(--course) 15%,transparent), transparent 60%),
+    radial-gradient(680px 520px at 6% 10%, color-mix(in srgb,var(--varc) 6%,transparent), transparent 58%),
+    radial-gradient(680px 600px at 92% 8%, color-mix(in srgb,var(--brand) 5%,transparent), transparent 60%)}
+.wrap{position:relative;z-index:1;max-width:var(--maxw);margin:0 auto;padding:0 28px}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+
+header{position:sticky;top:0;z-index:50;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--ink) 92%,transparent),color-mix(in srgb,var(--ink) 60%,transparent) 70%,transparent);
+  backdrop-filter:blur(12px) saturate(1.2);border-bottom:2px solid color-mix(in srgb,var(--course) 42%,var(--line))}
+.hbar{display:flex;align-items:center;gap:24px;height:66px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.02em;font-size:21px}
+.nav{display:flex;gap:26px;font-size:14px;color:var(--text-3);margin-left:6px}
+.nav a{position:relative;transition:transform .2s cubic-bezier(.34,1.4,.64,1),color .2s}
+.nav a::after{content:"";position:absolute;left:0;right:0;bottom:-5px;height:2px;background:var(--course);transform:scaleX(0);transform-origin:left;transition:transform .3s}
+.nav a:hover{color:var(--text);transform:translateY(-2px)}.nav a:hover::after{transform:scaleX(1)}
+.nav a.on{color:var(--text);font-weight:700}.nav a.on::after{transform:scaleX(1)}
+.seg{margin-left:auto;display:flex;gap:3px;background:var(--panel);padding:3px;border-radius:8px;border:1px solid var(--line-soft)}
+.seg button{font-family:var(--f-mono);font-size:11.5px;font-weight:600;letter-spacing:.04em;padding:7px 12px;border-radius:6px;color:var(--text-3);transition:transform .14s}
+.seg button.on{background:var(--course);color:#fff}
+.hsubmit{font-family:var(--f-body);font-size:12.5px;font-weight:700;letter-spacing:.01em;padding:9px 17px;border-radius:8px;color:#fff;background:color-mix(in srgb,var(--gold-ink) 78%,var(--brand));border:1px solid color-mix(in srgb,var(--gold-ink) 52%,#000);display:inline-flex;align-items:center;gap:8px;transition:transform .16s,box-shadow .2s}
+.hsubmit:hover{transform:translateY(-1px);box-shadow:0 6px 18px color-mix(in srgb,var(--gold-ink) 26%,transparent)}
+
+.subbar{display:flex;align-items:center;justify-content:space-between;padding:18px 0 4px}
+.back{display:inline-flex;align-items:center;gap:8px;font-family:var(--f-mono);font-size:11.5px;letter-spacing:.04em;color:var(--text-3);padding:6px 0;transition:color .16s}
+.back:hover{color:var(--course)}
+.crumb{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-4)}
+
+.hero{text-align:center;padding:24px 0 6px}
+.hero .ck{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-ink);font-weight:600;margin-bottom:11px}
+.hero h1{font-family:var(--f-display);font-weight:800;letter-spacing:-.03em;font-size:44px;line-height:1}
+.hero h1 em{font-style:normal;position:relative}
+.hero h1 em::before{content:"";position:absolute;left:-.04em;right:-.04em;top:.46em;bottom:.06em;background:color-mix(in srgb,var(--course) 26%,transparent);transform:rotate(-.5deg);z-index:-1;border-radius:2px}
+.hero .sub{color:var(--text-3);font-size:14.5px;margin-top:12px}
+
+.layout{display:grid;grid-template-columns:1fr 320px;gap:26px;align-items:start;padding:34px 0 90px}
+@media(max-width:860px){.layout{grid-template-columns:1fr}}
+
+.secblock{padding:34px 0 0}
+.secblock .bh{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:15px}
+.secblock .bh h2{font-family:var(--f-display);font-weight:800;letter-spacing:-.01em;font-size:17px}
+.secblock .bh .bn{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-4)}
+.secs{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.secs[data-count="5"]{grid-template-columns:repeat(5,1fr);gap:11px}
+@media(max-width:900px){.secs[data-count="5"]{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:760px){.secs,.secs[data-count="5"]{grid-template-columns:1fr}}
+.sec{--sec:var(--brand);position:relative;overflow:hidden;border-radius:13px;cursor:pointer;
+  border:1px solid color-mix(in srgb,var(--sec) 22%,var(--line-soft));
+  background:color-mix(in srgb,var(--sec) 5%,var(--panel-2));
+  transition:transform .2s cubic-bezier(.34,1.4,.5,1),border-color .18s,box-shadow .18s}
+.sec:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--sec) 42%,var(--line));box-shadow:0 10px 26px color-mix(in srgb,var(--sec) 14%,transparent)}
+.sec.on{border:2px solid color-mix(in srgb,var(--sec) 72%,#15120f);background:color-mix(in srgb,var(--sec) 9%,var(--panel-2))}
+.sec::before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:var(--sec);opacity:.5;transition:opacity .18s}
+.sec.on::before{opacity:1}
+.sec::before{z-index:4}
+.sfill{position:absolute;left:0;right:0;bottom:0;height:0;z-index:1;
+  background:color-mix(in srgb,var(--sec) 20%,var(--panel-2));
+  transition:height .55s cubic-bezier(.3,.55,.35,1)}
+.sfill .seawave-h{position:absolute;left:0;top:-14px;width:100%;height:28px}
+.sfill .seawave-h path{fill:color-mix(in srgb,var(--sec) 20%,var(--panel-2))}
+.sec.on .sfill{height:112%}
+.sec.locked{opacity:.6;cursor:not-allowed;background:var(--panel-2);border-color:var(--line-soft)}
+.sec.locked:hover{transform:none;border-color:var(--line-soft);box-shadow:none}
+.sec.locked::before{opacity:.22}
+.sec.locked .sdot{background:var(--text-4)}
+.sec.locked .stop h3{color:var(--text-3)}
+.sec.locked .sfill{display:none}
+.slock{margin-top:12px;font-family:var(--f-mono);font-size:9.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-4);display:flex;align-items:center;gap:6px}
+.sface{position:relative;z-index:3;display:flex;flex-direction:column;gap:0;padding:20px 20px 18px}
+.stop{display:flex;align-items:center;gap:10px}
+.sdot{width:11px;height:11px;border-radius:3px;background:var(--sec);flex:0 0 auto}
+.stop h3{font-family:var(--f-display);font-weight:800;font-size:21px;letter-spacing:-.01em;color:var(--text)}
+.spart{font-family:var(--f-mono);font-size:8.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--sec);background:color-mix(in srgb,var(--sec) 14%,var(--panel));border:1px solid color-mix(in srgb,var(--sec) 30%,var(--line-soft));border-radius:5px;padding:3px 7px}
+.secs[data-count="5"] .sface{padding:17px 15px 15px}
+.secs[data-count="5"] .stop h3{font-size:18px}
+.secs[data-count="5"] .spct{font-size:26px}
+.secs[data-count="5"] .sm{gap:12px;margin:13px 0 14px}
+.sfull{font-family:var(--f-mono);font-size:10px;letter-spacing:.02em;color:var(--text-2);font-weight:500;margin:7px 0 0;line-height:1.4}
+.sm{display:flex;gap:16px;margin:15px 0 16px;padding:13px 0;border-top:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);font-family:var(--f-mono);font-size:10.5px;letter-spacing:.02em;color:var(--text-3)}
+.sm b{color:var(--text-2)}
+.sbtm{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.sstats{display:flex;flex-direction:column;margin:16px 0 2px;border-top:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft)}
+.sstat{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line-soft)}
+.sstat:last-child{border-bottom:none}
+.sstat .k{font-family:var(--f-mono);font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-2)}
+.sstat .v{font-family:var(--f-mono);font-weight:400;font-size:16px;color:color-mix(in srgb,var(--sec) 55%,var(--text))}
+.sgo{display:flex;align-items:center;justify-content:space-between;font-family:var(--f-mono);font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:color-mix(in srgb,var(--sec) 70%,var(--text-2))}
+.sgo-a{font-size:14px;transition:transform .18s}
+.sec:hover .sgo-a{transform:translateX(4px)}
+.secs[data-count="5"] .sstats{margin:12px 0 11px}
+.secs[data-count="5"] .sstat{padding:8px 0}
+.secs[data-count="5"] .sstat .v{font-size:14px}
+.sbest{display:flex;flex-direction:column}
+.sbest .bl{font-family:var(--f-mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-4);margin-bottom:3px}
+.spct{font-family:var(--f-display);font-weight:800;font-size:30px;line-height:1;letter-spacing:-.02em;color:color-mix(in srgb,var(--sec) 70%,var(--text))}
+.spct small{font-size:13px;font-weight:600;color:var(--text-4)}
+.smini{width:100%;flex:1;height:6px;border-radius:4px;background:color-mix(in srgb,var(--sec) 12%,var(--panel));overflow:hidden;position:relative;border:1px solid color-mix(in srgb,var(--sec) 28%,var(--line-soft));margin-bottom:5px}
+.smini i{position:absolute;left:0;top:0;bottom:0;width:0;background:color-mix(in srgb,var(--sec) 70%,var(--panel));transition:width 1s cubic-bezier(.4,0,.2,1)}
+
+/* analysis band underneath */
+.analysis{margin-top:24px;display:grid;grid-template-columns:1fr 1.5fr;gap:18px;padding-bottom:90px}
+@media(max-width:760px){.analysis{grid-template-columns:1fr}}
+.card{border:1px solid var(--line-soft);border-radius:13px;background:color-mix(in srgb,var(--brand) 4%,var(--panel-2));padding:22px}
+.card .ch{font-family:var(--f-mono);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);margin-bottom:15px}
+.selname{font-family:var(--f-display);font-weight:800;font-size:24px;letter-spacing:-.02em;margin-bottom:3px}
+.selfull{font-family:var(--f-mono);font-size:10.5px;color:var(--text-4);letter-spacing:.02em;margin-bottom:16px}
+.stat{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line-soft)}
+.stat:last-of-type{border-bottom:none}
+.stat .sl{font-size:13px;color:var(--text-3)}
+.stat .sv{font-family:var(--f-mono);font-weight:600;font-size:14px;color:var(--text)}
+.beginwrap{display:flex;flex-direction:column}
+.instr{list-style:none;margin:4px 0 auto;padding:0}
+.instr li{display:flex;gap:11px;font-size:13px;color:var(--text-2);padding:7px 0;line-height:1.45}
+.instr li::before{content:"";width:6px;height:6px;border-radius:2px;background:var(--course);flex:0 0 auto;margin-top:7px}
+.cheer{margin-top:auto;padding:13px 15px;border-radius:9px;background:color-mix(in srgb,var(--course) 8%,var(--panel-2));border:1px solid color-mix(in srgb,var(--course) 22%,var(--line-soft));font-size:13.5px;font-weight:600;color:var(--gold-ink);line-height:1.45}
+.startrow{display:flex;align-items:center;gap:16px;margin-top:16px;padding-top:16px;border-top:1px solid var(--line-soft)}
+.startbtn{font-family:var(--f-body);font-size:15px;font-weight:700;padding:14px 30px;border-radius:10px;color:#fff;background:var(--course);border:1px solid color-mix(in srgb,var(--course) 70%,#000);display:inline-flex;align-items:center;justify-content:center;gap:10px;transition:transform .16s,box-shadow .2s}
+.startbtn:hover{transform:translateY(-2px);box-shadow:0 10px 30px color-mix(in srgb,var(--course) 35%,transparent)}
+.startnote{font-family:var(--f-mono);font-size:10px;letter-spacing:.04em;color:var(--text-4)}
+.modepick{display:flex;gap:4px;background:var(--panel);padding:4px;border-radius:9px;border:1px solid var(--line-soft);margin-bottom:16px}
+.modepick button{flex:1;font-family:var(--f-mono);font-size:11px;font-weight:600;letter-spacing:.03em;padding:9px;border-radius:6px;color:var(--text-3);transition:all .16s}
+.modepick button.on{background:color-mix(in srgb,var(--course) 16%,var(--panel));color:var(--text)}
+
+.rev{opacity:0;transform:translateY(14px)}
+.rev.in{opacity:1;transform:none;transition:opacity .55s ease,transform .55s cubic-bezier(.2,.7,.3,1)}
+@media(max-width:760px){.nav{display:none}.hero h1{font-size:32px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body data-exam="CAT">
+<div class="wrap">
+  <div class="subbar">
+    <button class="back">&larr; Full Mocks</button>
+    <div class="crumb">Full Mock 05 &middot; Section Select</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <section class="hero rev">
+    <h1>Mock 5</h1>
+    <p class="sub">A full mock runs all sections. Pick the one to attempt first; the rest follow in order. All the best :)</p>
+  </section>
+
+  <div class="secblock">
+    <div class="bh"><h2>Sections in this mock</h2><span class="bn" id="bn">3 sections &middot; 62 questions &middot; 120 min</span></div>
+    <div class="secs" id="secs" data-count="3"></div>
+  </div>
+
+  <div class="analysis rev">
+    <div class="card">
+      <div class="ch">Starting with</div>
+      <div class="selname" id="selName">VARC</div>
+      <div class="selfull" id="selFull">Verbal Ability &amp; Reading Comprehension</div>
+      <div class="stat" style="margin-top:6px"><span class="sl">Questions</span><span class="sv" id="stQ">24</span></div>
+      <div class="stat"><span class="sl">Duration</span><span class="sv" id="stT">40 min</span></div>
+      <div class="stat" id="stMarkRow"><span class="sl">Marking</span><span class="sv">+3 / &minus;1</span></div>
+    </div>
+
+    <div class="card beginwrap">
+      <div class="ch">Before you begin</div>
+      <ul class="instr">
+        <li>The full mock runs all sections back to back; the timer does not pause between them.</li>
+        <li>You may flag and revisit questions within the current section only.</li>
+        <li id="instrMark">Each correct answer earns +3; each wrong answer loses 1 mark.</li>
+        <li>Your full analysis unlocks the moment you submit the mock.</li>
+      </ul>
+      <div class="cheer">All the best &mdash; take a breath and back yourself. You&rsquo;ve got this :)</div>
+      <div class="startrow">
+        <button class="startbtn">Start <span id="startName">VARC</span> <span>&rarr;</span></button>
+        <span class="startnote">Section timer starts on begin</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* section data per exam. GRE = 5 boxes: Writing + Verbal (2 parts) + Quant (2 parts) */
+var SECTIONS={
+  CAT:[
+    {name:"VARC", full:"Verbal Ability &amp; Reading Comprehension", q:24, t:40, best:71, sec:"--varc"},
+    {name:"DILR", full:"Data Interpretation &amp; Logical Reasoning", q:20, t:40, best:54, sec:"--dilr"},
+    {name:"QA",   full:"Quantitative Ability", q:18, t:40, best:82, sec:"--qa"}
+  ],
+  GMAT:[
+    {name:"Quant",  full:"Quantitative Reasoning", q:21, t:45, best:68, sec:"--qa"},
+    {name:"Verbal", full:"Verbal Reasoning", q:23, t:45, best:74, sec:"--varc"},
+    {name:"DI",     full:"Data Insights", q:20, t:45, best:61, sec:"--dilr"}
+  ],
+  GRE:[
+    {name:"Writing", full:"Analytical Writing", q:1, t:30, best:63, sec:"--dilr", unit:"task"},
+    {name:"Verbal",  full:"Verbal Reasoning", q:12, t:18, best:70, sec:"--varc", part:"Part 1"},
+    {name:"Quant",   full:"Quantitative Reasoning", q:12, t:21, best:78, sec:"--qa", part:"Part 1"},
+    {name:"Verbal",  full:"Verbal Reasoning", q:13, t:23, best:70, sec:"--varc", part:"Part 2", locked:"Part 1"},
+    {name:"Quant",   full:"Quantitative Reasoning", q:13, t:26, best:78, sec:"--qa", part:"Part 2", locked:"Part 1"}
+  ]
+};
+
+var secsEl=document.getElementById("secs");
+var reduceM=matchMedia("(prefers-reduced-motion:reduce)").matches;
+
+function unitLabel(q,u){var w=u||"questions"; if(w==="questions"&&q===1)w="question"; return w;}
+
+function buildCard(s,active){
+  var full=s.full.replace(/&amp;/g," &amp; ").replace(/\s+/g," ");
+  var partChip=s.part?'<span class="spart">'+s.part+'</span>':'';
+  var isLock=!!s.locked;
+  var lockNote=isLock?'<div class="slock">&#128274; Unlocks after '+s.locked+'</div>':'';
+  return '<div class="sec'+(active&&!isLock?' on':'')+(isLock?' locked':'')+'" style="--sec:var('+s.sec+')"'+
+    ' data-name="'+s.name+'" data-full="'+s.full+'" data-part="'+(s.part||'')+'"'+
+    ' data-q="'+s.q+'" data-t="'+s.t+'" data-best="'+s.best+'" data-unit="'+(s.unit||'questions')+'"'+
+    ' data-locked="'+(s.locked||'')+'">'+
+    '<div class="sfill"><svg class="seawave-h" viewBox="0 0 200 20" preserveAspectRatio="none"><path d=""/></svg></div>'+
+    '<div class="sface">'+
+      '<div class="stop"><span class="sdot"></span><h3>'+s.name+'</h3>'+partChip+'</div>'+
+      '<div class="sfull">'+s.full+'</div>'+
+      '<div class="sstats">'+
+        '<div class="sstat"><span class="k">Questions</span><span class="v">'+s.q+'</span></div>'+
+        '<div class="sstat"><span class="k">Duration</span><span class="v">'+s.t+' min</span></div>'+
+      '</div>'+
+      lockNote+
+    '</div></div>';
+}
+
+function renderSections(exam){
+  var list=SECTIONS[exam]||SECTIONS.CAT;
+  secsEl.setAttribute("data-count", list.length);
+  secsEl.innerHTML=list.map(function(s,i){return buildCard(s,i===0);}).join("");
+  // summary strip
+  var totQ=list.reduce(function(a,s){return a+s.q;},0);
+  var totT=list.reduce(function(a,s){return a+s.t;},0);
+  document.getElementById("bn").innerHTML=list.length+" sections &middot; "+totQ+" items &middot; "+totT+" min";
+  // marking is CAT-only
+  var showMark = (exam==="CAT");
+  document.getElementById("stMarkRow").style.display = showMark ? "" : "none";
+  document.getElementById("instrMark").textContent = showMark
+    ? "Each correct answer earns +3; each wrong answer loses 1 mark."
+    : "Scored on a scaled band; there is no negative marking.";
+  // bind only unlocked; select first unlocked
+  secsEl.querySelectorAll(".sec").forEach(function(el){
+    if(el.classList.contains("locked")) return;
+    el.addEventListener("click",function(){selectSec(el);});
+  });
+  selectSec(secsEl.querySelector(".sec:not(.locked)"));
+  // animate fills
+  setTimeout(function(){
+    secsEl.querySelectorAll("[data-fill]").forEach(function(f){f.style.width=f.getAttribute("data-fill")+"%";});
+  },120);
+}
+
+function selectSec(el){
+  if(!el || el.classList.contains("locked"))return;
+  var all=[].slice.call(secsEl.querySelectorAll(".sec"));
+  all.forEach(function(x){x.classList.remove("on");});
+  el.classList.add("on");
+  var nm=el.getAttribute("data-name"), part=el.getAttribute("data-part");
+  var label=nm+(part?" "+part:"");
+  document.getElementById("selName").innerHTML=nm+(part?' <span style="font-size:14px;color:var(--text-4);font-weight:600">&middot; '+part+'</span>':'');
+  document.getElementById("selFull").innerHTML=el.getAttribute("data-full");
+  var unit=el.getAttribute("data-unit"), q=+el.getAttribute("data-q");
+  document.getElementById("stQ").textContent=q+" "+unitLabel(q,unit);
+  document.getElementById("stT").textContent=el.getAttribute("data-t")+" min";
+  document.getElementById("startName").textContent=label;
+}
+
+/* exam switch: re-accent + re-render sections */
+document.querySelectorAll("#seg button").forEach(function(b){
+  b.addEventListener("click",function(){
+    document.querySelectorAll("#seg button").forEach(function(x){x.classList.remove("on");});
+    b.classList.add("on");
+    var exam=b.textContent.trim();
+    document.body.setAttribute("data-exam", exam);
+    renderSections(exam);
+  });
+});
+
+renderSections("CAT");
+
+/* seawave horizon on the liquid selection fill */
+function seaPathH(ph,t){
+  var W=200, base=9, d="";
+  for(var x=0;x<=W;x+=4){
+    var y=base
+      + 3.0*Math.sin(0.040*x + 2.7*t + ph)
+      + 1.9*Math.sin(0.086*x - 2.2*t + ph*1.5)
+      + 1.1*Math.sin(0.135*x + 1.7*t + ph*0.7)
+      + 0.6*Math.sin(0.021*x + 1.1*t + ph*0.4);
+    d+=(x===0?"M":"L")+x+" "+y.toFixed(2)+" ";
+  }
+  return d+"L"+W+" 20 L0 20 Z";
+}
+(function startSea(){
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function frame(t){
+    document.querySelectorAll(".sfill .seawave-h path").forEach(function(p){
+      if(!p.getAttribute("data-phase")) p.setAttribute("data-phase",(Math.random()*6.28).toFixed(2));
+      p.setAttribute("d", seaPathH(parseFloat(p.getAttribute("data-phase")), t));
+    });
+  }
+  if(reduce){ frame(0); return; }
+  var t0=Date.now();
+  (function tick(){ frame((Date.now()-t0)/1000); requestAnimationFrame(tick); })();
+})();
+
+if("IntersectionObserver" in window && !reduceM){
+  var io=new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting){en.target.classList.add("in");io.unobserve(en.target);}});},{threshold:.06});
+  document.querySelectorAll(".rev").forEach(function(i){io.observe(i);});
+}else{document.querySelectorAll(".rev").forEach(function(i){i.classList.add("in");});}
+</script>
+<script>
+(function(){
+  var p=new URLSearchParams(location.search);
+  var exam=(p.get('exam')||'cat').toLowerCase(), EX=exam.toUpperCase();
+  document.body.setAttribute('data-exam',EX);
+  try{ if(typeof renderSections==='function') renderSections(EX); }catch(e){}
+  function postH(){try{parent.postMessage({type:'mockFrameHeight',height:document.documentElement.scrollHeight},'*');}catch(e){}}
+window.addEventListener('load',function(){postH();setTimeout(postH,300);setTimeout(postH,1200);});
+window.addEventListener('resize',postH);
+try{new ResizeObserver(postH).observe(document.body);}catch(e){}
+  document.querySelectorAll('.back').forEach(function(b){b.addEventListener('click',function(){top.location.href='/mocks/'+exam+'/full';});});
+  document.addEventListener('click',function(e){
+    var s=e.target.closest?e.target.closest('.startbtn'):null;
+    if(s){top.location.href='/mocks/'+exam+'/full/attempt';}
+  });
+})();
+</script>
+</body>
+</html>

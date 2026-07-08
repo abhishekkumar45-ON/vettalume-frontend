@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import MockFrame from "@/components/MockFrame";
 import { EXAM_SLUGS, isExamSlug } from "@/app/examCatalog";
@@ -15,10 +14,14 @@ export async function generateMetadata({
   params: Promise<{ exam: string }>;
 }): Promise<Metadata> {
   const { exam } = await params;
-  return { title: `Full mocks · ${exam.toUpperCase()} | VettaLume` };
+  return { title: `Full mock · ${exam.toUpperCase()} | VettaLume` };
 }
 
-export default async function FullMockPage({ params }: { params: Promise<{ exam: string }> }) {
+export default async function FullMockAttemptPage({
+  params
+}: {
+  params: Promise<{ exam: string }>;
+}) {
   const { exam } = await params;
   if (!isExamSlug(exam)) {
     notFound();
@@ -26,8 +29,7 @@ export default async function FullMockPage({ params }: { params: Promise<{ exam:
   return (
     <>
       <SiteHeader />
-      <MockFrame src={`/full-mock.html?exam=${exam}`} title={`${exam.toUpperCase()} full mocks`} />
-      <SiteFooter />
+      <MockFrame src={`/full-mock-answer.html?exam=${exam}`} title={`${exam.toUpperCase()} full mock`} fill />
     </>
   );
 }

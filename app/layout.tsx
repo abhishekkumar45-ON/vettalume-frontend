@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Hanken_Grotesk, Montserrat } from "next/font/google";
+import Providers from "@/components/Providers";
 import "./globals.css";
 
 const hankenGrotesk = Hanken_Grotesk({
@@ -28,7 +29,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${hankenGrotesk.variable} ${montserrat.variable}`}>{children}</body>
+      <body className={`${hankenGrotesk.variable} ${montserrat.variable}`}>
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }

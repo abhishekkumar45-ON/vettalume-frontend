@@ -9,42 +9,7 @@ import {
 } from "lucide-react";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
-
-const courseData = {
-  cat: {
-    label: "CAT",
-    band: "cat",
-    count: 5,
-    plans: [
-      ["Spark", "Test the waters", "₹499"],
-      ["Kindle", "Build consistency", "₹999"],
-      ["Glow", "Most popular", "₹1,999"],
-      ["Blaze", "Serious prep", "₹3,499"],
-      ["Lumen", "Full route", "₹5,999"]
-    ]
-  },
-  gmat: {
-    label: "GMAT",
-    band: "gmat",
-    count: 4,
-    plans: [
-      ["Spark", "Test the waters", "₹999"],
-      ["Kindle", "Build consistency", "₹1,999"],
-      ["Glow", "Most popular", "₹3,999"],
-      ["Lumen", "Full route", "₹11,999"]
-    ]
-  },
-  gre: {
-    label: "GRE",
-    band: "gre",
-    count: 3,
-    plans: [
-      ["Spark", "Test the waters", "₹799"],
-      ["Glow", "Most popular", "₹2,999"],
-      ["Lumen", "Full route", "₹8,999"]
-    ]
-  }
-} as const;
+import { EXAM_SLUGS, getCatalog } from "@/app/examCatalog";
 
 const includedItems: Array<{ icon: LucideIcon; title: string; text: string }> = [
   {
@@ -70,7 +35,7 @@ const includedItems: Array<{ icon: LucideIcon; title: string; text: string }> = 
 ];
 
 export function generateStaticParams() {
-  return Object.keys(courseData).map((exam) => ({ exam }));
+  return EXAM_SLUGS.map((exam) => ({ exam }));
 }
 
 export default async function ProductListingPage({
@@ -79,15 +44,15 @@ export default async function ProductListingPage({
   params: Promise<{ exam: string }>;
 }) {
   const { exam } = await params;
-  const data = courseData[exam.toLowerCase() as keyof typeof courseData] ?? courseData.cat;
+  const data = getCatalog(exam.toLowerCase());
 
   return (
     <>
-      <SiteHeader />
+      <SiteHeader showExamSwitcher />
       <main className="coursesPage">
         <section className={`courseColorBand ${data.band}`} aria-label={`${data.label} course theme`} />
         <section className="courseListing">
-          {data.plans.slice(0, data.count).map(([name, tag, price]) => (
+          {data.plans.map(({ name, tag, price }) => (
             <article className="courseProduct" key={`${data.label}-${name}`}>
               <div className="courseProductIntro">
                 <h2>{name} <span>— {tag}</span></h2>

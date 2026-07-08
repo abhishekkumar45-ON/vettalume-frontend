@@ -15,10 +15,14 @@ export async function generateMetadata({
   params: Promise<{ exam: string }>;
 }): Promise<Metadata> {
   const { exam } = await params;
-  return { title: `Full mocks · ${exam.toUpperCase()} | VettaLume` };
+  return { title: `Section select · ${exam.toUpperCase()} | VettaLume` };
 }
 
-export default async function FullMockPage({ params }: { params: Promise<{ exam: string }> }) {
+export default async function FullMockSelectPage({
+  params
+}: {
+  params: Promise<{ exam: string }>;
+}) {
   const { exam } = await params;
   if (!isExamSlug(exam)) {
     notFound();
@@ -26,7 +30,7 @@ export default async function FullMockPage({ params }: { params: Promise<{ exam:
   return (
     <>
       <SiteHeader />
-      <MockFrame src={`/full-mock.html?exam=${exam}`} title={`${exam.toUpperCase()} full mocks`} />
+      <MockFrame src={`/full-mock-select.html?exam=${exam}`} title={`${exam.toUpperCase()} section select`} />
       <SiteFooter />
     </>
   );

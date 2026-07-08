@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Bell,
   CreditCard,
@@ -11,9 +11,9 @@ import {
   Shield,
   UserRound
 } from "lucide-react";
-import AuthModal, { type AuthModalMode } from "@/components/AuthModal";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
+import { useUser } from "@/components/UserContext";
 
 type AccountSettingsShellProps = {
   active: "account" | "security" | "subscription" | "preferences" | "notifications" | "privacy";
@@ -30,7 +30,13 @@ const settingsLinks = [
 ] as const;
 
 export default function AccountSettingsShell({ active, children }: AccountSettingsShellProps) {
-  const [authMode, setAuthMode] = useState<AuthModalMode | null>(null);
+  const { logout } = useUser();
+  const router = useRouter();
+
+  function handleLogout() {
+    logout();
+    router.replace("/");
+  }
 
   return (
     <>
@@ -58,11 +64,7 @@ export default function AccountSettingsShell({ active, children }: AccountSettin
                 </Link>
               );
             })}
-            <button
-              className="logoutLink"
-              type="button"
-              onClick={() => setAuthMode("login")}
-            >
+            <button className="logoutLink" type="button" onClick={handleLogout}>
               <LogOut size={18} aria-hidden="true" />
               Log out
             </button>
@@ -71,7 +73,6 @@ export default function AccountSettingsShell({ active, children }: AccountSettin
         </section>
       </main>
       <SiteFooter />
-      <AuthModal mode={authMode} onClose={() => setAuthMode(null)} onModeChange={setAuthMode} />
     </>
   );
 }

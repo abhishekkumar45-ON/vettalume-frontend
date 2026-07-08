@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VettaLume · Full Mock</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#e8e9e6; --ink-2:#e3e5e1;
+  --panel:#f0f1ee; --panel-2:#e9ebe7; --panel-3:#dcded9;
+  --line:rgba(22,26,22,.14); --line-soft:rgba(22,26,22,.085);
+  --text:#181a18; --text-2:#43473f; --text-3:#74786e; --text-4:#9a9d93;
+  --brand:#c8932e; --gold-ink:#8a5d16;
+  --varc:#b2847a; --dilr:#7d9a84; --qa:#797ea4;
+  --ok:#5c8f72; --warn:#bb7d49; --err:#b2635a;
+  --maxw:1180px;
+  --f-display:"Hanken Grotesk",system-ui,sans-serif;
+  --f-body:"Hanken Grotesk",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+  --course:#c8932e;
+}
+body[data-exam="CAT"]{--course:#c8932e}
+body[data-exam="GMAT"]{--course:#a8705f}
+body[data-exam="GRE"]{--course:#6a6f9c}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--f-body);color:var(--text);-webkit-font-smoothing:antialiased;line-height:1.5;
+  min-height:100vh;position:relative;overflow-x:hidden;background:linear-gradient(168deg,var(--ink),var(--ink-2))}
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(900px 500px at 50% -10%, color-mix(in srgb,var(--course) 12%,transparent), transparent 62%)}
+.wrap{position:relative;z-index:1;max-width:var(--maxw);margin:0 auto;padding:0 28px}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+
+/* test chrome */
+.testbar{position:sticky;top:0;z-index:50;height:60px;display:flex;align-items:center;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--ink) 94%,transparent),color-mix(in srgb,var(--ink) 66%,transparent));
+  backdrop-filter:blur(12px) saturate(1.2);border-bottom:1px solid color-mix(in srgb,var(--course) 30%,var(--line))}
+.testbar .wrap{display:flex;align-items:center;gap:18px;width:100%}
+.logo{display:flex;align-items:center;gap:9px;font-weight:800;letter-spacing:-.02em;font-size:19px}
+.tmock{font-family:var(--f-mono);font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-3);border-left:1px solid var(--line);padding-left:18px}
+.tmock b{color:var(--course)}
+.seg{margin-left:auto;display:flex;gap:3px;background:var(--panel);padding:3px;border-radius:8px;border:1px solid var(--line-soft)}
+.seg button{font-family:var(--f-mono);font-size:11px;font-weight:600;letter-spacing:.04em;padding:6px 11px;border-radius:6px;color:var(--text-3);transition:transform .14s}
+.seg button.on{background:var(--course);color:#fff}
+.tclock{font-family:var(--f-mono);font-weight:600;font-size:15px;color:var(--gold-ink);background:color-mix(in srgb,var(--course) 9%,var(--panel));border:1px solid color-mix(in srgb,var(--course) 26%,var(--line-soft));border-radius:8px;padding:7px 12px;display:inline-flex;align-items:center;gap:8px}
+.tclock i{width:6px;height:6px;border-radius:50%;background:var(--course);animation:blink 1.4s ease infinite}
+.tclock small{font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-4);font-weight:600}
+@keyframes blink{50%{opacity:.35}}
+.hsubmit{font-family:var(--f-body);font-size:12.5px;font-weight:700;padding:9px 16px;border-radius:8px;color:#fff;background:color-mix(in srgb,var(--gold-ink) 78%,var(--brand));border:1px solid color-mix(in srgb,var(--gold-ink) 52%,#000);transition:transform .16s,box-shadow .2s}
+.hsubmit:hover{transform:translateY(-1px);box-shadow:0 6px 18px color-mix(in srgb,var(--gold-ink) 26%,transparent)}
+.hsubmit.hide{display:none}
+
+/* section progress strip */
+.sectionstrip{position:sticky;top:60px;z-index:40;background:color-mix(in srgb,var(--ink) 80%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line-soft)}
+.sectionstrip .wrap{display:flex;align-items:center;gap:9px;padding:11px 28px}
+.sstriplabel{font-family:var(--f-mono);font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-4);margin-right:4px}
+.spill{display:flex;align-items:center;gap:8px;padding:7px 13px;border-radius:8px;font-family:var(--f-mono);font-size:11px;font-weight:600;letter-spacing:.02em;
+  border:1px solid var(--line-soft);background:var(--panel);color:var(--text-4);transition:all .2s}
+.spill .sp-i{width:16px;height:16px;border-radius:50%;display:grid;place-items:center;font-size:9px;border:1.5px solid var(--text-4);flex:0 0 auto}
+.spill.done{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 40%,var(--line))}
+.spill.done .sp-i{background:var(--ok);border-color:var(--ok);color:#fff}
+.spill.cur{color:var(--text);border-color:color-mix(in srgb,var(--course) 55%,var(--line));background:color-mix(in srgb,var(--course) 10%,var(--panel))}
+.spill.cur .sp-i{background:var(--course);border-color:var(--course);color:#fff}
+.spill.up .sp-i{opacity:.5}
+.striparrow{color:var(--text-4);font-family:var(--f-mono);font-size:12px;flex:0 0 auto}
+.stripprog{margin-left:auto;font-family:var(--f-mono);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-4)}
+
+/* arena */
+.arena{display:grid;grid-template-columns:1fr 250px;gap:24px;padding:24px 0 30px;align-items:start}
+@media(max-width:900px){.arena{grid-template-columns:1fr}}
+
+.qcard{border:1px solid var(--line-soft);border-radius:14px;background:color-mix(in srgb,var(--brand) 4%,var(--panel-2));padding:26px 30px 24px;min-height:440px;display:flex;flex-direction:column}
+.qtop{display:flex;align-items:center;justify-content:space-between;padding-bottom:16px;border-bottom:1px solid var(--line-soft);margin-bottom:20px}
+.qtop .qn{font-family:var(--f-display);font-weight:800;font-size:20px;letter-spacing:-.01em}
+.qtop .qn small{font-family:var(--f-mono);font-size:12px;font-weight:600;color:var(--text-4);letter-spacing:.03em}
+.qtop .qtags{display:flex;gap:9px}
+.tag{font-family:var(--f-mono);font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:5px 10px;border-radius:6px;border:1px solid var(--line-soft);background:var(--panel);color:var(--text-3)}
+.tag.diff{color:var(--gold-ink);border-color:color-mix(in srgb,var(--course) 30%,var(--line-soft))}
+
+.passage{border-left:3px solid color-mix(in srgb,var(--course) 55%,var(--line));padding:2px 0 2px 18px;margin-bottom:20px}
+.passage p{font-size:14.5px;color:var(--text-2);margin:0 0 11px;line-height:1.65}
+.passage p:last-child{margin-bottom:0}
+.qstem{font-size:17px;font-weight:600;color:var(--text);line-height:1.5;margin-bottom:20px}
+
+.opts{display:flex;flex-direction:column;gap:11px;margin-top:auto}
+.opt{display:flex;align-items:center;gap:15px;padding:15px 18px;border:1px solid var(--line);border-radius:10px;background:var(--panel);cursor:pointer;transition:border-color .16s,transform .14s,background .16s}
+.opt:hover{border-color:color-mix(in srgb,var(--course) 42%,var(--line));transform:translateX(2px)}
+.opt .ol{width:28px;height:28px;border-radius:8px;flex:0 0 auto;display:grid;place-items:center;font-family:var(--f-mono);font-size:13px;font-weight:600;border:1px solid var(--line);color:var(--text-3);transition:all .16s}
+.opt .otx{font-size:15.5px;color:var(--text-2)}
+.opt.sel{border-color:var(--course);background:color-mix(in srgb,var(--course) 7%,var(--panel))}
+.opt.sel .ol{background:var(--course);color:#fff;border-color:var(--course)}
+
+/* essay editor (GRE writing) */
+.essay{display:flex;flex-direction:column;gap:14px;margin-top:auto}
+.essay .eprompt{border:1px solid var(--line-soft);border-left:3px solid var(--course);border-radius:8px;background:color-mix(in srgb,var(--course) 5%,var(--panel-2));padding:15px 18px;font-size:14.5px;color:var(--text-2);line-height:1.6}
+.essay textarea{width:100%;min-height:150px;resize:vertical;border:1px solid var(--line);border-radius:10px;background:var(--panel);padding:15px 17px;font-family:var(--f-body);font-size:15px;color:var(--text);line-height:1.6}
+.essay textarea:focus{outline:none;border-color:color-mix(in srgb,var(--course) 50%,var(--line))}
+.essay .ecount{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.04em;color:var(--text-4);align-self:flex-end}
+
+.qactions{display:flex;align-items:center;gap:12px;margin-top:24px;padding-top:20px;border-top:1px solid var(--line-soft)}
+.btn{font-family:var(--f-body);font-size:13.5px;font-weight:600;padding:11px 20px;border-radius:9px;border:1px solid var(--line);display:inline-flex;align-items:center;gap:9px;transition:border-color .16s,background .16s,transform .14s}
+.btn:hover{transform:translateY(-1px)}
+.btn-primary{background:var(--course);color:#fff;border-color:color-mix(in srgb,var(--course) 70%,#000)}
+.btn-primary:hover{box-shadow:0 8px 24px color-mix(in srgb,var(--course) 32%,transparent)}
+.btn-primary.is-finish{background:color-mix(in srgb,var(--gold-ink) 82%,var(--brand));border-color:color-mix(in srgb,var(--gold-ink) 55%,#000)}
+.btn-primary.is-submit{background:var(--gold-ink);border-color:color-mix(in srgb,var(--gold-ink) 55%,#000)}
+.btn-ghost{background:var(--panel);color:var(--text-2)}
+.btn-ghost:hover{border-color:var(--text-3)}
+.btn-flag{background:var(--panel);color:var(--warn);border-color:color-mix(in srgb,var(--warn) 30%,var(--line-soft));margin-right:auto}
+.btn-flag.on{background:color-mix(in srgb,var(--warn) 12%,var(--panel));border-color:var(--warn)}
+.btn.is-off{opacity:.38;cursor:not-allowed;pointer-events:none}
+.btn.is-hidden{display:none}
+
+/* palette rail */
+.prail{position:sticky;top:132px;display:flex;flex-direction:column;gap:16px}
+.pcard{border:1px solid var(--line-soft);border-radius:13px;background:color-mix(in srgb,var(--brand) 4%,var(--panel-2));padding:18px}
+.pcard .pch{font-family:var(--f-mono);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);margin-bottom:5px}
+.pcard .pcsub{font-family:var(--f-mono);font-size:9.5px;letter-spacing:.04em;color:var(--text-4);margin-bottom:13px}
+.pcard .pcsub b{color:var(--course)}
+.pgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.pq{aspect-ratio:1;border-radius:8px;border:1px solid var(--line);background:var(--panel);font-family:var(--f-mono);font-size:12px;font-weight:600;color:var(--text-3);display:grid;place-items:center;cursor:pointer;transition:all .14s}
+.pq:hover{transform:translateY(-2px)}
+.pq.ans{background:color-mix(in srgb,var(--ok) 20%,var(--panel));border-color:color-mix(in srgb,var(--ok) 48%,var(--line));color:var(--ok)}
+.pq.flag{background:color-mix(in srgb,var(--warn) 18%,var(--panel));border-color:color-mix(in srgb,var(--warn) 48%,var(--line));color:var(--warn)}
+.pq.cur{background:var(--course);border-color:var(--course);color:#fff;box-shadow:0 0 0 3px color-mix(in srgb,var(--course) 22%,transparent)}
+.pq.lock{background:var(--panel-3);border-color:var(--line-soft);color:var(--text-4);opacity:.6;cursor:not-allowed}
+.pq.lock:hover{transform:none}
+.pgrid.linear .pq{cursor:default}
+.pgrid.linear .pq:not(.cur):hover{transform:none}
+.plegend{display:flex;flex-direction:column;gap:9px;margin-top:16px;padding-top:14px;border-top:1px solid var(--line-soft)}
+.pl{display:flex;align-items:center;gap:9px;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.02em;color:var(--text-3)}
+.pl i{width:13px;height:13px;border-radius:4px;flex:0 0 auto}
+.summ{display:flex;flex-direction:column;gap:11px}
+.srow{display:flex;align-items:center;justify-content:space-between}
+.srow .sl{font-size:13px;color:var(--text-3)}
+.srow .sv{font-family:var(--f-mono);font-weight:600;font-size:15px}
+
+@media(max-width:640px){.logo span{display:none}.tmock{padding-left:12px}.sectionstrip .wrap{overflow-x:auto}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body data-exam="CAT">
+<div class="testbar">
+  <div class="wrap">
+    <div class="tmock">Mock 5 &middot; <b id="secLabel">VARC</b> &middot; <span id="secCount">Section 1 / 3</span></div>
+    <div class="seg" id="seg">
+      <button class="on">CAT</button><button>GMAT</button><button>GRE</button>
+    </div>
+    <div class="tclock"><i></i><span id="clock">40:00</span><small>section</small></div>
+    <button class="hsubmit" id="hSubmit">Submit mock</button>
+  </div>
+</div>
+
+<div class="sectionstrip">
+  <div class="wrap" id="strip"></div>
+</div>
+
+<div class="wrap">
+  <div class="arena">
+    <div class="qcard">
+      <div class="qtop">
+        <div class="qn">Question <span id="qNum">01</span> <small id="ofN">/ 24</small></div>
+        <div class="qtags">
+          <span class="tag" id="tType">Reading Comp</span>
+        </div>
+      </div>
+      <div id="qbody"></div>
+      <div class="qactions">
+        <button class="btn btn-flag" id="flagBtn"><svg width="13" height="15" viewBox="0 0 13 15" fill="none"><path d="M1 1 V14 M1 1 H11 L8 4 L11 7 H1" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>Flag for review</button>
+        <button class="btn btn-ghost" id="prevBtn">&larr; Previous</button>
+        <button class="btn btn-ghost" id="clearBtn">Clear</button>
+        <button class="btn btn-primary" id="nextBtn">Save &amp; next <span>&rarr;</span></button>
+      </div>
+    </div>
+
+    <aside class="prail">
+      <div class="pcard">
+        <div class="pch">Question palette</div>
+        <div class="pcsub" id="palSub">Section &middot; <b>VARC</b></div>
+        <div class="pgrid" id="pgrid"></div>
+        <div class="plegend" id="plegend"></div>
+      </div>
+      <div class="pcard">
+        <div class="pch">This section</div>
+        <div class="summ">
+          <div class="srow"><span class="sl">Answered</span><span class="sv" style="color:var(--ok)" id="sAns">0</span></div>
+          <div class="srow" id="sFlagRow"><span class="sl">Flagged</span><span class="sv" style="color:var(--warn)" id="sFlag">0</span></div>
+          <div class="srow"><span class="sl" id="sRemLabel">Not visited</span><span class="sv" style="color:var(--text-3)" id="sRem">0</span></div>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+var LETTERS=["A","B","C","D","E"];
+
+/* full-mock structure: each exam runs multiple sections in order */
+var EXAMS={
+  CAT:[
+    {name:"VARC", t:40, q:24, cur:1, linear:false, diff:"Medium", type:"Reading Comp", passage:
+      "Efficiency, the economists insist, is the market returning to reason after each shock. Yet the returning is never clean: information arrives unevenly, and the people who act on it hoard and hesitate in ways no model fully anticipates.",
+      stem:"The author's primary purpose is to:",
+      opts:["reject market efficiency outright","qualify a familiar claim with a more conditional view","summarise recent behavioural findings","argue that markets are irrational"], sel:1},
+    {name:"DILR", t:40, q:20, cur:1, linear:false, diff:"Hard", type:"Logical Reasoning", passage:
+      "Five analysts (P, Q, R, S, T) are ranked by monthly output. R is above S but below Q. T is not last. P is immediately above S.",
+      stem:"If Q is second, who must be first?",
+      opts:["P","R","T","Cannot be determined"], sel:2},
+    {name:"QA", t:40, q:18, cur:1, linear:false, diff:"Medium", type:"Problem Solving", passage:null,
+      stem:"A shopkeeper marks goods 40% above cost and offers a 25% discount. What is the net profit percentage?",
+      opts:["5%","10%","12.5%","15%"], sel:0}
+  ],
+  GMAT:[
+    {name:"Quant", t:45, q:21, cur:1, linear:true, diff:"Hard", type:"Problem Solving", passage:null,
+      stem:"If x and y are positive integers and 3x + 5y = 47, how many ordered pairs (x, y) satisfy the equation?",
+      opts:["2","3","4","5","6"], sel:1},
+    {name:"Verbal", t:45, q:23, cur:1, linear:true, diff:"Medium", type:"Critical Reasoning", passage:
+      "A city replaced its bus fleet with electric models and reported lower fuel costs. Officials concluded the switch had reduced total operating expenditure.",
+      stem:"Which of the following, if true, most weakens the conclusion?",
+      opts:["Ridership rose after the switch","Maintenance costs for the new fleet doubled","Fuel prices fell citywide that year","Drivers required brief retraining","Electric buses are quieter"], sel:1},
+    {name:"DI", t:45, q:20, cur:1, linear:true, diff:"Hard", type:"Data Insights", passage:
+      "A table shows quarterly revenue (in Cr) for four regions. North: 12, 15, 14, 18. South: 20, 19, 22, 21.",
+      stem:"By what percentage did North's Q4 revenue exceed its Q1 revenue?",
+      opts:["25%","33%","40%","50%","60%"], sel:3}
+  ],
+  GRE:[
+    {name:"Writing", t:30, q:1, cur:1, linear:false, diff:"Essay", type:"Analytical Writing", essay:true,
+      prompt:"Some argue that the surest sign of a healthy society is its willingness to question long-held assumptions. Write a response in which you discuss the extent to which you agree or disagree, developing your position with reasons and examples."},
+    {name:"Verbal", part:"Part 1", t:18, q:12, cur:1, linear:false, diff:"Medium", type:"Text Completion", passage:null,
+      stem:"Though ostensibly ______, the report's careful hedging revealed a reluctance to assign blame.",
+      opts:["damning","conciliatory","exhaustive","impartial","evasive"], sel:3},
+    {name:"Quant", part:"Part 1", t:21, q:12, cur:1, linear:false, diff:"Medium", type:"Quantitative Comparison", passage:
+      "Quantity A: the value of 3^4.   Quantity B: the value of 4^3.",
+      stem:"Compare Quantity A and Quantity B.",
+      opts:["Quantity A is greater","Quantity B is greater","The two are equal","Cannot be determined"], sel:0},
+    {name:"Verbal", part:"Part 2", t:23, q:13, cur:1, linear:false, diff:"Medium", type:"Text Completion", passage:null,
+      stem:"The critic's praise was so ______ that readers struggled to tell admiration from mockery.",
+      opts:["effusive","tepid","equivocal","scathing","muted"], sel:2},
+    {name:"Quant", part:"Part 2", t:26, q:13, cur:1, linear:false, diff:"Hard", type:"Problem Solving", passage:null,
+      stem:"If the average of five consecutive even integers is 24, what is the largest of them?",
+      opts:["26","28","30","32","34"], sel:1}
+  ]
+};
+
+var S={exam:"CAT", secIdx:0, done:{}};
+var secsEl, timer=null, tRemain=0;
+
+function sections(){return EXAMS[S.exam];}
+function curSec(){return sections()[S.secIdx];}
+function secTitle(s){return s.name+(s.part?" "+s.part:"");}
+
+function renderStrip(){
+  var s=curSec();
+  var h='<span class="spill cur">'+secTitle(s)+'</span>'+
+    '<span class="stripprog">Section '+(S.secIdx+1)+' of '+sections().length+'</span>';
+  document.getElementById("strip").innerHTML=h;
+}
+
+function renderQuestion(){
+  var s=curSec();
+  document.getElementById("secLabel").textContent=secTitle(s);
+  document.getElementById("secCount").textContent="Section "+(S.secIdx+1)+" / "+sections().length;
+  document.getElementById("tType").textContent=s.type;
+  document.getElementById("qNum").textContent=(s.cur<10?"0":"")+s.cur;
+  document.getElementById("ofN").textContent="/ "+s.q;
+  document.getElementById("palSub").innerHTML="Section &middot; <b>"+secTitle(s)+"</b>";
+
+  var body=document.getElementById("qbody"), html="";
+  if(s.essay){
+    html='<div class="essay"><div class="eprompt">'+s.prompt+'</div>'+
+      '<textarea id="essayArea" placeholder="Type your response here..."></textarea>'+
+      '<span class="ecount" id="eCount">0 words</span></div>';
+    body.innerHTML=html;
+    var ta=document.getElementById("essayArea");
+    ta.addEventListener("input",function(){
+      var w=ta.value.trim()?ta.value.trim().split(/\s+/).length:0;
+      document.getElementById("eCount").textContent=w+" words";
+    });
+  }else{
+    if(s.passage) html+='<div class="passage"><p>'+s.passage+'</p></div>';
+    html+='<div class="qstem">'+s.stem+'</div><div class="opts" id="opts">';
+    s.opts.forEach(function(o,i){ html+='<div class="opt'+(i===s.sel?" sel":"")+'"><div class="ol">'+LETTERS[i]+'</div><div class="otx">'+o+'</div></div>'; });
+    html+='</div>';
+    body.innerHTML=html;
+    document.querySelectorAll("#opts .opt").forEach(function(o){
+      o.addEventListener("click",function(){document.querySelectorAll("#opts .opt").forEach(function(x){x.classList.remove("sel");});o.classList.add("sel");});
+    });
+  }
+  document.getElementById("flagBtn").classList.toggle("is-hidden", !!s.linear || !!s.essay);
+  document.getElementById("clearBtn").classList.toggle("is-hidden", !!s.essay);
+  renderPalette();
+  renderLegend();
+  updateActions();
+}
+
+function renderPalette(){
+  var s=curSec(), grid=document.getElementById("pgrid"), g="";
+  grid.classList.toggle("linear", !!s.linear);
+  var mixed=["ans","ans","flag","ans","","ans","flag","ans","ans","","ans","flag","","ans","ans","ans","","flag","ans","ans","","ans","ans"];
+  for(var i=1;i<=s.q;i++){
+    var cls="";
+    if(i===s.cur) cls="cur";
+    else if(s.linear) cls = i<s.cur ? "ans" : "lock";
+    else cls = mixed[i-1]||"";
+    g+='<div class="pq '+cls+'">'+i+'</div>';
+  }
+  grid.innerHTML=g;
+}
+
+function renderLegend(){
+  var s=curSec(), el=document.getElementById("plegend");
+  if(s.linear){
+    el.innerHTML='<span class="pl"><i style="background:color-mix(in srgb,var(--ok) 20%,var(--panel));border:1px solid color-mix(in srgb,var(--ok) 48%,var(--line))"></i>Answered</span>'+
+      '<span class="pl"><i style="background:var(--course);border:1px solid var(--course)"></i>Current</span>'+
+      '<span class="pl"><i style="background:var(--panel-3);border:1px solid var(--line-soft)"></i>Locked</span>';
+    document.getElementById("sFlagRow").style.display="none";
+    document.getElementById("sRemLabel").textContent="Locked";
+  }else{
+    el.innerHTML='<span class="pl"><i style="background:color-mix(in srgb,var(--ok) 20%,var(--panel));border:1px solid color-mix(in srgb,var(--ok) 48%,var(--line))"></i>Answered</span>'+
+      '<span class="pl"><i style="background:color-mix(in srgb,var(--warn) 18%,var(--panel));border:1px solid color-mix(in srgb,var(--warn) 48%,var(--line))"></i>Flagged</span>'+
+      '<span class="pl"><i style="background:var(--panel);border:1px solid var(--line)"></i>Not visited</span>';
+    document.getElementById("sFlagRow").style.display="";
+    document.getElementById("sRemLabel").textContent="Not visited";
+  }
+  // section summary counts (illustrative)
+  var s2=curSec();
+  if(s2.linear){
+    document.getElementById("sAns").textContent=s2.cur-1;
+    document.getElementById("sRem").textContent=s2.q-s2.cur;
+  }else{
+    document.getElementById("sAns").textContent=Math.min(s2.cur, s2.q);
+    document.getElementById("sRem").textContent=Math.max(s2.q-s2.cur,0);
+  }
+}
+
+function updateActions(){
+  var s=curSec();
+  var lastQ = s.cur >= s.q;
+  var lastSec = S.secIdx >= sections().length-1;
+  var nb=document.getElementById("nextBtn");
+  nb.classList.remove("is-finish","is-submit");
+  if(!lastQ){ nb.innerHTML='Save &amp; next <span>&rarr;</span>'; }
+  else if(!lastSec){ nb.innerHTML='Finish section <span>&rarr;</span>'; nb.classList.add("is-finish"); }
+  else { nb.innerHTML='Submit mock'; nb.classList.add("is-submit"); }
+  // header submit hides only on the very last question of the last section
+  document.getElementById("hSubmit").classList.toggle("hide", lastQ && lastSec);
+  // previous disabled on Q1 or linear sections
+  document.getElementById("prevBtn").classList.toggle("is-off", !!s.linear || s.cur<=1);
+}
+
+function startTimer(mins){
+  if(timer) clearInterval(timer);
+  tRemain=mins*60;
+  paintClock();
+  timer=setInterval(function(){
+    if(tRemain<=0){clearInterval(timer);return;}
+    tRemain--; paintClock();
+  },1000);
+}
+function paintClock(){
+  var m=Math.floor(tRemain/60), s=tRemain%60;
+  document.getElementById("clock").textContent=(m<10?"0":"")+m+":"+(s<10?"0":"")+s;
+}
+
+/* navigation */
+document.getElementById("nextBtn").addEventListener("click",function(){
+  var s=curSec();
+  if(s.cur < s.q){ s.cur++; renderQuestion(); return; }
+  // last question of section
+  if(S.secIdx < sections().length-1){
+    S.done[S.secIdx]=true;
+    S.secIdx++;
+    var ns=curSec(); ns.cur=1;
+    renderStrip(); startTimer(ns.t); renderQuestion();
+    window.scrollTo({top:0,behavior:"smooth"});
+    return;
+  }
+  // final submit
+  document.getElementById("nextBtn").textContent="Mock submitted \u2713";
+  document.getElementById("nextBtn").classList.add("is-off");
+});
+document.getElementById("prevBtn").addEventListener("click",function(){
+  var s=curSec();
+  if(s.linear || s.cur<=1) return;
+  s.cur--; renderQuestion();
+});
+document.getElementById("flagBtn").addEventListener("click",function(){this.classList.toggle("on");});
+document.getElementById("clearBtn").addEventListener("click",function(){
+  document.querySelectorAll("#opts .opt").forEach(function(x){x.classList.remove("sel");});
+});
+
+/* exam switch resets the whole mock */
+document.querySelectorAll("#seg button").forEach(function(b){
+  b.addEventListener("click",function(){
+    document.querySelectorAll("#seg button").forEach(function(x){x.classList.remove("on");});
+    b.classList.add("on");
+    S.exam=b.textContent.trim(); S.secIdx=0; S.done={};
+    sections().forEach(function(s){s.cur=1;});
+    document.body.setAttribute("data-exam", S.exam);
+    renderStrip(); startTimer(curSec().t); renderQuestion();
+  });
+});
+
+renderStrip();
+startTimer(curSec().t);
+renderQuestion();
+</script>
+<script>
+(function(){
+  var p=new URLSearchParams(location.search);
+  var exam=(p.get('exam')||'cat').toUpperCase();
+  var section=(p.get('section')||'').toLowerCase();
+  var sectional=!!section;
+  // map a section slug -> the section name used inside this runner's data
+  var ALIAS={qa:'QA',varc:'VARC',dilr:'DILR',quant:'Quant',verbal:'Verbal',data:'DI',awa:'Writing'};
+  try{
+    if(typeof S!=='undefined' && typeof EXAMS!=='undefined' && EXAMS[exam]){
+      if(sectional){
+        var want=(ALIAS[section]||section).toLowerCase();
+        var filtered=EXAMS[exam].filter(function(s){return s.name.toLowerCase()===want;});
+        if(filtered.length) EXAMS[exam]=filtered;
+      }
+      S.exam=exam; S.secIdx=0; S.done={};
+      sections().forEach(function(s){s.cur=1;});
+      document.body.setAttribute('data-exam',exam);
+      document.querySelectorAll('#seg button').forEach(function(x){x.classList.toggle('on', x.textContent.trim()===exam);});
+      // in a single-section (sectional) run, the exam switcher would reset to a full mock — hide it
+      if(sectional){ var seg=document.getElementById('seg'); if(seg) seg.style.display='none'; }
+      renderStrip(); startTimer(curSec().t); renderQuestion();
+    }
+  }catch(e){}
+  var backHref = sectional ? ('/mocks/'+exam.toLowerCase()+'/sectional') : ('/mocks/'+exam.toLowerCase()+'/full');
+  var hs=document.getElementById('hSubmit');
+  if(hs){hs.addEventListener('click',function(){top.location.href=backHref;});}
+})();
+</script>
+</body>
+</html>

@@ -319,3 +319,26 @@ export function getExam(slug: string): Exam | undefined {
 export function getSection(exam: Exam, slug: string): Section | undefined {
   return exam.sections.find((section) => section.slug === slug);
 }
+
+export function slugify(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
+export type ChapterLocation = { group: Group; chapter: Chapter };
+
+export function getChapter(
+  section: Section,
+  chapterSlug: string
+): ChapterLocation | undefined {
+  for (const group of section.groups) {
+    const chapter = group.chapters.find((item) => slugify(item.name) === chapterSlug);
+    if (chapter) {
+      return { group, chapter };
+    }
+  }
+  return undefined;
+}
