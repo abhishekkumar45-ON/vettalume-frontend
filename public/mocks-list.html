@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VettaLume · Mocks</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#e8e9e6; --ink-2:#e3e5e1;
+  --panel:#f0f1ee; --panel-2:#e9ebe7; --panel-3:#dcded9;
+  --line:rgba(22,26,22,.14); --line-soft:rgba(22,26,22,.085);
+  --text:#181a18; --text-2:#43473f; --text-3:#74786e; --text-4:#9a9d93;
+  --brand:#c8932e; --gold-ink:#8a5d16;
+  --varc:#b2847a; --dilr:#7d9a84; --qa:#797ea4;
+  --ok:#5c8f72;
+  --maxw:1000px;
+  --f-display:"Hanken Grotesk",system-ui,sans-serif;
+  --f-body:"Hanken Grotesk",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+  --course:#c8932e;
+}
+body[data-exam="CAT"]{--course:#c8932e}
+body[data-exam="GMAT"]{--course:#a8705f}
+body[data-exam="GRE"]{--course:#6a6f9c}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--f-body);color:var(--text);-webkit-font-smoothing:antialiased;line-height:1.5;
+  min-height:100vh;position:relative;overflow-x:hidden;background:linear-gradient(168deg,var(--ink),var(--ink-2))}
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(900px 500px at 50% -10%, color-mix(in srgb,var(--course) 12%,transparent), transparent 62%)}
+.wrap{position:relative;z-index:1;max-width:var(--maxw);margin:0 auto;padding:0 28px}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+.subbar{display:flex;align-items:center;justify-content:space-between;padding:18px 0 4px}
+.back{display:inline-flex;align-items:center;gap:8px;font-family:var(--f-mono);font-size:11.5px;letter-spacing:.04em;color:var(--text-3);padding:6px 0;transition:color .16s}
+.back:hover{color:var(--course)}
+.hero{padding:20px 0 6px}
+.hero .ck{font-family:var(--f-mono);font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--text-3);margin-bottom:10px}
+.hero h1{font-family:var(--f-display);font-weight:800;letter-spacing:-.03em;font-size:40px;line-height:1.04}
+.hero .hsum{font-size:14.5px;color:var(--text-3);margin-top:10px}
+
+.stats{display:grid;grid-template-columns:repeat(2,1fr);margin:24px 0;border:1px solid var(--line-soft);border-radius:10px;overflow:hidden;background:var(--panel-2)}
+.stat{padding:18px 22px;border-right:1px solid var(--line-soft);--c:var(--brand);background:color-mix(in srgb,var(--c) 7%,transparent)}
+.stat:last-child{border-right:none}
+.stat .num{font-family:var(--f-display);font-weight:800;font-size:34px;line-height:1;color:color-mix(in srgb,var(--c) 82%,var(--text))}
+.stat .num small{font-size:17px;font-weight:700;color:color-mix(in srgb,var(--c) 45%,var(--text-4))}
+.stat .lab{font-family:var(--f-mono);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);margin-top:11px}
+
+.mlist{display:flex;flex-direction:column;gap:12px;margin:14px 0 44px}
+.mcard{--sec:var(--brand);border:1px solid color-mix(in srgb,var(--sec) 46%,var(--line));border-radius:12px;
+  background:color-mix(in srgb,var(--sec) 5%,var(--panel-2));padding:18px 20px;display:flex;align-items:center;gap:18px;
+  transition:transform .18s cubic-bezier(.34,1.4,.5,1),border-color .18s}
+.mcard:hover{transform:translateX(3px);border-color:color-mix(in srgb,var(--sec) 66%,var(--line))}
+.mmain{min-width:0;flex:1}
+.mname{font-family:var(--f-display);font-weight:800;font-size:18px;letter-spacing:-.01em;color:var(--text)}
+.mmeta{display:flex;flex-wrap:wrap;gap:8px;margin-top:9px}
+.chip{font-family:var(--f-mono);font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:5px 9px;border-radius:6px;border:1px solid var(--line-soft);background:var(--panel);color:var(--text-3)}
+.msecs{margin-top:8px;font-size:13px;color:var(--text-3)}
+.mstart{flex:0 0 auto;font-family:var(--f-body);font-size:13.5px;font-weight:700;padding:11px 20px;border-radius:9px;color:#fff;
+  background:var(--course);border:1px solid color-mix(in srgb,var(--course) 70%,#000);display:inline-flex;align-items:center;gap:8px;transition:transform .14s,box-shadow .2s}
+.mstart:hover{transform:translateY(-1px);box-shadow:0 8px 22px color-mix(in srgb,var(--course) 30%,transparent)}
+.empty{border:1px dashed var(--line);border-radius:14px;background:color-mix(in srgb,var(--brand) 3%,var(--panel-2));padding:46px 30px;text-align:center;color:var(--text-3);font-size:15px}
+.empty b{color:var(--text);display:block;font-size:19px;margin-bottom:8px}
+.empty span{display:block;margin-top:6px;font-family:var(--f-mono);font-size:12px;color:var(--text-4)}
+@media(max-width:640px){.hero h1{font-size:30px}.mcard{flex-direction:column;align-items:flex-start}.mstart{width:100%;justify-content:center}}
+</style>
+</head>
+<body data-exam="CAT">
+<div class="wrap">
+  <div class="subbar"><button class="back" id="back">&larr; Dashboard</button></div>
+  <section class="hero">
+    <div class="ck" id="crumb">Mocks</div>
+    <h1 id="title">Mocks</h1>
+    <p class="hsum" id="sum">Loading…</p>
+  </section>
+  <section class="stats">
+    <div class="stat" style="--c:var(--qa)"><div class="num"><span id="attempted">0</span><small id="avail">/0</small></div><div class="lab">Attempted / Available</div></div>
+    <div class="stat" style="--c:var(--brand)"><div class="num" id="latest">&mdash;</div><div class="lab">Latest Score</div></div>
+  </section>
+  <div class="mlist" id="mlist"></div>
+</div>
+<script>
+var qp=new URLSearchParams(location.search);
+var exam=(qp.get('exam')||'cat').toLowerCase(), EX=exam.toUpperCase();
+var type=(qp.get('type')||'full').toLowerCase();
+var api=qp.get('api')||'http://localhost:8001';
+var token=null; try{token=localStorage.getItem('vetta:token');}catch(e){}
+var H=token?{Authorization:'Bearer '+token}:{};
+document.body.setAttribute('data-exam',EX);
+var SECCOLOR={QA:'var(--qa)',VARC:'var(--varc)',DILR:'var(--dilr)'};
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function postH(){try{parent.postMessage({type:'mockFrameHeight',height:document.documentElement.scrollHeight},'*');}catch(e){}}
+
+var label = type==='sectional' ? 'Sectional Mocks' : 'Full Mocks';
+document.getElementById('title').textContent = label;
+document.getElementById('crumb').textContent = EX+' · '+label;
+document.getElementById('back').addEventListener('click',function(){top.location.href='/dashboard';});
+
+function card(m){
+  var sec = (m.sections||[]).map(function(s){return esc(s.name)+' ('+s.questionCount+')';}).join(' · ');
+  var chips = '<span class="chip">'+m.totalQuestions+' questions</span>';
+  if(type==='full'){ chips+='<span class="chip">'+(m.duration||0)+' min</span><span class="chip">+'+(m.scoringMarks||1)+' / -'+(m.scoringNeg||0)+'</span>'; }
+  else { chips+='<span class="chip">'+(m.totalTime||0)+' min</span>'+(m.negative?('<span class="chip">-'+m.negative+' neg</span>'):''); }
+  var col = SECCOLOR[(m.sections&&m.sections[0]&&m.sections[0].name)||'']||'var(--brand)';
+  return '<div class="mcard" style="--sec:'+col+'"><div class="mmain"><div class="mname">'+esc(m.name)+'</div>'+
+    '<div class="mmeta">'+chips+'</div><div class="msecs">'+sec+'</div></div>'+
+    '<button class="mstart" data-id="'+m.id+'">Start <span>&rarr;</span></button></div>';
+}
+
+fetch(api+'/mocks?exam='+encodeURIComponent(EX)+'&type='+encodeURIComponent(type),{headers:H})
+  .then(function(r){return r.json();}).then(function(d){
+    var mocks=(d&&d.mocks)||[];
+    document.getElementById('avail').textContent='/'+mocks.length;
+    document.getElementById('sum').textContent = mocks.length
+      ? ('Take a full-length timed test authored for '+EX+'.').replace('full-length', type==='sectional'?'single-section':'full-length')
+      : '';
+    var list=document.getElementById('mlist');
+    if(!mocks.length){
+      list.innerHTML='<div class="empty"><b>No '+(type==='sectional'?'sectional':'full')+' mocks yet</b>'+
+        'When an admin publishes a '+(type==='sectional'?'sectional':'full')+' mock for '+EX+', it will appear here to attempt.'+
+        '<span>Nothing to show until then.</span></div>';
+      postH(); return;
+    }
+    list.innerHTML=mocks.map(card).join('');
+    list.querySelectorAll('.mstart').forEach(function(b){
+      b.addEventListener('click',function(){ top.location.href='/mocks/'+exam+'/take/'+b.getAttribute('data-id'); });
+    });
+    postH();
+  }).catch(function(){
+    document.getElementById('sum').textContent='Could not load mocks.';
+    postH();
+  });
+window.addEventListener('load',function(){postH();setTimeout(postH,400);});
+window.addEventListener('resize',postH);
+try{new ResizeObserver(postH).observe(document.body);}catch(e){}
+</script>
+</body>
+</html>

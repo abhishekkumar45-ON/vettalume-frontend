@@ -9,6 +9,7 @@ import SiteHeader from "@/components/SiteHeader";
 import { useUser } from "@/components/UserContext";
 import { EXAM_CATALOG } from "@/app/examCatalog";
 import { getExam } from "@/app/learn/sectionData";
+import { learnApi, mockApi } from "@/lib/api";
 
 const ACCENTS = ["blue", "rose", "green"] as const;
 
@@ -22,6 +23,10 @@ export default function DashboardPage() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [diagnostic, setDiagnostic] = useState<{ percentile: number } | null>(null);
   const [greeting, setGreeting] = useState("Good Evening");
+  // Real per-section ability/coverage (from /learn/overview) and published-mock counts (from /mocks).
+  // Both are 0/empty for a new learner and grow as they learn / as an admin publishes mocks.
+  const [secStats, setSecStats] = useState<Record<string, { ability: number; syllabus: number }>>({});
+  const [mockCounts, setMockCounts] = useState<{ sectional: number; full: number }>({ sectional: 0, full: 0 });
   const router = useRouter();
 
   const { firstName, activeExam, isOwned } = useUser();
@@ -44,17 +49,45 @@ export default function DashboardPage() {
     }
   }, []);
 
+  // Pull real ability/coverage + mock availability for the active exam.
+  useEffect(() => {
+    if (!owned || !activeExam) return;
+    let alive = true;
+    learnApi
+      .overview(activeExam)
+      .then((ov) => {
+        if (!alive) return;
+        const map: Record<string, { ability: number; syllabus: number }> = {};
+        (ov.sections || []).forEach((s) => {
+          map[s.key.toLowerCase()] = { ability: s.ability, syllabus: s.syllabus };
+        });
+        setSecStats(map);
+      })
+      .catch(() => {});
+    Promise.all([mockApi.list(activeExam, "sectional"), mockApi.list(activeExam, "full")])
+      .then(([sec, full]) => {
+        if (alive) setMockCounts({ sectional: sec.count, full: full.count });
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [owned, activeExam]);
+
   const abilityCards = useMemo(() => {
     if (!exam) return [];
-    return exam.sections.map((section, index) => ({
-      title: section.name,
-      score: section.ability,
-      coverage: section.syllabus,
-      accent: ACCENTS[index % ACCENTS.length],
-      href: `/learn/${activeExam}/${section.slug}`,
-      action: `Enter ${section.name}`
-    }));
-  }, [exam, activeExam]);
+    return exam.sections.map((section, index) => {
+      const st = secStats[section.slug.toLowerCase()];
+      return {
+        title: section.name,
+        score: st ? st.ability : 0,
+        coverage: st ? st.syllabus : 0,
+        accent: ACCENTS[index % ACCENTS.length],
+        href: `/learn/${activeExam}/${section.slug}`,
+        action: `Enter ${section.name}`
+      };
+    });
+  }, [exam, activeExam, secStats]);
 
   const recommendations = useMemo(() => {
     if (!exam) return [];
@@ -75,23 +108,34 @@ export default function DashboardPage() {
       return `You haven't unlocked ${catalog.label} yet. Unlock the course to start your adaptive prep.`;
     }
     if (!exam || exam.sections.length === 0) return "";
-    const sorted = [...exam.sections].sort((a, b) => b.ability - a.ability);
+    const withStats = exam.sections.map((s) => ({
+      name: s.name,
+      ability: secStats[s.slug.toLowerCase()]?.ability ?? 0
+    }));
+    if (!withStats.some((s) => s.ability > 0)) {
+      return "Your dashboard is ready. Start learning or take a mock, and your ability will build here.";
+    }
+    const sorted = [...withStats].sort((a, b) => b.ability - a.ability);
     const top = sorted[0];
     const low = sorted[sorted.length - 1];
-    return `Good week overall, ${top.name} is carrying you at ${top.ability}. But ${low.name} needs you to buckle up, it's sitting at ${low.ability} and dragging the average.`;
-  }, [owned, exam, catalog.label]);
+    return `Good progress overall — ${top.name} leads at ${top.ability}, while ${low.name} needs attention at ${low.ability} and is dragging the average.`;
+  }, [owned, exam, catalog.label, secStats]);
 
   const sectionNames = exam?.sections.map((section) => section.name) ?? [];
+  // No mock attempts are tracked yet (post-mock analysis is a later phase), so best/last scores start
+  // empty. They fill once attempt history exists.
   const mockCards: Array<[string, string, string, string]> = [
-    [`${sectionNames[0] ?? "Sectional"} SM-1`, "90%", "Best Sectional Mock", "blue"],
-    ["FLM-1", "74%", "Best Full Length Mock", "gold"],
-    [`${sectionNames[1] ?? "Sectional"} SM-2`, "78%", "Last Sectional Mock", "rose"],
-    ["FLM-2", "68%", "Last Full Length Mock", "gold"]
+    [`${sectionNames[0] ?? "Sectional"} SM`, "—", "Best Sectional Mock", "blue"],
+    ["FLM", "—", "Best Full Length Mock", "gold"],
+    [`${sectionNames[1] ?? "Sectional"} SM`, "—", "Last Sectional Mock", "rose"],
+    ["FLM", "—", "Last Full Length Mock", "gold"]
   ];
 
+  // Attempted / available. Attempts aren't tracked yet, so "attempted" is 0; the total is how many
+  // mocks an admin has published (0 until they publish one).
   const practiceCards: Array<[string, string, string, string]> = [
-    ["Sectional mocks", "22", "/77", `/mocks/${activeExam}/sectional`],
-    ["Full mocks", "7", "/100", `/mocks/${activeExam}/full`]
+    ["Sectional mocks", "0", `/${mockCounts.sectional}`, `/mocks/${activeExam}/sectional`],
+    ["Full mocks", "0", `/${mockCounts.full}`, `/mocks/${activeExam}/full`]
   ];
 
   return (

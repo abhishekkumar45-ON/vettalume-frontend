@@ -38,20 +38,21 @@ export default async function SubtopicLearningPage({
   const located = getChapter(section, chapterSlug);
   const chapterName = located ? located.chapter.name : titleFromSlug(chapterSlug);
   const subtopicName = titleFromSlug(subtopic);
-  // matches the seeded knowledge-node id: {exam}-{sectionKey}-{chapterSlug}-{subtopicSlug}
-  const conceptId = `${examSlug}-${sectionSlug}-${chapterSlug}-${subtopic}`;
 
   return (
     <>
       <SiteHeader />
       <SubtopicLearning
         examLabel={exam.label}
+        exam={examSlug}
+        sectionSlug={sectionSlug}
+        chapterSlug={chapterSlug}
+        subtopicSlug={subtopic}
         // back button returns to the chapter-analysis page
         sectionHref={`/learn/${exam.slug}/${section.slug}/${chapterSlug}`}
         sectionName={chapterName}
         groupTitle={section.name}
         chapterName={subtopicName}
-        conceptId={conceptId}
       />
       <SiteFooter />
     </>

@@ -144,7 +144,14 @@ export type Profile = {
 };
 
 export type OverviewSubtopic = { id: string; name: string; pct: number };
-export type OverviewChapter = { id: string; name: string; pct: number; subtopics: OverviewSubtopic[] };
+export type DifficultyBand = { band: string; accuracy: number; answered: number; total: number };
+export type OverviewChapter = {
+  id: string;
+  name: string;
+  pct: number;
+  difficulty: DifficultyBand[];
+  subtopics: OverviewSubtopic[];
+};
 export type OverviewSection = {
   key: string;
   name: string;
@@ -166,17 +173,90 @@ export type ConceptDetail = {
 
 export type QuizQuestion = {
   id: string;
+  format: string; // "mcq" | "tita"
+  difficulty: number;
   stem: string;
   options: string[];
   correct_answer: string;
   solution: string;
+  answered: boolean;
 };
-export type ConceptQuiz = { concept_id: string; name: string; questions: QuizQuestion[] };
+export type ConceptQuiz = {
+  concept_id: string;
+  name: string;
+  next_index: number;
+  questions: QuizQuestion[];
+};
 
 export const learnApi = {
   overview: (exam: string) => apiGet<Overview>(`/learn/overview?exam=${encodeURIComponent(exam)}`),
   concept: (nodeId: string) => apiGet<ConceptDetail>(`/learn/concept/${encodeURIComponent(nodeId)}`),
-  quiz: (nodeId: string) => apiGet<ConceptQuiz>(`/learn/concept/${encodeURIComponent(nodeId)}/quiz`)
+  quiz: (nodeId: string) => apiGet<ConceptQuiz>(`/learn/concept/${encodeURIComponent(nodeId)}/quiz`),
+  answer: (itemId: string, answerGiven: string) =>
+    apiPost<{ correct: boolean }>("/learn/answer", { item_id: itemId, answer_given: answerGiven }),
+  engage: (nodeId: string, body: { read?: boolean; watched?: boolean }) =>
+    apiPost<{ ok: boolean }>(`/learn/concept/${encodeURIComponent(nodeId)}/engage`, body)
+};
+
+// ---- Mocks (admin-authored sectional / full) ----
+export type MockSectionSummary = { id: string; name: string; time: number; questionCount: number };
+export type MockSummary = {
+  id: string;
+  exam: string;
+  type: string; // "sectional" | "full"
+  name: string;
+  duration: number;
+  negative: number;
+  scoringMarks: number;
+  scoringNeg: number;
+  instructions: string;
+  sections: MockSectionSummary[];
+  totalQuestions: number;
+  totalTime: number;
+};
+export type MockList = { exam: string; type: string | null; count: number; mocks: MockSummary[] };
+export type MockQuestion = {
+  id: string;
+  text: string;
+  options: string[];
+  image: string;
+  difficulty: number;
+  format: string;
+};
+export type MockPaper = {
+  id: string;
+  name: string;
+  type: string;
+  exam: string;
+  duration: number;
+  instructions: string;
+  negative: number;
+  scoringMarks: number;
+  scoringNeg: number;
+  sections: { id: string; name: string; time: number; questions: MockQuestion[] }[];
+  totalQuestions: number;
+};
+export type MockSectionScore = {
+  name: string;
+  raw: number;
+  total: number;
+  attempted: number;
+  accuracy: number;
+  score: number;
+};
+export type MockResult = {
+  id: string;
+  name: string;
+  type: string;
+  sections: MockSectionScore[];
+  overall: Omit<MockSectionScore, "name">;
+};
+export const mockApi = {
+  list: (exam: string, type?: "sectional" | "full") =>
+    apiGet<MockList>(`/mocks?exam=${encodeURIComponent(exam)}${type ? `&type=${type}` : ""}`),
+  paper: (id: string) => apiGet<MockPaper>(`/mocks/${encodeURIComponent(id)}`),
+  submit: (id: string, answers: Record<string, number | string>) =>
+    apiPost<MockResult>(`/mocks/${encodeURIComponent(id)}/submit`, { answers })
 };
 
 // Password strength rules — must mirror the backend (services/security.password_problems).

@@ -4343,3 +4343,42 @@ h3 {
 .pwChecklist li { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--ink-soft); }
 .pwChecklist li.ok { color: var(--green-dark); }
 .pwChecklist li svg { flex: 0 0 auto; }
+
+/* quiz: correct/wrong feedback + numerical (TITA) input + step solution */
+.subtopicPage .opt.correct { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 12%, var(--panel)); }
+.subtopicPage .opt.correct .ol { background: var(--ok); color: #fff; border-color: var(--ok); }
+.subtopicPage .opt.wrong { border-color: var(--err); background: color-mix(in srgb, var(--err) 10%, var(--panel)); }
+.subtopicPage .opt.wrong .ol { background: var(--err); color: #fff; border-color: var(--err); }
+.subtopicPage .opt:disabled { cursor: default; }
+
+.subtopicPage .titaField {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.subtopicPage .titaField input {
+  flex: 1;
+  padding: 14px 17px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--panel);
+  font-family: var(--f-mono);
+  font-size: 16px;
+  color: var(--text);
+}
+.subtopicPage .titaField input:focus { outline: none; border-color: color-mix(in srgb, var(--course) 55%, var(--line)); }
+.subtopicPage .titaField input.correct { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 12%, var(--panel)); }
+.subtopicPage .titaField input.wrong { border-color: var(--err); background: color-mix(in srgb, var(--err) 10%, var(--panel)); }
+.subtopicPage .titaTag {
+  font-family: var(--f-mono);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 7px;
+}
+.subtopicPage .titaTag.correct { color: var(--ok); background: color-mix(in srgb, var(--ok) 14%, var(--panel)); }
+.subtopicPage .titaTag.wrong { color: var(--err); background: color-mix(in srgb, var(--err) 12%, var(--panel)); }
+
+.subtopicPage .solSteps { display: flex; flex-direction: column; gap: 7px; }
+.subtopicPage .solStep { font-size: 14px; color: var(--text-2); line-height: 1.55; }
+.subtopicPage .solStep b { color: var(--gold-ink); font-family: var(--f-mono); font-size: 12.5px; }

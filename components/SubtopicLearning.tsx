@@ -8,22 +8,109 @@ type Mode = "concept" | "video" | "material" | "quiz";
 
 type SubtopicLearningProps = {
   examLabel: string;
+  exam: string;
+  sectionSlug: string;
+  chapterSlug: string;
+  subtopicSlug: string;
   sectionHref: string;
+  // fallbacks shown instantly; the real names replace them once the backend resolves
   sectionName: string;
   groupTitle: string;
   chapterName: string;
-  conceptId: string;
 };
 
 const LETTERS = ["A", "B", "C", "D", "E"];
 
+function slugify(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
+// Turn a pasted video link into something embeddable. Gumlet watch/share links become the
+// play.gumlet.io embed; YouTube/Vimeo get their player URLs; direct files play in <video>.
+function toEmbed(url: string): { kind: "iframe" | "file" | "none"; src: string } {
+  const u = (url || "").trim();
+  if (!u) return { kind: "none", src: "" };
+  let m = u.match(/gumlet\.(?:tv|io)\/(?:watch|embed)\/([a-zA-Z0-9]+)/);
+  if (m) return { kind: "iframe", src: `https://play.gumlet.io/embed/${m[1]}` };
+  if (/play\.gumlet\.io\/embed\//.test(u)) return { kind: "iframe", src: u };
+  m = u.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]{6,})/);
+  if (m) return { kind: "iframe", src: `https://www.youtube.com/embed/${m[1]}` };
+  m = u.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+  if (m) return { kind: "iframe", src: `https://player.vimeo.com/video/${m[1]}` };
+  if (/\.(mp4|webm|ogg|m3u8)(\?|$)/i.test(u)) return { kind: "file", src: u };
+  return { kind: "iframe", src: u };
+}
+
+// The MCQ correct answer may be stored as a letter ("A") or the option text — resolve to the value.
+function mcqCorrect(q: QuizQuestion): string {
+  const ca = (q.correct_answer || "").trim();
+  const idx = "ABCDE".indexOf(ca.toUpperCase());
+  if (ca.length === 1 && idx >= 0 && q.options[idx] != null) return q.options[idx];
+  return ca;
+}
+
+function normalizeAnswer(s: string): string {
+  return (s || "").trim().toLowerCase().replace(/\s+/g, "").replace(/,/g, "");
+}
+
+// Numerical (TITA) check: exact-string OR numeric equality.
+function titaCorrect(typed: string, correct: string): boolean {
+  const a = normalizeAnswer(typed);
+  const b = normalizeAnswer(correct);
+  if (a && a === b) return true;
+  const na = parseFloat(a);
+  const nb = parseFloat(b);
+  return Number.isFinite(na) && Number.isFinite(nb) && na === nb;
+}
+
+function isTitaQ(q: QuizQuestion): boolean {
+  return (q.format || "mcq").toLowerCase() === "tita";
+}
+
+function diffLabel(d: number): string {
+  if (d <= 0) return "Easy";
+  if (d === 1) return "Medium";
+  return "Hard";
+}
+
+// Render a multi-line solution as steps ("Step 1: …", "Key point: …").
+function SolutionSteps({ text }: { text: string }) {
+  const lines = text
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter(Boolean);
+  return (
+    <div className="solSteps">
+      {lines.map((line, i) => {
+        const m = line.match(/^(Step\s*\d+|Key point|Answer|Note|Hint)\s*[:.\-]?\s*(.*)$/i);
+        return m ? (
+          <div className="solStep" key={i}>
+            <b>{m[1]}:</b> {m[2]}
+          </div>
+        ) : (
+          <div className="solStep" key={i}>
+            {line}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function SubtopicLearning({
   examLabel,
+  exam,
+  sectionSlug,
+  chapterSlug,
+  subtopicSlug,
   sectionHref,
   sectionName,
   groupTitle,
-  chapterName,
-  conceptId
+  chapterName
 }: SubtopicLearningProps) {
   const [mode, setMode] = useState<Mode>("concept");
   const [concept, setConcept] = useState<ConceptDetail | null>(null);
@@ -31,10 +118,17 @@ export default function SubtopicLearning({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [revealed, setRevealed] = useState(false);
+  // resolved display names (start from the title-cased fallbacks)
+  const [names, setNames] = useState({ subtopic: chapterName, chapter: sectionName, section: groupTitle });
+  const [vsel, setVsel] = useState(0);
+  const [conceptId, setConceptId] = useState("");
+  const [allDone, setAllDone] = useState(false);
+  const [watchMarked, setWatchMarked] = useState(false);
 
   // quiz state
   const [qIndex, setQIndex] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
+  const [typed, setTyped] = useState("");
   const [checked, setChecked] = useState(false);
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);
@@ -43,11 +137,36 @@ export default function SubtopicLearning({
     let alive = true;
     setLoading(true);
     setError(null);
-    Promise.all([learnApi.concept(conceptId), learnApi.quiz(conceptId)])
-      .then(([c, q]) => {
-        if (!alive) return;
+    // Resolve the real node id from the backend (works for admin-created content with any id scheme),
+    // then load that concept's content + quiz.
+    learnApi
+      .overview(exam)
+      .then((ov) => {
+        const sec = ov.sections.find((s) => s.key.toLowerCase() === sectionSlug.toLowerCase());
+        const ch = sec?.chapters.find((c) => slugify(c.name) === chapterSlug);
+        const sub = ch?.subtopics.find((t) => slugify(t.name) === subtopicSlug);
+        if (!sec || !ch || !sub) {
+          throw new Error("This subtopic isn't in the catalog yet.");
+        }
+        if (alive) {
+          setNames({ subtopic: sub.name, chapter: ch.name, section: sec.name });
+          setConceptId(sub.id);
+        }
+        // opening the concept counts as "read" toward the subtopic progress %
+        learnApi.engage(sub.id, { read: true }).catch(() => {});
+        return Promise.all([learnApi.concept(sub.id), learnApi.quiz(sub.id)]);
+      })
+      .then((res) => {
+        if (!alive || !res) return;
+        const [c, q] = res;
         setConcept(c);
         setQuestions(q.questions);
+        // resume: jump to the first unanswered question
+        if (q.questions.length > 0 && q.next_index >= q.questions.length) {
+          setAllDone(true);
+        } else {
+          setQIndex(Math.min(q.next_index || 0, Math.max(0, q.questions.length - 1)));
+        }
       })
       .catch((err) => {
         if (alive) setError(err instanceof Error ? err.message : "Could not load this subtopic.");
@@ -61,7 +180,15 @@ export default function SubtopicLearning({
     return () => {
       alive = false;
     };
-  }, [conceptId]);
+  }, [exam, sectionSlug, chapterSlug, subtopicSlug]);
+
+  // opening the Video tab counts as "watched" toward the subtopic progress %
+  useEffect(() => {
+    if (mode === "video" && conceptId && !watchMarked) {
+      setWatchMarked(true);
+      learnApi.engage(conceptId, { watched: true }).catch(() => {});
+    }
+  }, [mode, conceptId, watchMarked]);
 
   function pick(next: Mode) {
     setMode(next);
@@ -72,6 +199,9 @@ export default function SubtopicLearning({
   const masteryPct = Math.round((concept?.mastery ?? 0) * 100);
 
   const current = questions[qIndex];
+  const currentIsTita = current ? isTitaQ(current) : false;
+  const currentCorrect = current && !currentIsTita ? mcqCorrect(current) : "";
+  const titaOk = current && currentIsTita ? titaCorrect(typed, current.correct_answer) : false;
   const modes = useMemo(
     () => [
       { id: "concept" as Mode, num: "01", label: "Concept" },
@@ -83,9 +213,15 @@ export default function SubtopicLearning({
   );
 
   function submitAnswer() {
-    if (!current || selected == null) return;
+    if (!current) return;
+    const tita = isTitaQ(current);
+    const answerGiven = tita ? typed.trim() : selected ?? "";
+    if (!answerGiven) return;
     setChecked(true);
-    if (selected === current.correct_answer) setScore((s) => s + 1);
+    const ok = tita ? titaCorrect(typed, current.correct_answer) : selected === mcqCorrect(current);
+    if (ok) setScore((s) => s + 1);
+    // record the attempt so progress persists (resume, subtopic %, D1–D5 accuracy)
+    learnApi.answer(current.id, answerGiven).catch(() => {});
   }
   function nextQuestion() {
     if (qIndex + 1 >= questions.length) {
@@ -94,14 +230,17 @@ export default function SubtopicLearning({
     }
     setQIndex((i) => i + 1);
     setSelected(null);
+    setTyped("");
     setChecked(false);
   }
   function restartQuiz() {
     setQIndex(0);
     setSelected(null);
+    setTyped("");
     setChecked(false);
     setScore(0);
     setFinished(false);
+    setAllDone(false);
   }
 
   return (
@@ -109,18 +248,18 @@ export default function SubtopicLearning({
       <div className="stWrap">
         <div className="subbar">
           <Link className="back" href={sectionHref}>
-            ← {sectionName}
+            ← {names.chapter}
           </Link>
           <div className="crumb">
-            {groupTitle} · {chapterName} · Subtopic
+            {names.section} · {names.chapter} · Subtopic
           </div>
         </div>
       </div>
 
       <div className="stWrap">
         <section className={`chero rev${revealed ? " in" : ""}`}>
-          <div className="ck">{groupTitle} · Subtopic</div>
-          <h1>{chapterName}</h1>
+          <div className="ck">{names.section} · Subtopic</div>
+          <h1>{names.subtopic}</h1>
           <p className="lede">
             Work through the concept, watch the lesson, then test yourself. Your mastery updates as you
             practise.
@@ -191,26 +330,66 @@ export default function SubtopicLearning({
               <section className={`panel${mode === "video" ? " on" : ""}`}>
                 <div className="grid2">
                   <div>
-                    <div className="vplayer">
-                      <div className="vgrid" />
-                      <button className="vplay" type="button">
-                        <svg width="26" height="28" viewBox="0 0 26 28" fill="none">
-                          <path d="M3 3 L23 14 L3 25 Z" fill="#181a18" />
-                        </svg>
-                      </button>
-                      <div className="vmeta">
-                        <span className="vt">{videos[0]?.title || `${chapterName} — Lecture`}</span>
-                        <span className="vd">{videos[0]?.duration || "—"}</span>
-                      </div>
-                    </div>
+                    {videos.length > 0
+                      ? (() => {
+                          const active = videos[Math.min(vsel, videos.length - 1)];
+                          const embed = toEmbed(active?.url || "");
+                          if (embed.kind === "iframe") {
+                            return (
+                              <div className="vplayer">
+                                <iframe
+                                  src={embed.src}
+                                  title={active?.title || "Video"}
+                                  allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
+                                  allowFullScreen
+                                  style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: 0 }}
+                                />
+                              </div>
+                            );
+                          }
+                          if (embed.kind === "file") {
+                            return (
+                              <div className="vplayer">
+                                <video
+                                  src={embed.src}
+                                  controls
+                                  style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
+                                />
+                              </div>
+                            );
+                          }
+                          return (
+                            <div className="vplayer">
+                              <div className="vgrid" />
+                              <div className="vmeta">
+                                <span className="vt">{active?.title || "Video"}</span>
+                                <span className="vd">no playable URL</span>
+                              </div>
+                            </div>
+                          );
+                        })()
+                      : (
+                        <div className="vplayer">
+                          <div className="vgrid" />
+                          <div className="vmeta">
+                            <span className="vt">No video added yet</span>
+                          </div>
+                        </div>
+                      )}
                     {videos.length > 0 ? (
                       <div className="chapters">
                         {videos.map((v, i) => (
-                          <div className={`vch${i === 0 ? " on" : ""}`} key={i}>
+                          <button
+                            className={`vch${i === vsel ? " on" : ""}`}
+                            key={i}
+                            type="button"
+                            onClick={() => setVsel(i)}
+                            style={{ width: "100%", textAlign: "left" }}
+                          >
                             <span className="vts">{v.duration || "—"}</span>
                             <span className="vcn">{v.title || `Lesson ${i + 1}`}</span>
                             <span className="vpl">▶</span>
-                          </div>
+                          </button>
                         ))}
                       </div>
                     ) : (
@@ -242,17 +421,19 @@ export default function SubtopicLearning({
                     <div className="ex-h">Quiz</div>
                     <p style={{ margin: 0 }}>No quiz questions added for this subtopic yet.</p>
                   </div>
-                ) : finished ? (
+                ) : finished || allDone ? (
                   <div className="qcard">
                     <div className="qtag">
-                      <span>Result</span>
+                      <span>{finished ? "Result" : "All done"}</span>
                     </div>
                     <div className="qstem">
-                      You scored {score} / {questions.length}.
+                      {finished
+                        ? `You scored ${score} / ${questions.length}.`
+                        : `You've already answered all ${questions.length} questions in this subtopic.`}
                     </div>
                     <div className="qfoot">
                       <button className="btn btn-primary" type="button" onClick={restartQuiz}>
-                        Try again
+                        Practice again
                       </button>
                     </div>
                   </div>
@@ -264,31 +445,63 @@ export default function SubtopicLearning({
                       </span>
                     </div>
                     <div className="qcard">
-                      <div className="qstem">{current?.stem}</div>
-                      <div className="opts">
-                        {current?.options.map((opt, i) => {
-                          let cls = "opt";
-                          if (selected === opt && !checked) cls += " sel";
-                          if (checked && opt === current.correct_answer) cls += " correct";
-                          if (checked && selected === opt && opt !== current.correct_answer) cls += " wrong";
-                          return (
-                            <button
-                              key={opt}
-                              type="button"
-                              className={cls}
-                              disabled={checked}
-                              onClick={() => setSelected(opt)}
-                            >
-                              <div className="ol">{LETTERS[i]}</div>
-                              <div className="otx">{opt}</div>
-                            </button>
-                          );
-                        })}
+                      <div className="qtag">
+                        <span>
+                          Difficulty <b>{current ? diffLabel(current.difficulty) : "—"}</b>
+                        </span>
+                        <span>
+                          Type <b>{currentIsTita ? "Numerical" : "Single correct"}</b>
+                        </span>
                       </div>
+                      <div className="qstem">{current?.stem}</div>
+
+                      {currentIsTita ? (
+                        <div className="titaField">
+                          <input
+                            type="text"
+                            inputMode="decimal"
+                            placeholder="Type your answer"
+                            value={typed}
+                            disabled={checked}
+                            className={checked ? (titaOk ? "correct" : "wrong") : ""}
+                            onChange={(e) => setTyped(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter" && !checked && typed.trim()) submitAnswer();
+                            }}
+                          />
+                          {checked ? (
+                            <span className={`titaTag ${titaOk ? "correct" : "wrong"}`}>
+                              {titaOk ? "Correct" : `Answer: ${current?.correct_answer}`}
+                            </span>
+                          ) : null}
+                        </div>
+                      ) : (
+                        <div className="opts">
+                          {current?.options.map((opt, i) => {
+                            let cls = "opt";
+                            if (selected === opt && !checked) cls += " sel";
+                            if (checked && opt === currentCorrect) cls += " correct";
+                            if (checked && selected === opt && opt !== currentCorrect) cls += " wrong";
+                            return (
+                              <button
+                                key={i}
+                                type="button"
+                                className={cls}
+                                disabled={checked}
+                                onClick={() => setSelected(opt)}
+                              >
+                                <div className="ol">{LETTERS[i]}</div>
+                                <div className="otx">{opt}</div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+
                       {checked && current?.solution ? (
                         <div className="ex" style={{ marginTop: 18 }}>
                           <div className="ex-h">Solution</div>
-                          <p style={{ margin: 0 }}>{current.solution}</p>
+                          <SolutionSteps text={current.solution} />
                         </div>
                       ) : null}
                       <div className="qfoot">
@@ -296,7 +509,7 @@ export default function SubtopicLearning({
                           <button
                             className="btn btn-primary"
                             type="button"
-                            disabled={selected == null}
+                            disabled={currentIsTita ? !typed.trim() : selected == null}
                             onClick={submitAnswer}
                           >
                             Submit
