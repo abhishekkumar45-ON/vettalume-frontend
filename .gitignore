@@ -17,3 +17,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+
+# internal notes — not for the public repo
+HANDOFF.md
