@@ -70,7 +70,12 @@ export default function AuthModal({ mode, onClose, onModeChange, onSignIn }: Aut
         password,
         accept_terms: accepted
       });
-      if (res.dev_mode) setNotice("Dev mode: the OTP was printed to the backend console.");
+      if (res.otp) {
+        setCode(res.otp);
+        setNotice(`Dev mode — your verification code is ${res.otp} (filled in for you).`);
+      } else if (res.dev_mode) {
+        setNotice("Dev mode: the OTP was printed to the backend console.");
+      }
       onModeChange("otp");
     });
 
@@ -83,7 +88,12 @@ export default function AuthModal({ mode, onClose, onModeChange, onSignIn }: Aut
   const doResend = () =>
     run(async () => {
       const res = await authApi.resendOtp({ email });
-      setNotice(res.dev_mode ? "New OTP printed to the backend console." : "A new code has been sent.");
+      if (res.otp) {
+        setCode(res.otp);
+        setNotice(`Dev mode — new code is ${res.otp} (filled in for you).`);
+      } else {
+        setNotice(res.dev_mode ? "New OTP printed to the backend console." : "A new code has been sent.");
+      }
     });
 
   const doLogin = () =>
@@ -95,7 +105,12 @@ export default function AuthModal({ mode, onClose, onModeChange, onSignIn }: Aut
   const doForgot = () =>
     run(async () => {
       const res = await authApi.forgotPassword({ email });
-      if (res.dev_mode) setNotice("Dev mode: the reset code was printed to the backend console.");
+      if (res.otp) {
+        setCode(res.otp);
+        setNotice(`Dev mode — your reset code is ${res.otp} (filled in for you).`);
+      } else if (res.dev_mode) {
+        setNotice("Dev mode: the reset code was printed to the backend console.");
+      }
       onModeChange("forgotOtp");
     });
 

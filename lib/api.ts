@@ -94,7 +94,7 @@ export type AuthSession = {
   account: { id: string; email: string; display_name: string | null };
 };
 
-export type OtpSent = { status: string; email: string; dev_mode?: boolean };
+export type OtpSent = { status: string; email: string; dev_mode?: boolean; otp?: string | null };
 
 export type MeResponse = { id: string; email: string; display_name: string | null };
 
