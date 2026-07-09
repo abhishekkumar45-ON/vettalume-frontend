@@ -320,7 +320,7 @@ fetch(api+'/learn/overview?exam='+exam,{headers:H}).then(function(r){return r.js
   var sec=(ov.sections||[]).find(function(s){return s.key.toLowerCase()===section.toLowerCase();});
   var ch=sec&&(sec.chapters||[]).find(function(c){return slug(c.name)===chapter;});
   var q=ch?('&topic_id='+encodeURIComponent(ch.id)):('&topic='+encodeURIComponent(chapterName));
-  return fetch(api+'/practice/session?exam='+encodeURIComponent(EX)+q+'&limit=15',{headers:H}).then(function(r){return r.json();});
+  return fetch(api+'/practice/session?exam='+encodeURIComponent(EX)+q+'&limit=1000',{headers:H}).then(function(r){return r.json();});
 }).then(function(d){
   QS=(d&&d.questions)||[];
   if(d&&d.chapter&&d.chapter.name){ document.getElementById('chLabel').textContent=d.chapter.name; document.getElementById('palCh').textContent=d.chapter.name; }
