@@ -1509,8 +1509,8 @@ h3 {
   margin: 0 auto 22px;
   border-radius: 50%;
   background:
-    radial-gradient(circle at center, var(--panel) 55%, transparent 56%),
-    conic-gradient(currentColor 0 40%, rgba(255,255,255,.78) 40% 84%, transparent 84%);
+    radial-gradient(circle closest-side, var(--panel) 76%, transparent 77%),
+    conic-gradient(from 216deg, currentColor 0 var(--fill, 0.4turn), #d7d5cf var(--fill, 0.4turn) 1turn);
   color: #8b8fb8;
 }
 
@@ -1627,58 +1627,69 @@ h3 {
 
 .mockCard {
   position: relative;
-  min-height: 168px;
+  min-height: 200px;
   display: flex;
   flex-direction: column;
-  padding: 16px 18px 18px;
-  border-radius: 10px;
+  padding: 16px 20px 18px;
+  border-radius: 3px;
   overflow: hidden;
+}
+
+.mockCard > span,
+.mockCard strong,
+.mockCard p {
+  position: relative;
+  z-index: 1;
 }
 
 .mockCard > span {
   font-family: var(--font-mono, ui-monospace, monospace);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
   color: var(--ink-soft);
 }
 
 .mockCard strong {
+  flex: 1;
+  display: grid;
+  place-items: center;
   color: var(--ink);
-  font-size: 44px;
+  font-size: 58px;
   font-weight: 800;
   line-height: 1;
-  margin-top: 10px;
 }
 
 .mockCard p {
-  margin: 6px 0 0;
+  margin: 0;
   font-size: 12.5px;
   font-weight: 600;
   color: var(--ink-soft);
 }
 
-.mockBar {
-  position: relative;
-  height: 7px;
-  margin-top: auto;
-  border-radius: 5px;
-  background: color-mix(in srgb, currentColor 14%, var(--panel));
-  border: 1px solid color-mix(in srgb, currentColor 26%, var(--line));
-  overflow: hidden;
+/* liquid wave fill rising to the mock score */
+.mockFill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  height: var(--v, 0%);
+  background: currentColor;
+  opacity: 0.32;
+  transition: height 0.4s ease;
 }
 
-.mockBar::after {
+.mockFill::before {
   content: "";
   position: absolute;
   left: 0;
-  top: 0;
-  bottom: 0;
-  width: var(--v, 0%);
+  right: 0;
+  top: -10px;
+  height: 12px;
   background: currentColor;
-  opacity: 0.62;
-  border-radius: 4px;
+  -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='12' viewBox='0 0 48 12' preserveAspectRatio='none'><path d='M0 12 L0 7 C 8 1 16 1 24 7 C 32 13 40 13 48 7 L48 12 Z' fill='%23000'/></svg>") repeat-x bottom left / 48px 12px;
+  mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='12' viewBox='0 0 48 12' preserveAspectRatio='none'><path d='M0 12 L0 7 C 8 1 16 1 24 7 C 32 13 40 13 48 7 L48 12 Z' fill='%23000'/></svg>") repeat-x bottom left / 48px 12px;
 }
 
 .mockCard.blue { color: #8b8fb8; }
@@ -1693,12 +1704,14 @@ h3 {
 }
 
 .practiceTile {
-  min-height: 114px;
+  min-height: 118px;
   display: grid;
-  grid-template-columns: 1fr 120px;
-  align-content: center;
-  gap: 4px 18px;
-  padding: 16px 18px;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto auto;
+  align-items: center;
+  column-gap: 24px;
+  row-gap: 4px;
+  padding: 18px 24px 20px;
 }
 
 .practiceTile small,
@@ -1710,37 +1723,61 @@ h3 {
   text-transform: uppercase;
 }
 
+.practiceTile small {
+  grid-column: 1;
+  grid-row: 1;
+}
+
 .practiceTile h3 {
+  grid-column: 1;
+  grid-row: 2;
   margin: 0;
-  font-size: 20px;
+  font-size: 22px;
 }
 
 .practiceTile div {
+  grid-column: 1;
+  grid-row: 3;
   display: flex;
   align-items: baseline;
   gap: 2px;
+  margin-top: 2px;
 }
 
 .practiceTile div strong {
-  font-size: 28px;
+  font-size: 30px;
+  font-weight: 800;
 }
 
 .practiceTile div span {
   color: var(--muted);
+  font-size: 15px;
+}
+
+.practiceTile i {
+  grid-column: 1 / -1;
+  grid-row: 4;
+  margin-top: 12px;
+  height: 8px;
 }
 
 .practiceTile button {
   grid-column: 2;
-  grid-row: 3 / span 2;
-  align-self: end;
-  min-height: 28px;
+  grid-row: 1 / 4;
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  padding: 0 18px;
   border: 0;
   background: var(--green-dark);
   color: var(--panel);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 0.12em;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  cursor: pointer;
 }
 
 .confirmOverlay {
@@ -2396,6 +2433,10 @@ h3 {
 
   .hero h1 {
     font-size: clamp(42px, 13vw, 74px);
+  }
+
+  .greetingText h1 {
+    white-space: normal;
   }
 
   .featureGrid,
@@ -3399,6 +3440,12 @@ h3 {
   flex-wrap: wrap;
 }
 .greetingText {
+  max-width: 640px;
+}
+.greetingText h1 {
+  white-space: nowrap;
+}
+.greetingText p {
   max-width: 560px;
 }
 .diagnosticBox {
@@ -3453,7 +3500,13 @@ h3 {
 /* white "Enter" button on the gray card */
 .abilityCard button {
   background: var(--panel);
+  border-color: var(--line-strong);
+  color: var(--ink);
 }
+/* arrow tinted to the section accent */
+.abilityCard.blue button svg { color: #8b8fb8; }
+.abilityCard.rose button svg { color: var(--rose); }
+.abilityCard.green button svg { color: var(--green-dark); }
 /* colored syllabus coverage bars per accent (40%) */
 .abilityCard.blue .coverage i {
   background: linear-gradient(90deg, #8b8fb8 0 40%, rgba(30, 26, 18, 0.14) 40%);
