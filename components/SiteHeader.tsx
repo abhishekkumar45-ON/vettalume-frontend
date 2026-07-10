@@ -40,11 +40,6 @@ export default function SiteHeader({
             <button className="button primary navButton" type="button" onClick={() => setAuthMode("trial")}>
               Start Free Trial
             </button>
-            {authed ? (
-              <Link className="button dark navButton" href="/dashboard">
-                Dashboard
-              </Link>
-            ) : null}
             <Link className="iconButton" href="/cart" aria-label="Cart">
               <ShoppingCart size={24} aria-hidden="true" />
             </Link>

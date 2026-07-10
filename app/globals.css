@@ -42,8 +42,16 @@ body {
 h1,
 h2,
 h3 {
-  font-family: var(--font-montserrat), var(--font-hanken-grotesk), "Hanken Grotesk", sans-serif;
+  font-family: var(--font-hanken-grotesk), "Hanken Grotesk", sans-serif;
   font-weight: 800;
+}
+
+/* Force Hanken Grotesk on every element (overrides Montserrat + monospace usages) */
+*,
+*::before,
+*::after {
+  font-family: var(--font-hanken-grotesk), "Hanken Grotesk", ui-sans-serif, system-ui,
+    -apple-system, "Segoe UI", sans-serif !important;
 }
 
 .hanken-grotesk {
@@ -1461,15 +1469,16 @@ h3 {
 
 .dashboardGreeting h1 {
   margin: 0 0 14px;
-  font-size: clamp(42px, 5.2vw, 58px);
+  font-size: 42px;
 }
 
 .dashboardGreeting p {
   max-width: 540px;
   margin: 0;
   color: var(--ink-soft);
-  font-weight: 800;
-  line-height: 1.45;
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.55;
 }
 
 .dashboardBody {
@@ -1501,35 +1510,66 @@ h3 {
 .abilityCard.green { border-color: var(--green-dark); }
 
 .abilityGauge {
-  width: 210px;
-  height: 210px;
-  display: grid;
-  place-items: center;
-  align-content: center;
+  position: relative;
+  width: 220px;
+  height: 220px;
   margin: 0 auto 22px;
-  border-radius: 50%;
-  background:
-    radial-gradient(circle closest-side, var(--panel) 76%, transparent 77%),
-    conic-gradient(from 216deg, currentColor 0 var(--fill, 0.4turn), #d7d5cf var(--fill, 0.4turn) 1turn);
   color: #8b8fb8;
 }
 
 .abilityCard.rose .abilityGauge { color: var(--rose); }
 .abilityCard.green .abilityGauge { color: var(--green-dark); }
 
-.abilityGauge span {
+/* open C-arc gauge (270°, gap centred at the bottom, rounded caps) */
+.gaugeArc {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.gaugeArc circle {
+  fill: none;
+  stroke-width: 8;
+  stroke-linecap: round;
+  transform: rotate(135deg);
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+.gaugeTrack {
+  stroke: #d7d5cf;
+  stroke-dasharray: 75 100;
+}
+
+.gaugeValue {
+  stroke: currentColor;
+  stroke-dasharray: calc(var(--pct, 0) * 0.75) 100;
+  transition: stroke-dasharray 0.5s ease;
+}
+
+.gaugeText {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  text-align: center;
+}
+
+.gaugeText span {
   color: var(--ink);
   font-size: 22px;
   font-weight: 900;
 }
 
-.abilityGauge strong {
+.gaugeText strong {
   color: #000;
   font-size: 54px;
   line-height: 1;
 }
 
-.abilityGauge small {
+.gaugeText small {
   color: currentColor;
   font-size: 16px;
   font-weight: 900;
@@ -1568,19 +1608,30 @@ h3 {
 
 .recommendPanel {
   padding: 20px 8px;
-  max-height: 400px;
+  /* min-height:0 lets the grid row be sized by the ability cards, so this panel
+     matches their height instead of growing with its (scrollable) content */
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .recommendPanel h2 {
+  flex: none;
   margin: 0 12px 14px;
   font-size: 20px;
 }
 
 .recommendList {
+  flex: 1 1 auto;
+  min-height: 0;
+  /* cap sized to the ability card's inner height so many items scroll here
+     instead of stretching the whole row taller than the QA card */
+  max-height: 340px;
   display: grid;
   gap: 10px;
-  max-height: 320px;
-  overflow: auto;
+  align-content: start;
+  overflow-y: auto;
   padding-right: 8px;
 }
 
@@ -1608,14 +1659,15 @@ h3 {
 
 .mockHead {
   display: grid;
-  grid-template-columns: 1fr 1.55fr;
-  gap: 24px;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
   margin-top: 28px;
 }
 
 .mockHead h2 {
   margin: 0;
   font-size: 20px;
+  text-align: left;
 }
 
 .mockGrid {
@@ -3440,10 +3492,13 @@ h3 {
   flex-wrap: wrap;
 }
 .greetingText {
+  flex: 1 1 420px;
+  min-width: 0;
   max-width: 640px;
 }
 .greetingText h1 {
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: break-word;
 }
 .greetingText p {
   max-width: 560px;
@@ -3497,6 +3552,10 @@ h3 {
 .recommendPanel {
   background: #e9e7e3;
 }
+/* subtle per-section tint on each ability card (matches the accent) */
+.abilityCard.blue { background: #e5e6ec; }
+.abilityCard.rose { background: #ece2e0; }
+.abilityCard.green { background: #e3e8e2; }
 /* white "Enter" button on the gray card */
 .abilityCard button {
   background: var(--panel);
@@ -4266,55 +4325,88 @@ h3 {
 }
 
 /* ===================== exam switcher (header) ===================== */
-.examSwitch {
+/* course switcher as a dropdown (replaces the inline CAT/GMAT/GRE pills) */
+.courseMenu {
+  position: relative;
+  margin-right: 4px;
+}
+.courseMenuTrigger {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
-  padding: 3px;
+  gap: 6px;
+  padding: 7px 12px;
   border: 1px solid var(--line);
   border-radius: 4px;
   background: rgba(255, 255, 255, 0.55);
-  margin-right: 4px;
-}
-.examSwitchBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 6px 11px;
-  border-radius: 3px;
   font-size: 12.5px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.courseMenuTrigger:hover {
+  background: rgba(201, 162, 78, 0.12);
+}
+.courseMenuChevron {
+  transition: transform 0.15s;
+}
+.courseMenuChevron.open {
+  transform: rotate(180deg);
+}
+.courseMenuList {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 60;
+  min-width: 160px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel);
+  box-shadow: 0 8px 24px rgba(30, 26, 18, 0.14);
+}
+.courseMenuItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 13px;
   font-weight: 800;
   letter-spacing: 0.02em;
   color: var(--ink-soft);
   background: transparent;
+  text-align: left;
+  cursor: pointer;
   transition: background 0.15s, color 0.15s;
 }
-.examSwitchBtn:hover {
+.courseMenuItem:hover {
   color: var(--ink);
   background: rgba(201, 162, 78, 0.12);
 }
-.examSwitchBtn.on {
+.courseMenuItem.on {
   background: var(--gold);
   color: #fff;
 }
-.examSwitchBtn.locked {
-  color: var(--ink-soft);
+.courseMenuItem.locked {
   opacity: 0.72;
 }
-.examSwitchBtn.locked.on {
+.courseMenuItem.locked.on {
   background: var(--ink-soft);
   color: #fff;
   opacity: 1;
 }
-.examSwitchBtn.locked svg {
+.courseMenuItem.locked svg {
   opacity: 0.85;
 }
 @media (max-width: 900px) {
-  .examSwitch {
+  .courseMenu {
     margin-right: 0;
-  }
-  .examSwitchBtn {
-    padding: 6px 8px;
   }
 }
 

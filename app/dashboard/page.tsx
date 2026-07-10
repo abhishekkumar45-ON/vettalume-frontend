@@ -91,16 +91,15 @@ export default function DashboardPage() {
 
   const recommendations = useMemo(() => {
     if (!exam) return [];
-    return exam.sections
-      .flatMap((section, sIndex) =>
-        section.recommendations.map((rec) => ({
-          title: rec.name,
-          text: `${section.name} · focus area`,
-          width: `${rec.pct}%`,
-          tone: ACCENTS[sIndex % ACCENTS.length]
-        }))
-      )
-      .slice(0, 4);
+    // Show every focus area across sections; the panel scrolls when there are many.
+    return exam.sections.flatMap((section, sIndex) =>
+      section.recommendations.map((rec) => ({
+        title: rec.name,
+        text: `${section.name} · focus area`,
+        width: `${rec.pct}%`,
+        tone: ACCENTS[sIndex % ACCENTS.length]
+      }))
+    );
   }, [exam]);
 
   const subtext = useMemo(() => {
@@ -147,7 +146,7 @@ export default function DashboardPage() {
             <div className="greetingText">
               <h1>
                 {greeting}
-                {firstName ? `, ${firstName}` : ""}.
+                {firstName ? `, ${firstName}!` : "."}
               </h1>
               <p>{subtext}</p>
             </div>
@@ -179,10 +178,23 @@ export default function DashboardPage() {
             <div className="abilityGrid">
               {abilityCards.map((card) => (
                 <article className={`abilityCard ${card.accent}`} key={card.title}>
-                  <div className="abilityGauge" aria-hidden="true">
-                    <span>{card.title}</span>
-                    <strong>{card.score}</strong>
-                    <small>ABILITY</small>
+                  <div className="abilityGauge">
+                    <svg className="gaugeArc" viewBox="0 0 100 100" aria-hidden="true">
+                      <circle className="gaugeTrack" cx="50" cy="50" r="42" pathLength={100} />
+                      <circle
+                        className="gaugeValue"
+                        cx="50"
+                        cy="50"
+                        r="42"
+                        pathLength={100}
+                        style={{ "--pct": Math.max(0, Math.min(100, card.score)) } as CSSProperties}
+                      />
+                    </svg>
+                    <div className="gaugeText">
+                      <span>{card.title}</span>
+                      <strong>{card.score}</strong>
+                      <small>ABILITY</small>
+                    </div>
                   </div>
                   <div className="coverage">
                     <span>SYLLABUS COVERAGE</span>
