@@ -1545,7 +1545,9 @@ h3 {
 .gaugeValue {
   stroke: currentColor;
   stroke-dasharray: calc(var(--pct, 0) * 0.75) 100;
-  transition: stroke-dasharray 0.5s ease;
+  /* --pct is a registered @property, so this interpolates: the arc animates from 0
+     to the real ability when the value lands after the data fetch */
+  transition: --pct 1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .gaugeText {
@@ -3122,6 +3124,8 @@ h3 {
 }
 .progressPct {
   position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 1;
   color: var(--ink-soft);
   font-weight: 700;
@@ -3575,6 +3579,60 @@ h3 {
 }
 .abilityCard.green .coverage i {
   background: linear-gradient(90deg, var(--green-dark) 0 var(--cov, 0%), rgba(30, 26, 18, 0.14) var(--cov, 0%));
+}
+
+/* ---- load animations: every bar/arc grows from 0 to its value ---- */
+/* Registering these makes the custom props interpolable, so gradients + the arc animate. */
+@property --pct {
+  syntax: "<number>";
+  initial-value: 0;
+  inherits: false;
+}
+@property --cov {
+  syntax: "<percentage>";
+  initial-value: 0%;
+  inherits: false;
+}
+@property --progress {
+  syntax: "<percentage>";
+  initial-value: 0%;
+  inherits: false;
+}
+
+/* Dashboard bars update in place once the fetch lands (0 -> value) -> transition. */
+.coverage i {
+  transition: --cov 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Bars that mount already holding their value -> one-shot grow on mount. */
+@keyframes barGrowWidth {
+  from { width: 0; }
+}
+@keyframes barRiseHeight {
+  from { height: 0; }
+}
+@keyframes barGrowProgress {
+  from { --progress: 0%; }
+}
+.progressFill {
+  animation: barGrowWidth 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.mockFill {
+  animation: barRiseHeight 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.recommendItem i {
+  animation: barGrowProgress 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gaugeValue,
+  .coverage i,
+  .progressFill,
+  .mockFill,
+  .recommendItem i {
+    transition: none;
+    animation: none;
+  }
 }
 
 /* recommend items: white cards with colored bars using real widths */

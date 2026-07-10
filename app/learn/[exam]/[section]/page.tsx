@@ -138,12 +138,7 @@ export default function SectionDashboardPage() {
                       <div className={`progressBar chapter ${TONES[index % TONES.length]} clickable`}>
                         <i className="progressFill" style={{ width: `${chapter.pct}%` }} aria-hidden="true" />
                         <span className="progressName">{chapter.name}</span>
-                        <span
-                          className="progressPct"
-                          style={{ left: `clamp(240px, calc(${chapter.pct}% + 14px), calc(100% - 96px))` }}
-                        >
-                          {chapter.pct}%
-                        </span>
+                        <span className="progressPct">{chapter.pct}%</span>
                         <span className="progressGo" aria-hidden="true">
                           →
                         </span>

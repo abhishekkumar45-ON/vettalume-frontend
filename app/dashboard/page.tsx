@@ -124,7 +124,7 @@ export default function DashboardPage() {
   // No mock attempts are tracked yet (post-mock analysis is a later phase), so best/last scores start
   // empty. They fill once attempt history exists.
   const mockCards: Array<[string, string, string, string]> = [
-    [`${sectionNames[0] ?? "Sectional"} SM-1`, "90%", "Best Sectional Mock", "blue"],
+    [`${sectionNames[0] ?? "Sectional"} SM-1`, "75%", "Best Sectional Mock", "blue"],
     ["FLM-1", "74%", "Best Full Length Mock", "gold"],
     [`${sectionNames[1] ?? "Sectional"} SM-2`, "78%", "Last Sectional Mock", "rose"],
     ["FLM-2", "68%", "Last Full Length Mock", "gold"]
