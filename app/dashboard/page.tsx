@@ -199,7 +199,7 @@ export default function DashboardPage() {
                   <div className="coverage">
                     <span>SYLLABUS COVERAGE</span>
                     <b>{card.coverage}%</b>
-                    <i />
+                    <i style={{ "--cov": `${Math.max(0, Math.min(100, card.coverage))}%` } as CSSProperties} />
                   </div>
                   <button type="button" onClick={() => router.push(card.href)}>
                     {card.action}

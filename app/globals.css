@@ -3566,15 +3566,15 @@ h3 {
 .abilityCard.blue button svg { color: #8b8fb8; }
 .abilityCard.rose button svg { color: var(--rose); }
 .abilityCard.green button svg { color: var(--green-dark); }
-/* colored syllabus coverage bars per accent (40%) */
+/* colored syllabus coverage bars per accent — fill to the real coverage (--cov) */
 .abilityCard.blue .coverage i {
-  background: linear-gradient(90deg, #8b8fb8 0 40%, rgba(30, 26, 18, 0.14) 40%);
+  background: linear-gradient(90deg, #8b8fb8 0 var(--cov, 0%), rgba(30, 26, 18, 0.14) var(--cov, 0%));
 }
 .abilityCard.rose .coverage i {
-  background: linear-gradient(90deg, var(--rose) 0 40%, rgba(30, 26, 18, 0.14) 40%);
+  background: linear-gradient(90deg, var(--rose) 0 var(--cov, 0%), rgba(30, 26, 18, 0.14) var(--cov, 0%));
 }
 .abilityCard.green .coverage i {
-  background: linear-gradient(90deg, var(--green-dark) 0 40%, rgba(30, 26, 18, 0.14) 40%);
+  background: linear-gradient(90deg, var(--green-dark) 0 var(--cov, 0%), rgba(30, 26, 18, 0.14) var(--cov, 0%));
 }
 
 /* recommend items: white cards with colored bars using real widths */

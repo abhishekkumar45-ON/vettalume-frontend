@@ -312,21 +312,6 @@ header{position:sticky;top:0;z-index:50;
     </div>
   </section>
 
-  <section class="tsec">
-    <div class="cbox-h">
-      <h3>Learning vs Practice</h3>
-      <span class="cbox-sub">Time invested in this chapter</span>
-    </div>
-    <div class="twrap">
-      <div class="tend tend-l"><span class="tt-v">—</span><span class="tt-k">Learned</span></div>
-      <div class="twide" style="--learn:var(--qa);--prac:var(--dilr)">
-        <div class="tfill tfill-l" data-fill="0"><svg class="seawave-v" viewBox="0 0 20 100" preserveAspectRatio="none"><path d=""/></svg><span class="tpct"></span></div>
-        <div class="tfill tfill-r" data-fill="0"><svg class="seawave-v" viewBox="0 0 20 100" preserveAspectRatio="none"><path d=""/></svg><span class="tpct"></span></div>
-      </div>
-      <div class="tend tend-r"><span class="tt-v">—</span><span class="tt-k">Practiced</span></div>
-    </div>
-  </section>
-
   <section class="csplit3">
     <div class="abox" id="recbox">
       <div class="ak">Recommended Next Action</div>
@@ -472,12 +457,6 @@ startSea();
     }
     fill(boxes[0],strong); fill(boxes[1],weak); postH();
   }
-  function renderLVP(lvp){var l=p100(lvp.learned_pct),r=p100(lvp.practiced_pct);
-    var fl=document.querySelector('.tfill-l'),fr=document.querySelector('.tfill-r');
-    if(fl){fl.style.width=l+'%';var lp=fl.querySelector('.tpct');if(lp)lp.textContent=l+'%';}
-    if(fr){fr.style.width=r+'%';var rp=fr.querySelector('.tpct');if(rp)rp.textContent=r+'%';}
-    var lv=document.querySelector('.tend-l .tt-v'),rv=document.querySelector('.tend-r .tt-v');
-    if(lv)lv.textContent=lvp.learned_hms||'0m'; if(rv)rv.textContent=lvp.practiced_hms||'0m';}
   function renderImprovement(imp){var svg=document.querySelector('.ochart');if(!svg)return;
     var s=(imp&&imp.series)||[],od=document.querySelector('.odelta');
     if(!s.length){if(od)od.textContent='';return;}
@@ -524,7 +503,6 @@ startSea();
     renderDifficulty(d.difficulty_spread||[]);
     renderSubs(d.subtopics||[]);
     renderRanks(d.strongest||[], d.weakest||[]);
-    renderLVP(d.learning_vs_practice||{});
     renderImprovement(d.improvement_over_time||{});
     renderActions(d.recommended_actions||[]);
     renderPracticeTest(d.practice_test||{});
