@@ -104,7 +104,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 
 <div class="wrap">
   <div class="bar"><i id="barFill"></i></div>
-  <div class="adaptnote">Adaptive practice — the next question is chosen for you by difficulty</div>
+  <div class="adaptnote">Adaptive practice — one subtopic at a time, starting easy and getting harder as you get them right</div>
   <div id="host"></div>
 </div>
 
@@ -119,7 +119,7 @@ var H=token?{Authorization:'Bearer '+token}:{};
 var backHref='/learn/'+exam+'/'+section+'/'+chapter;
 document.body.setAttribute('data-exam',EX);
 
-var TOPIC_ID=null, cur=null, chosen=null, typed='', checked=false, seen=[], correctCount=0, total=0, answered=0;
+var TOPIC_ID=null, cur=null, curSub=null, chosen=null, typed='', checked=false, seen=[], correctCount=0, total=0, answered=0;
 var prefetchP=null, prefetchData=null;
 
 function slug(s){return (s||'').toLowerCase().replace(/&/g,'and').replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');}
@@ -129,7 +129,7 @@ function resolveCorrect(ca,opts){ca=(ca||'').trim();var i="ABCDE".indexOf(ca.toU
 function normA(s){return (s||'').trim().toLowerCase().replace(/\s+/g,'').replace(/,/g,'');}
 function titaOk(t,c){var a=normA(t),b=normA(c);if(a&&a===b)return true;var na=parseFloat(a),nb=parseFloat(b);return isFinite(na)&&isFinite(nb)&&na===nb;}
 function isTita(q){return (q.format||'').toLowerCase()==='tita' || !(q.options&&q.options.length);}
-function setProg(){document.getElementById('prog').textContent=answered+' / '+total;document.getElementById('barFill').style.width=(total?Math.round(100*answered/total):0)+'%';}
+function setProg(){document.getElementById('prog').textContent=answered+' / '+total+' subtopics';document.getElementById('barFill').style.width=(total?Math.round(100*answered/total):0)+'%';}
 function diffTag(d){var b=Math.max(1,Math.min(5,(d||0)+3));var L={1:'Very easy',2:'Easy',3:'Medium',4:'Hard',5:'Very hard'};return {band:b,text:'Level D'+b+' · '+(L[b]||'Medium')};}
 
 document.getElementById('finishBtn').addEventListener('click',function(){top.location.href=backHref;});
@@ -141,15 +141,16 @@ function fetchNext(excludeArr){
     .then(function(r){return r.json();}).catch(function(){return {status:'error',message:'Could not load the next question.'};});
 }
 function applyNext(d){
-  total=d.total||total; if(d.answered!=null) answered=d.answered; setProg();
+  total=d.subtopics_total||total; if(d.subtopics_mastered!=null) answered=d.subtopics_mastered; setProg();
   if(d.chapter&&d.chapter.name) document.getElementById('chLabel').textContent=d.chapter.name;
   if(!d.status || d.status!=='ok'){ renderEnd(d); return; }
-  cur=d.question; chosen=null; typed=''; checked=false; renderQ();
+  cur=d.question; curSub=d.subtopic||null; chosen=null; typed=''; checked=false; renderQ();
 }
 
 function renderQ(){
   var q=cur, host=document.getElementById('host'), dt=diffTag(q.difficulty);
-  var html='<div class="qcard"><div class="qtop"><span class="qn">Question '+(answered+1)+'</span><span class="diff-tag diff-d'+dt.band+'">'+dt.text+'</span></div>';
+  var subnm=curSub?esc(curSub.name):'Practice';
+  var html='<div class="qcard"><div class="qtop"><span class="qn">Subtopic · '+subnm+'</span><span class="diff-tag diff-d'+dt.band+'">'+dt.text+'</span></div>';
   html+='<div class="qstem">'+esc(q.stem)+'</div>';
   if(isTita(q)){
     html+='<div class="tita"><input id="titaInput" type="text" placeholder="Type your answer" value="'+esc(typed)+'"><span class="thint">Numerical answer — press Check when ready.</span></div>';
@@ -187,7 +188,6 @@ function check(){
       var cv=resolveCorrect(res.correct_answer,q.options||[]);
       var ok=isTita(q)?titaOk(given,res.correct_answer):(given===cv);
       if(ok) correctCount++;
-      answered++; setProg();
       var opts=document.getElementById('opts');
       if(opts){ opts.classList.add('locked'); opts.querySelectorAll('.opt').forEach(function(el){ var v=el.getAttribute('data-val'); if(v===cv)el.classList.add('correct'); else if(v===given)el.classList.add('wrong'); }); }
       var inp=document.getElementById('titaInput'); if(inp) inp.disabled=true;
@@ -204,11 +204,11 @@ function check(){
 
 function renderEnd(d){
   var host=document.getElementById('host');
-  var msg = d.status==='empty' ? 'No practice questions yet' : (d.status==='done' ? 'Practice complete' : 'Something went wrong');
+  var msg = d.status==='empty' ? 'No practice questions yet' : (d.status==='done' ? 'Chapter practice complete' : 'Something went wrong');
   var body = d.status==='empty'
-    ? 'Once an admin adds practice questions for this chapter, they’ll appear here.'
-    : (d.status==='done' ? 'You’ve worked through the practice questions in this chapter.' : (d.message||''));
-  var score = (answered>0 && d.status==='done') ? ('<div class="sc">You got '+correctCount+' of '+answered+' correct this session.</div>') : '';
+    ? 'Once an admin adds practice questions to this chapter’s subtopics, they’ll appear here.'
+    : (d.status==='done' ? 'You’ve mastered the practice for every subtopic in this chapter.' : (d.message||''));
+  var score = (correctCount>0) ? ('<div class="sc">'+correctCount+' correct this session.</div>') : '';
   host.innerHTML='<div class="state"><b>'+msg+'</b>'+body+score+'<button class="btn btn-primary" id="backBtn">Back to chapter <span>&rarr;</span></button></div>';
   document.getElementById('backBtn').addEventListener('click',function(){top.location.href=backHref;});
   postH();
