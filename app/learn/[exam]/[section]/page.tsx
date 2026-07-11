@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import Loading from "@/components/Loading";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import { learnApi, type Overview, type OverviewSection } from "@/lib/api";
@@ -102,7 +103,7 @@ export default function SectionDashboardPage() {
           ) : null}
 
           {loading ? (
-            <p className="sectionDashHeading" style={{ marginTop: 24 }}>Loading…</p>
+            <Loading label="Loading your section…" />
           ) : error ? (
             <p className="sectionDashHeading" style={{ marginTop: 24 }}>{error}</p>
           ) : !section ? (

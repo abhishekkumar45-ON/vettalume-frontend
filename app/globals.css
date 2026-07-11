@@ -4726,3 +4726,14 @@ h3 {
 .maQSol { border-top: 1px solid var(--line-soft, var(--line-strong)); padding-top: 12px; }
 .maSolLab { font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
 .maQSol p { margin: 0; font-size: 14px; line-height: 1.6; color: var(--ink-soft); white-space: pre-wrap; }
+
+/* ---- shared loading spinner (keeps the footer down instead of floating up) ---- */
+.loadingState { min-height: 65vh; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 16px; }
+.loadingState.compact { min-height: 220px; }
+.loadingSpinner { width: 42px; height: 42px; border-radius: 50%;
+  border: 3px solid var(--line-strong); border-top-color: var(--gold);
+  animation: loadingSpin 0.8s linear infinite; }
+.loadingLabel { color: var(--ink-soft); font-size: 15px; font-weight: 500; }
+@keyframes loadingSpin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .loadingSpinner { animation-duration: 2.4s; } }

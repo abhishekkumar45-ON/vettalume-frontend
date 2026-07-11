@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, ChevronDown, Lock } from "lucide-react";
 import { mockApi, type MockSummary, type SectionAnalysis } from "@/lib/api";
+import Loading from "@/components/Loading";
 import TrendChart from "@/components/mocks/TrendChart";
 
 const ACCENT: Record<string, string> = {
@@ -95,7 +96,7 @@ export default function SectionalMockDashboard({
         </header>
 
         {loading ? (
-          <p className="smNote">Loading your mock history…</p>
+          <Loading label="Loading your mock history…" />
         ) : error ? (
           <p className="smNote">{error}</p>
         ) : (

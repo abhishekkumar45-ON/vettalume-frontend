@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, ChevronDown, Lock } from "lucide-react";
 import { mockApi, type FullAnalysis, type MockSummary } from "@/lib/api";
+import Loading from "@/components/Loading";
 import TrendChart from "@/components/mocks/TrendChart";
 
 const SECTION_ACCENT: Record<string, string> = {
@@ -79,7 +80,7 @@ export default function FullMockDashboard({ exam }: { exam: string }) {
         </header>
 
         {loading ? (
-          <p className="smNote">Loading your full-mock history…</p>
+          <Loading label="Loading your full-mock history…" />
         ) : error ? (
           <p className="smNote">{error}</p>
         ) : (

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { learnApi, type ConceptDetail, type QuizQuestion } from "@/lib/api";
+import Loading from "@/components/Loading";
 
 type Mode = "concept" | "video" | "quiz";
 
@@ -282,7 +283,7 @@ export default function SubtopicLearning({
 
         <div className="panels">
           {loading ? (
-            <p className="prose" style={{ padding: "20px 0" }}>Loading…</p>
+            <Loading label="Loading…" compact />
           ) : error ? (
             <p className="prose" style={{ padding: "20px 0" }}>{error}</p>
           ) : (

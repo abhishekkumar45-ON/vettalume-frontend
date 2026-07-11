@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, ChevronDown } from "lucide-react";
 import { mockApi, type AttemptAnalysis } from "@/lib/api";
+import Loading from "@/components/Loading";
 
 function fmtT(sec: number | null) {
   if (sec == null) return "--";
@@ -64,7 +65,7 @@ export default function MockAttemptAnalysis({
         </div>
 
         {loading ? (
-          <p className="smNote">Loading analysis…</p>
+          <Loading label="Loading analysis…" />
         ) : error || !data || !ov ? (
           <p className="smNote">{error || "Attempt not found."}</p>
         ) : (
