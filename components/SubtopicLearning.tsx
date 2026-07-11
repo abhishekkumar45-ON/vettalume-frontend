@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { learnApi, type ConceptDetail, type QuizQuestion } from "@/lib/api";
 
-type Mode = "concept" | "video" | "material" | "quiz";
+type Mode = "concept" | "video" | "quiz";
 
 type SubtopicLearningProps = {
   examLabel: string;
@@ -205,9 +205,8 @@ export default function SubtopicLearning({
   const modes = useMemo(
     () => [
       { id: "concept" as Mode, num: "01", label: "Concept" },
-      { id: "material" as Mode, num: "02", label: "Material" },
-      { id: "video" as Mode, num: "03", label: "Video" },
-      { id: "quiz" as Mode, num: "04", label: "Quiz" }
+      { id: "video" as Mode, num: "02", label: "Video" },
+      { id: "quiz" as Mode, num: "03", label: "Quiz" }
     ],
     []
   );
@@ -312,17 +311,6 @@ export default function SubtopicLearning({
                       </div>
                     </div>
                   </aside>
-                </div>
-              </section>
-
-              {/* MATERIAL */}
-              <section className={`panel${mode === "material" ? " on" : ""}`}>
-                <div className="ex">
-                  <div className="ex-h">Study material</div>
-                  <p style={{ margin: 0 }}>
-                    Downloadable notes and worksheets for this subtopic will appear here once an admin
-                    uploads them from the content portal.
-                  </p>
                 </div>
               </section>
 

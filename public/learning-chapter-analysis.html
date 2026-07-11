@@ -424,17 +424,18 @@ startSea();
   try{new ResizeObserver(postH).observe(document.body);}catch(e){}
   function pctColor(v){var rose=[188,116,104],peri=[121,126,164],sage=[90,150,112],a,b,t;if(v<50){a=rose;b=peri;t=Math.max(0,Math.min(1,(v-10)/40));}else{a=peri;b=sage;t=(v-50)/50;}return 'rgb('+Math.round(a[0]+(b[0]-a[0])*t)+','+Math.round(a[1]+(b[1]-a[1])*t)+','+Math.round(a[2]+(b[2]-a[2])*t)+')';}
   function p100(x){return Math.round((x||0)*100);}
-  // subtopic bars now show MAB mastery (0..1) with a check when the subtopic is "learnt" (>=70%)
+  // subtopic bars show PROGRESS (25% notes + 25% video + 50% correct/total), with a check when the
+  // subtopic is "learnt" (mastery >= 70%)
   function renderSubs(subs){
     var wrap=document.querySelector('.stsec .chaps'); if(!wrap) return;
     var cnt=document.querySelector('.stsec .cbox-sub'); if(cnt) cnt.textContent=subs.length+' concepts in this chapter';
-    wrap.innerHTML=subs.map(function(s){var v=p100(s.mastery);
+    wrap.innerHTML=subs.map(function(s){var v=p100(s.progress);
       return '<div class="chap"><div class="ctrack"><div class="cfill" style="width:'+v+'%"></div></div>'+
         '<div class="cface"><div class="cleft"><span class="cbul"></span><span class="cname">'+s.name+'</span></div>'+
         '<span class="cpct">'+(s.learnt?'✓ ':'')+v+'%</span><span class="car">&#8594;</span></div></div>';
     }).join('');
     wrap.querySelectorAll('.chap').forEach(function(ch,i){var s=subs[i];
-      ch.style.setProperty('--sec', pctColor(p100(s.mastery)));
+      ch.style.setProperty('--sec', pctColor(p100(s.progress)));
       ch.addEventListener('click',function(){ top.location.href='/learn/'+exam+'/'+section+'/'+chapter+'/'+slug(s.name); });
     });
     postH();
