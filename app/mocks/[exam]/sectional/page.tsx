@@ -65,7 +65,7 @@ export default async function SectionalPickerPage({
               <a
                 className="pickCard"
                 key={section.slug}
-                href={`/sectional-mock.html?exam=${exam.slug}&section=${section.slug}`}
+                href={`/mocks/${exam.slug}/sectional/${section.slug}`}
               >
                 <span className="pickName">{section.name}</span>
                 <span className="pickFull">{section.full}</span>

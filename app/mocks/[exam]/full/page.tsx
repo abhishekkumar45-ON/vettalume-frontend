@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
-import MockFrame from "@/components/MockFrame";
+import FullMockDashboard from "@/components/mocks/FullMockDashboard";
 import { EXAM_SLUGS, isExamSlug } from "@/app/examCatalog";
 
 export function generateStaticParams() {
@@ -26,7 +26,7 @@ export default async function FullMockPage({ params }: { params: Promise<{ exam:
   return (
     <>
       <SiteHeader />
-      <MockFrame src={`/full-mock.html?exam=${exam}`} title={`${exam.toUpperCase()} full mocks`} />
+      <FullMockDashboard exam={exam} />
       <SiteFooter />
     </>
   );

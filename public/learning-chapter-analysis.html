@@ -451,7 +451,7 @@ startSea();
     function fill(box,arr){if(!box)return;var list=box.querySelector('.tlist');if(!list)return;
       var rows=(arr||[]).slice(0,3);
       if(!rows.length){list.innerHTML='<div class="trow"><span class="tname" style="color:var(--text-4)">No data yet</span></div>';return;}
-      list.innerHTML=rows.map(function(t){var v=p100(t.mastery);
+      list.innerHTML=rows.map(function(t){var v=p100(t.progress);
         return '<div class="trow" data-val="'+v+'"><span class="tname">'+t.name+'</span><span class="tbar"><i style="width:'+v+'%"></i></span><span class="tval">'+v+'</span></div>';
       }).join('');
       list.querySelectorAll('.trow').forEach(function(r){r.style.setProperty('--c','var(--brand)');});

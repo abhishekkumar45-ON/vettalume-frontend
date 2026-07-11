@@ -3152,7 +3152,9 @@ h3 {
   grid-template-columns: 1fr 1fr;
 }
 .practiceTile i {
-  background: linear-gradient(90deg, var(--green-dark) 0 52%, rgba(30, 26, 18, 0.14) 52%);
+  --progress: 52%;
+  background: linear-gradient(90deg, var(--green-dark) 0 var(--progress), rgba(30, 26, 18, 0.14) var(--progress));
+  animation: barGrowProgress 0.9s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ===================== mock analytics page (full & sectional) ===================== */
@@ -3629,7 +3631,8 @@ h3 {
   .coverage i,
   .progressFill,
   .mockFill,
-  .recommendItem i {
+  .recommendItem i,
+  .practiceTile i {
     transition: none;
     animation: none;
   }
@@ -4585,3 +4588,141 @@ h3 {
 .subtopicPage .solSteps { display: flex; flex-direction: column; gap: 7px; }
 .subtopicPage .solStep { font-size: 14px; color: var(--text-2); line-height: 1.55; }
 .subtopicPage .solStep b { color: var(--gold-ink); font-family: var(--f-mono); font-size: 12.5px; }
+
+/* ===================== sectional mock module (React) ===================== */
+.smPage { --sm-accent: var(--gold); padding: 20px 0 64px; }
+.smBack { padding: 10px 0 6px; }
+.smBack a { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; color: var(--muted); }
+.smBack a:hover { color: var(--ink); }
+.smHero { padding: 18px 0 8px; }
+.smKicker { font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+  color: color-mix(in srgb, var(--sm-accent) 72%, var(--ink-soft)); margin: 0 0 10px; }
+.smHero h1 { margin: 0; font-size: 42px; letter-spacing: -0.02em; }
+.smSub { max-width: 640px; margin: 12px 0 0; color: var(--ink-soft); font-size: 16px; line-height: 1.5; }
+.smNote { margin: 28px 0; color: var(--ink-soft); font-size: 15px; }
+
+.smStats { display: grid; grid-template-columns: repeat(4, 1fr); margin: 28px 0 0;
+  border: 1px solid var(--line-strong); border-radius: 10px; overflow: hidden; }
+.smStat { padding: 20px 22px; border-right: 1px solid var(--line-strong);
+  background: color-mix(in srgb, var(--sm-accent) 7%, var(--panel)); }
+.smStat:last-child { border-right: none; }
+.smNum { font-size: 38px; font-weight: 800; letter-spacing: -0.02em; line-height: 1;
+  color: color-mix(in srgb, var(--sm-accent) 60%, var(--ink)); }
+.smNum small { font-size: 18px; font-weight: 700; color: var(--muted); }
+.smLab { margin-top: 12px; font-size: 11px; font-weight: 800; letter-spacing: 0.09em;
+  text-transform: uppercase; color: var(--ink-soft); }
+
+.smAnaToggle { display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  width: 100%; margin-top: 16px; padding: 14px 18px; border: 1px solid var(--line-strong);
+  border-radius: 10px; background: var(--panel); font-size: 15px; font-weight: 800; color: var(--ink);
+  cursor: pointer; }
+.smAnaToggle:hover { border-color: color-mix(in srgb, var(--sm-accent) 45%, var(--line-strong)); }
+.smAnaToggle svg { color: var(--gold-ink, var(--gold)); transition: transform 0.2s; }
+.smAnaToggle.open svg { transform: rotate(180deg); }
+
+.smTrendGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 14px; }
+.smTrendBox { border: 1px solid var(--line-strong); border-radius: 10px;
+  background: color-mix(in srgb, var(--sm-accent) 4%, var(--panel)); padding: 16px 18px; }
+.smBoxH { display: flex; align-items: baseline; gap: 10px; margin-bottom: 14px; }
+.smBoxH h3 { margin: 0; font-size: 15px; }
+.smBoxH span { font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+.smChart { width: 100%; height: auto; aspect-ratio: 440 / 210; overflow: visible; }
+.smGrid { stroke: var(--line-strong); stroke-width: 1; opacity: 0.5; }
+.smLine { fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.smDot { }
+.smDotLast { fill: var(--panel); stroke-width: 2.6; }
+.smXlab { font-size: 9px; fill: var(--muted); font-weight: 700; }
+.smCur { font-size: 15px; font-weight: 800; fill: var(--ink); }
+.smNoData { font-size: 12px; fill: var(--muted); }
+
+.smMocks { margin-top: 30px; }
+.smMockList { display: flex; flex-direction: column; gap: 10px; }
+.smMockRow { position: relative; display: flex; align-items: center; gap: 12px; min-height: 54px;
+  padding: 0 16px; border: 1px solid color-mix(in srgb, var(--sm-accent) 45%, var(--line-strong));
+  border-radius: 6px; overflow: hidden; background: color-mix(in srgb, var(--sm-accent) 5%, var(--panel)); }
+.smMockRow.next { border: 2px solid color-mix(in srgb, var(--gold) 60%, var(--line-strong));
+  background: color-mix(in srgb, var(--gold) 8%, var(--panel)); }
+.smMockRow.locked { color: var(--muted); border-style: dashed; }
+.smMockFill { position: absolute; left: 0; top: 0; bottom: 0; z-index: 0;
+  background: color-mix(in srgb, var(--sm-accent) 22%, var(--panel)); transition: width 0.9s cubic-bezier(0.4,0,0.2,1); }
+.smMockName { position: relative; z-index: 1; font-weight: 600; font-size: 14.5px; }
+.smMockScore { position: relative; z-index: 1; margin-left: auto; font-family: var(--font-mono, ui-monospace, monospace);
+  font-weight: 700; font-size: 14px; color: color-mix(in srgb, var(--sm-accent) 72%, var(--ink)); }
+.smMockScore.muted { color: var(--muted); font-weight: 600; }
+.smMockBtn { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 13px; border: 1px solid var(--line-strong); border-radius: 6px; background: var(--panel);
+  font-size: 12.5px; font-weight: 700; color: var(--ink); cursor: pointer; }
+.smMockBtn:hover { border-color: color-mix(in srgb, var(--sm-accent) 55%, var(--line-strong)); }
+.smMockBtn.go { color: var(--gold-ink, var(--gold)); border-color: color-mix(in srgb, var(--gold) 55%, var(--line-strong)); }
+
+@media (max-width: 860px) {
+  .smStats { grid-template-columns: repeat(2, 1fr); }
+  .smStat:nth-child(2) { border-right: none; }
+  .smTrendGrid { grid-template-columns: 1fr; }
+  .smHero h1 { font-size: 34px; }
+}
+
+/* ---- individual attempt analysis ---- */
+.maPage { --sm-accent: var(--gold); }
+.maBadges { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.maBadge { display: inline-flex; align-items: baseline; gap: 7px; padding: 8px 14px;
+  border: 1px solid var(--line-strong); border-radius: 8px; background: var(--panel);
+  font-size: 13px; color: var(--ink-soft); }
+.maBadge b { font-size: 16px; font-weight: 800; color: var(--ink); }
+.maBadge.good b { color: var(--green-dark); }
+.maBadge.bad b { color: var(--rose); }
+
+.maSecScores { margin-top: 26px; }
+.maSecGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+.maSecCard { border: 1px solid var(--line-strong); border-radius: 10px; padding: 16px 18px; background: var(--panel); }
+.maSecName { font-size: 12px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft); }
+.maSecScore { margin-top: 8px; font-size: 30px; font-weight: 800; letter-spacing: -0.02em; }
+.maSecScore small { font-size: 16px; font-weight: 700; color: var(--muted); }
+.maSecMeta { margin-top: 6px; font-size: 12.5px; color: var(--muted); }
+
+.maDiff { margin-top: 30px; }
+.maDiffBars { display: flex; align-items: flex-end; gap: 14px; height: 180px; }
+.maDiffCol { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; height: 100%; }
+.maDiffTrack { position: relative; width: 100%; max-width: 60px; flex: 1; border: 1px solid var(--line-strong);
+  background: color-mix(in srgb, var(--gold) 4%, var(--panel)); overflow: hidden; border-radius: 4px; }
+.maDiffFill { position: absolute; left: 0; right: 0; bottom: 0; background: color-mix(in srgb, var(--green-dark) 60%, var(--panel));
+  transition: height 0.9s cubic-bezier(0.4, 0, 0.2, 1); }
+.maDiffPct { position: absolute; bottom: 8px; left: 0; right: 0; text-align: center; z-index: 1;
+  font-size: 12px; font-weight: 800; color: var(--ink); }
+.maDiffLab { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: var(--muted); }
+
+.maReview { margin-top: 32px; padding-bottom: 20px; }
+.maReviewHead { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 14px; flex-wrap: wrap; }
+.maReviewHead h3 { margin: 0; font-size: 18px; }
+.maFilters { display: inline-flex; gap: 4px; padding: 3px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--panel); }
+.maFilters button { padding: 6px 12px; border-radius: 6px; font-size: 12.5px; font-weight: 700; color: var(--ink-soft); background: transparent; cursor: pointer; }
+.maFilters button.active { background: var(--gold); color: #fff; }
+
+.maQList { display: flex; flex-direction: column; gap: 8px; }
+.maQRow { border: 1px solid var(--line-strong); border-radius: 10px; background: var(--panel); overflow: hidden; }
+.maQRow.open { border-color: color-mix(in srgb, var(--gold) 40%, var(--line-strong)); }
+.maQHead { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 16px; background: transparent; cursor: pointer; text-align: left; }
+.maQNo { font-family: var(--font-mono, ui-monospace, monospace); font-weight: 700; font-size: 13px; color: var(--ink); min-width: 34px; }
+.maQSec { font-size: 12.5px; color: var(--ink-soft); }
+.maQDiff { font-size: 11px; font-weight: 800; letter-spacing: 0.04em; padding: 3px 9px; border-radius: 20px; text-transform: uppercase; }
+.maQDiff.easy { background: color-mix(in srgb, var(--green-dark) 14%, var(--panel)); color: var(--green-dark); }
+.maQDiff.medium { background: color-mix(in srgb, var(--gold) 16%, var(--panel)); color: var(--gold-ink, var(--gold)); }
+.maQDiff.hard { background: color-mix(in srgb, var(--rose) 16%, var(--panel)); color: var(--rose); }
+.maQRes { font-size: 12px; font-weight: 700; text-transform: capitalize; }
+.maQRes.correct { color: var(--green-dark); }
+.maQRes.wrong { color: var(--rose); }
+.maQRes.skipped { color: var(--muted); }
+.maQTime { margin-left: auto; font-family: var(--font-mono, ui-monospace, monospace); font-size: 12.5px; color: var(--ink-soft); }
+.maQTime em { color: var(--muted); font-style: normal; }
+.maQChev { color: var(--muted); transition: transform 0.2s; flex: 0 0 auto; }
+.maQRow.open .maQChev { transform: rotate(180deg); color: var(--gold-ink, var(--gold)); }
+.maQBody { padding: 4px 16px 16px; border-top: 1px solid var(--line-soft, var(--line-strong)); }
+.maQPrompt { margin: 12px 0; font-size: 15px; line-height: 1.55; color: var(--ink); }
+.maQAns { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+.maAns { display: inline-flex; align-items: center; gap: 8px; padding: 7px 12px; border-radius: 8px; font-size: 14px; font-weight: 700; }
+.maAns .lab { font-size: 10px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.7; }
+.maAns.correct { background: color-mix(in srgb, var(--green-dark) 12%, var(--panel)); color: var(--green-dark); }
+.maAns.yours { background: color-mix(in srgb, var(--rose) 12%, var(--panel)); color: var(--rose); }
+.maQSol { border-top: 1px solid var(--line-soft, var(--line-strong)); padding-top: 12px; }
+.maSolLab { font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+.maQSol p { margin: 0; font-size: 14px; line-height: 1.6; color: var(--ink-soft); white-space: pre-wrap; }

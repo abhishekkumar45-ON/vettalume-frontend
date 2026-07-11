@@ -197,6 +197,8 @@ var H=token?{Authorization:'Bearer '+token}:{};
 document.body.setAttribute('data-exam',EX);
 
 var PAPER=null, FLAT=[], ANS={}, cur=0, timer=null, tRemain=0, submitted=false;
+var DUR={}, _qStart=0, _qId=null, _examStart=0;   // per-question + total time tracking
+function markTime(){ if(_qId!=null && _qStart){ DUR[_qId]=(DUR[_qId]||0)+(Date.now()-_qStart); } }
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function isTita(q){return !(q.options&&q.options.length);}
 function backToList(){ top.location.href='/mocks/'+exam+'/'+(PAPER&&PAPER.type==='sectional'?'sectional':'full'); }
@@ -224,6 +226,7 @@ fetch(api+'/mocks/'+encodeURIComponent(mockId),{headers:H}).then(function(r){ret
 document.getElementById('introStart').addEventListener('click',function(){
   if(!PAPER||!FLAT.length) return;
   document.getElementById('intro').classList.add('hide');
+  _examStart=Date.now();
   cur=0; renderQ(); renderPalette(); updateSummary();
   if(PAPER._mins>0){ startTimer(PAPER._mins); document.getElementById('clockBox').classList.remove('hide'); }
 });
@@ -237,6 +240,7 @@ function paintClock(){ var m=Math.floor(tRemain/60), s=tRemain%60; document.getE
 // ----- render -----
 function renderQ(){
   var item=FLAT[cur]; if(!item) return; var q=item.q;
+  markTime(); _qId=q.id; _qStart=Date.now();
   document.getElementById('qNum').textContent=(cur<9?'0':'')+(cur+1);
   document.getElementById('ofN').textContent='/ '+FLAT.length;
   document.getElementById('tSec').textContent=item.sname||'';
@@ -293,8 +297,10 @@ document.getElementById('hSubmit').addEventListener('click',doSubmit);
 function doSubmit(){
   if(submitted) return; submitted=true;
   if(timer) clearInterval(timer);
+  markTime();
+  var timeMs=_examStart?(Date.now()-_examStart):0;
   fetch(api+'/mocks/'+encodeURIComponent(mockId)+'/submit',{method:'POST',
-    headers:Object.assign({'Content-Type':'application/json'},H), body:JSON.stringify({answers:ANS})})
+    headers:Object.assign({'Content-Type':'application/json'},H), body:JSON.stringify({answers:ANS,durations:DUR,timeMs:timeMs})})
     .then(function(r){return r.json();}).then(showResult)
     .catch(function(){ submitted=false; alert('Could not submit — check your connection and try again.'); });
 }
@@ -310,6 +316,15 @@ function showResult(res){
   document.getElementById('resSecs').innerHTML=(res.sections||[]).map(function(s){
     return '<div class="rsrow"><span class="rsn">'+esc(s.name)+'</span><span class="rsv">'+s.raw+'/'+s.total+' · '+Math.round((s.accuracy||0)*100)+'% · '+s.score+' pts</span></div>';
   }).join('');
+  // Sectional attempts get a direct link to their full per-question analysis.
+  var sec=(PAPER&&PAPER.type==='sectional'&&PAPER.sections&&PAPER.sections[0])?String(PAPER.sections[0].name||'').toLowerCase():'';
+  var rb=document.getElementById('resBack');
+  if(res.attemptId && sec && rb && !document.getElementById('resView')){
+    var v=document.createElement('button'); v.id='resView'; v.className='btn btn-primary';
+    v.innerHTML='View full analysis <span>&rarr;</span>';
+    v.onclick=function(){ top.location.href='/mocks/'+exam+'/sectional/'+sec+'/'+res.attemptId; };
+    rb.parentNode.insertBefore(v, rb);
+  }
   document.getElementById('result').classList.remove('hide');
 }
 

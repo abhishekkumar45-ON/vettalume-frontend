@@ -2,24 +2,21 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
-import MockFrame from "@/components/MockFrame";
-import { EXAM_SLUGS, isExamSlug } from "@/app/examCatalog";
+import MockAttemptAnalysis from "@/components/mocks/MockAttemptAnalysis";
+import { isExamSlug } from "@/app/examCatalog";
 
-const MOCK_IDS = ["1", "2", "3", "4", "5", "6", "7", "8"];
-
-export function generateStaticParams() {
-  return EXAM_SLUGS.flatMap((exam) => MOCK_IDS.map((mock) => ({ exam, mock })));
-}
+export const dynamicParams = true;
 
 export async function generateMetadata({
   params
 }: {
   params: Promise<{ exam: string; mock: string }>;
 }): Promise<Metadata> {
-  const { exam, mock } = await params;
-  return { title: `Mock ${mock} analysis · ${exam.toUpperCase()} | VettaLume` };
+  const { exam } = await params;
+  return { title: `Full mock analysis · ${exam.toUpperCase()} | VettaLume` };
 }
 
+// `mock` here is the attempt id (full-mock "View analysis" links to /mocks/{exam}/full/{attemptId}).
 export default async function FullMockAnalysisPage({
   params
 }: {
@@ -32,9 +29,11 @@ export default async function FullMockAnalysisPage({
   return (
     <>
       <SiteHeader />
-      <MockFrame
-        src={`/full-mock-analysis.html?exam=${exam}&mock=${encodeURIComponent(mock)}`}
-        title={`${exam.toUpperCase()} mock ${mock} analysis`}
+      <MockAttemptAnalysis
+        exam={exam}
+        attemptId={mock}
+        backHref={`/mocks/${exam}/full`}
+        backLabel="Full Mocks"
       />
       <SiteFooter />
     </>

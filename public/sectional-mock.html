@@ -449,105 +449,119 @@ header.shd{position:sticky;top:0;z-index:50;background:var(--ink);border-bottom:
 </main>
 
 <script>
-/* ---- parameterize by ?exam & ?section ---- */
+/* ---- LIVE: section aggregate analytics from the backend (no hardcoded data) ---- */
 (function(){
-  const R='#b2847a', G='#7d9a84', B='#797ea4';
-  const DATA={
-   cat:{
-    varc:{name:'VARC',full:'Verbal Ability & Reading Comprehension',color:R,
-      topics:[['Reading Comprehension',64],['Tone & Attitude',47],['Vocabulary in Context',14],['Para Jumbles',52],['Para Summary',38],['Odd Sentence Out',20]],
-      strong:[['Main Idea & Structure',64],['Para Jumbles',52],['Tone & Attitude',47]],
-      weak:[['Vocabulary in Context',14],['Odd Sentence Out',20],['Para Summary',38]],
-      recs:[['Vocabulary in Context',14],['Odd Sentence Out',20]]},
-    dilr:{name:'DILR',full:'Data Interpretation & Logical Reasoning',color:G,
-      topics:[['Tables & Charts',58],['Caselets',42],['Venn Diagrams',30],['Arrangements',40],['Puzzles',33],['Blood Relations',22]],
-      strong:[['Tables & Charts',58],['Caselets',42],['Arrangements',40]],
-      weak:[['Blood Relations',22],['Venn Diagrams',30],['Puzzles',33]],
-      recs:[['Blood Relations',22],['Venn Diagrams',30]]},
-    qa:{name:'QA',full:'Quantitative Aptitude',color:B,
-      topics:[['Percentages',80],['Ratio & Proportion',72],['Time & Work',58],['Equations',68],['Functions',55],['Progressions',44]],
-      strong:[['Percentages',80],['Ratio & Proportion',72],['Equations',68]],
-      weak:[['Progressions',44],['Functions',55],['Time & Work',58]],
-      recs:[['Progressions',44],['Functions',55]]}
-   },
-   gmat:{
-    quant:{name:'Quant',full:'Quantitative Reasoning',color:B,
-      topics:[['Arithmetic',72],['Algebra',60],['Geometry',44],['Number Properties',58],['Rates & Work',50],['Combinatorics',32]],
-      strong:[['Arithmetic',72],['Algebra',60],['Number Properties',58]],
-      weak:[['Combinatorics',32],['Geometry',44],['Rates & Work',50]],
-      recs:[['Combinatorics',32],['Geometry',44]]},
-    verbal:{name:'Verbal',full:'Verbal Reasoning',color:R,
-      topics:[['Main Idea',66],['Inference',52],['Tone',40],['Assumptions',58],['Strengthen / Weaken',48],['Evaluate',34]],
-      strong:[['Main Idea',66],['Assumptions',58],['Inference',52]],
-      weak:[['Evaluate',34],['Tone',40],['Strengthen / Weaken',48]],
-      recs:[['Evaluate',34],['Tone',40]]},
-    data:{name:'Data Insights',full:'Data Insights',color:G,
-      topics:[['Two-Statement Logic',56],['Value vs Yes/No',44],['Common Traps',30],['Table Analysis',52],['Graphics Interpretation',50],['Two-Part Analysis',36]],
-      strong:[['Two-Statement Logic',56],['Table Analysis',52],['Graphics Interpretation',50]],
-      weak:[['Common Traps',30],['Two-Part Analysis',36],['Value vs Yes/No',44]],
-      recs:[['Common Traps',30],['Two-Part Analysis',36]]}
-   },
-   gre:{
-    verbal:{name:'Verbal',full:'Verbal Reasoning',color:R,
-      topics:[['Main Idea',64],['Inference',50],['Vocabulary in Context',38],['One-Blank',62],['Two-Blank',48],['Three-Blank',30]],
-      strong:[['Main Idea',64],['One-Blank',62],['Inference',50]],
-      weak:[['Three-Blank',30],['Vocabulary in Context',38],['Two-Blank',48]],
-      recs:[['Three-Blank',30],['Vocabulary in Context',38]]},
-    quant:{name:'Quant',full:'Quantitative Reasoning',color:B,
-      topics:[['Arithmetic',78],['Algebra',66],['Word Problems',52],['Geometry',60],['Data Interpretation',58],['Probability',40]],
-      strong:[['Arithmetic',78],['Algebra',66],['Geometry',60]],
-      weak:[['Probability',40],['Word Problems',52],['Data Interpretation',58]],
-      recs:[['Probability',40],['Word Problems',52]]},
-    awa:{name:'AWA',full:'Analytical Writing',color:G,
-      topics:[['Thesis & Structure',52],['Evidence',40],['Style & Clarity',28],['Flaw Identification',50],['Counterexamples',42],['Conclusion',30]],
-      strong:[['Thesis & Structure',52],['Flaw Identification',50],['Counterexamples',42]],
-      weak:[['Style & Clarity',28],['Conclusion',30],['Evidence',40]],
-      recs:[['Style & Clarity',28],['Conclusion',30]]}
-   }
+  var SECMETA={
+    cat:{varc:['VARC','Verbal Ability & Reading Comprehension','#b2847a'],dilr:['DILR','Data Interpretation & Logical Reasoning','#7d9a84'],qa:['QA','Quantitative Aptitude','#797ea4']},
+    gmat:{quant:['Quant','Quantitative Reasoning','#797ea4'],verbal:['Verbal','Verbal Reasoning','#b2847a'],data:['Data Insights','Data Insights','#7d9a84']},
+    gre:{verbal:['Verbal','Verbal Reasoning','#b2847a'],quant:['Quant','Quantitative Reasoning','#797ea4'],awa:['AWA','Analytical Writing','#7d9a84']}
   };
-  const FIRST={cat:'varc',gmat:'quant',gre:'verbal'};
-  const EXUP={cat:'CAT',gmat:'GMAT',gre:'GRE'};
-  const q=new URLSearchParams(location.search);
-  let exam=(q.get('exam')||'cat').toLowerCase(); if(!DATA[exam]) exam='cat';
-  let section=(q.get('section')||'').toLowerCase(); if(!DATA[exam][section]) section=FIRST[exam];
-  const cfg=DATA[exam][section];
+  var EXUP={cat:'CAT',gmat:'GMAT',gre:'GRE'};
+  var q=new URLSearchParams(location.search);
+  var api=q.get('api')||'http://localhost:8001';
+  var token=null; try{token=localStorage.getItem('vetta:token');}catch(e){}
+  var H=token?{Authorization:'Bearer '+token}:{};
+  var exam=(q.get('exam')||'cat').toLowerCase();
+  var section=(q.get('section')||'').toLowerCase();
+  var meta=(SECMETA[exam]&&SECMETA[exam][section])||[section.toUpperCase(),section.toUpperCase(),'#c9a24e'];
 
-  document.body.setAttribute('data-exam', EXUP[exam]);
-  document.body.style.setProperty('--sec', cfg.color);
-  document.title = 'VettaLume \u00b7 '+cfg.name+' Mocks';
+  function $(s){return document.querySelector(s);}
+  function setTxt(s,t){var e=$(s); if(e) e.textContent=t;}
+  function hide(e){ if(e) e.style.display='none'; }
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function req(path){ return fetch(api+path,{headers:H}).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); }); }
 
-  const ck=document.querySelector('.chero .ck'); if(ck) ck.innerHTML=cfg.name+' &middot; Sectional Mocks';
-  const h1=document.querySelector('.chero h1'); if(h1) h1.textContent=cfg.name+' Mocks';
-  const sum=document.querySelector('.chero .csum'); if(sum) sum.textContent=cfg.full+', fixed 40-minute papers. The dashboard aggregates every attempt, so your history is never deleted.';
+  document.body.setAttribute('data-exam',EXUP[exam]||'CAT');
+  document.body.style.setProperty('--sec',meta[2]);
+  document.title='VettaLume \u00b7 '+meta[0]+' Mocks';
+  setTxt('.chero .ck',meta[0]+' \u00b7 Sectional Mocks');
+  setTxt('.chero h1',meta[0]+' Mocks');
+  setTxt('.chero .csum',meta[1]+'. The dashboard aggregates every attempt, so your history is never deleted.');
+  var back=$('.back'); if(back) back.onclick=function(){location.href='/mocks/'+exam+'/sectional';};
 
-  const trow=(n,v)=>`<div class="trow" data-val="${v}"><span class="tname">${n}</span><span class="tbar"><i></i></span><span class="tval">${v}</span></div>`;
-  document.querySelectorAll('.tbox').forEach(b=>{
-    const hh=b.querySelector('h3'); const list=b.querySelector('.tlist'); if(!hh||!list) return;
-    const t=hh.textContent.trim();
-    if(t==='Topic-wise Performance') list.innerHTML=cfg.topics.map(x=>trow(x[0],x[1])).join('');
-    else if(t==='Strongest Topics') list.innerHTML=cfg.strong.map(x=>trow(x[0],x[1])).join('');
-    else if(t==='Weakest Topics') list.innerHTML=cfg.weak.map(x=>trow(x[0],x[1])).join('');
-  });
+  /* These panels need per-question topic tags on mock questions (not present yet), or are
+     per-attempt only \u2014 hide rather than fabricate. Difficulty + question review live on the
+     individual-attempt analysis page. */
+  hide($('.csplit .cbox'));                                    // difficulty spread (per attempt)
+  document.querySelectorAll('section.csplit2').forEach(function(s){ if(s.querySelector('.tbox')) hide(s); });  // topic-wise + strong/weak
+  hide($('.recsec'));                                          // smart recommendations (topic-based)
+  document.querySelectorAll('.odelta').forEach(hide);
 
-  const recwrap=document.querySelector('.recwrap');
-  if(recwrap){
-    recwrap.querySelectorAll('.recrow').forEach(r=>r.remove());
-    cfg.recs.forEach(x=>{
-      const d=document.createElement('div'); d.className='recrow';
-      d.innerHTML='<span class="recbang">!</span><p><b>'+x[0]+'</b> sits at '+x[1]+'% across mocks.</p><button class="btn btn-primary" data-go>Go practice <span>&#8594;</span></button>';
-      recwrap.appendChild(d);
+  var NS='http://www.w3.org/2000/svg';
+  function boxByTitle(t){var b=document.querySelectorAll('.obox');for(var i=0;i<b.length;i++){var h=b[i].querySelector('h3');if(h&&h.textContent.trim()===t)return b[i];}return null;}
+  function renderTrend(box,vals,yMax,curTxt){
+    if(!box) return; var svg=box.querySelector('.ochart'); if(!svg) return;
+    var X0=34,X1=428,Y0=14,Y1=192,n=vals.length;
+    function X(i){return n<=1?(X0+X1)/2:X0+(X1-X0)*i/(n-1);}
+    function Y(v){var t=yMax>0?Math.max(0,Math.min(1,v/yMax)):0;return Y1-(Y1-Y0)*t;}
+    svg.querySelectorAll('.oline,.oarea,.odot,.odot-last,.ocur,.oxlab').forEach(function(e){e.remove();});
+    if(!n){ var no=document.createElementNS(NS,'text'); no.setAttribute('class','oxlab'); no.setAttribute('x',231); no.setAttribute('y',105); no.setAttribute('text-anchor','middle'); no.textContent='No attempts yet'; svg.appendChild(no); return; }
+    var pts=vals.map(function(v,i){return X(i).toFixed(1)+','+Y(v).toFixed(1);});
+    var area=document.createElementNS(NS,'path'); area.setAttribute('class','oarea');
+    area.setAttribute('d','M'+pts.join(' L')+' L'+X(n-1).toFixed(1)+','+Y1+' L'+X(0).toFixed(1)+','+Y1+' Z'); svg.appendChild(area);
+    var line=document.createElementNS(NS,'polyline'); line.setAttribute('class','oline'); line.setAttribute('points',pts.join(' ')); svg.appendChild(line);
+    vals.forEach(function(v,i){
+      var c=document.createElementNS(NS,'circle'); c.setAttribute('class',i===n-1?'odot-last':'odot');
+      c.setAttribute('cx',X(i).toFixed(1)); c.setAttribute('cy',Y(v).toFixed(1)); c.setAttribute('r',i===n-1?4.4:2.6); svg.appendChild(c);
+      var x=document.createElementNS(NS,'text'); x.setAttribute('class','oxlab'); x.setAttribute('x',X(i).toFixed(1)); x.setAttribute('y',208); x.setAttribute('text-anchor','middle'); x.textContent='M'+(i+1); svg.appendChild(x);
     });
+    var cur=document.createElementNS(NS,'text'); cur.setAttribute('class','ocur'); cur.setAttribute('x',Math.min(424,X(n-1)).toFixed(1));
+    cur.setAttribute('y',(Y(vals[n-1])-10).toFixed(1)); cur.setAttribute('text-anchor','end'); cur.textContent=curTxt; svg.appendChild(cur);
   }
 
-  document.querySelectorAll('.mocksec .cname').forEach((el,i)=>{ el.textContent=cfg.name+' Mock '+(i+1); });
+  function renderMocks(A,mocks){
+    var chaps=$('.mocksec .chaps'); if(!chaps) return;
+    setTxt('.mocksec .cbox-sub',mocks.length+' paper'+(mocks.length===1?'':'s')+', history kept');
+    var latest={}; (A.attempts||[]).forEach(function(at){ latest[at.mockId]=at; });  // oldest->newest, last wins
+    if(!mocks.length){ chaps.innerHTML='<div class="chap locked"><div class="cface"><div class="cleft"><span class="cbul"></span><span class="cname">No mocks published in this section yet</span></div><span class="cpct">&#128274;</span></div></div>'; return; }
+    chaps.innerHTML=mocks.map(function(m){
+      var at=latest[m.id];
+      var mt=at?(at.marksTotal||0):0;
+      var pct=at&&mt?Math.round((at.score/mt)*100):0;
+      var scoreTxt=at?(at.score+'/'+mt):'';
+      var btns=at?'<button class="mbtn" data-view="'+esc(at.attemptId)+'">View analysis <span>&#8594;</span></button>'
+                 :'<button class="mbtn go" data-take="'+esc(m.id)+'">Start <span>&#8594;</span></button>';
+      return '<div class="chap'+(at?'':' next')+'"><div class="ctrack"><div class="cfill" data-fill="'+Math.max(0,Math.min(100,pct))+'"><svg class="seawave seawave-v" viewBox="0 0 20 100" preserveAspectRatio="none"><path d=""/></svg></div></div><div class="cface"><div class="cleft"><span class="cbul"></span><span class="cname">'+esc(m.name)+'</span></div><span class="cpct">'+esc(scoreTxt)+'</span>'+btns+'</div></div>';
+    }).join('');
+    chaps.querySelectorAll('[data-take]').forEach(function(b){ b.onclick=function(){ location.href='/mocks/'+exam+'/take/'+b.getAttribute('data-take'); }; });
+    chaps.querySelectorAll('[data-view]').forEach(function(b){ b.onclick=function(){ location.href='/mocks/'+exam+'/sectional/'+section+'/'+b.getAttribute('data-view'); }; });
+  }
 
-  const back=document.querySelector('.back'); if(back){ back.onclick=()=>location.href='/mocks/'+exam+'/sectional'; }
-  const go=document.querySelector('.mbtn.go'); if(go){ go.onclick=()=>location.href='/mock-attempt.html?exam='+exam+'&section='+section; };
-  document.querySelectorAll('.mocksec .chap').forEach((ch,i)=>{
-    const va=ch.querySelector('.mbtn:not(.go)');
-    if(va) va.onclick=()=>location.href='/sectional-analysis.html?exam='+exam+'&section='+section+'&mock='+(i+1);
+  function paintBars(){
+    document.querySelectorAll('.mocksec .chap').forEach(function(ch){
+      if(ch.classList.contains('next')||ch.classList.contains('locked')) return;
+      var f=ch.querySelector('.cfill'); if(f) ch.style.setProperty('--sec',pctColor(parseFloat(f.getAttribute('data-fill'))||0));
+    });
+    setTimeout(function(){ document.querySelectorAll('.cfill[data-fill]').forEach(function(f){ f.style.width=(f.getAttribute('data-fill')||0)+'%'; }); },60);
+    if(typeof startSea==='function') startSea();
+  }
+
+  function render(A,mocks){
+    var st=document.querySelectorAll('.cstats .cstat'); var mt=A.marksTotal||0;
+    if(st[0]) st[0].querySelector('.num').innerHTML=(A.attempted||0)+'<small>/'+(A.available||0)+'</small>';
+    if(st[1]) st[1].querySelector('.num').innerHTML=(A.latestScore||0)+'<small>/'+mt+'</small>';
+    if(st[2]) st[2].querySelector('.num').innerHTML=(A.bestScore||0)+'<small>/'+mt+'</small>';
+    if(st[3]) st[3].querySelector('.num').textContent=Math.round((A.avgAccuracy||0)*100)+'%';
+    var sVals=(A.scoreTrend||[]).map(function(p){return p.score;});
+    renderTrend(boxByTitle('Score Trend'),sVals,mt||Math.max.apply(null,[1].concat(sVals)),(A.latestScore||0)+'/'+mt);
+    var aVals=(A.accuracyTrend||[]).map(function(p){return Math.round(p.accuracy*100);});
+    renderTrend(boxByTitle('Accuracy Trend'),aVals,100,(aVals.length?aVals[aVals.length-1]:0)+'%');
+    var tVals=(A.timeTrend||[]).map(function(p){return p.avgTimePerQ;});
+    renderTrend(boxByTitle('Time Management'),tVals,Math.max.apply(null,[10].concat(tVals)),(tVals.length?tVals[tVals.length-1]:0)+'s');
+    renderMocks(A,mocks);
+    paintBars();
+  }
+
+  Promise.all([
+    req('/mocks/section-analysis?exam='+encodeURIComponent(exam)+'&section='+encodeURIComponent(section)),
+    req('/mocks?exam='+encodeURIComponent(exam)+'&type=sectional').catch(function(){return {mocks:[]};})
+  ]).then(function(res){
+    var A=res[0]||{}; var all=(res[1]&&res[1].mocks)||[];
+    var mocks=all.filter(function(m){ var s0=(m.sections&&m.sections[0]&&m.sections[0].name)||''; return s0.toLowerCase()===section; });
+    render(A,mocks);
+  }).catch(function(){
+    setTxt('.mocksec .cbox-sub','Could not load your mock history.');
   });
-  setTimeout(()=>{ document.querySelectorAll('[data-go]').forEach(b=>{ b.onclick=()=>location.href='/learn/'+exam+'/'+section; }); },0);
 })();
 
 function seaPathH(ph,t){
@@ -566,21 +580,24 @@ function seaPathV(ph,t){
   }
   return d+"0 "+H+" Z";
 }
+var __seaOn=false;
 function startSea(){
-  var paths=[].slice.call(document.querySelectorAll(".seawave-h path, .seawave-v path"));
-  paths.forEach(function(p){ if(!p.getAttribute("data-phase")) p.setAttribute("data-phase",(Math.random()*6.28).toFixed(2)); });
+  function paths(){ return [].slice.call(document.querySelectorAll(".seawave-h path, .seawave-v path")); }
+  function seed(p){ if(!p.getAttribute("data-phase")) p.setAttribute("data-phase",(Math.random()*6.28).toFixed(2)); }
   function dgen(p,t){
     var ph=parseFloat(p.getAttribute("data-phase"));
     return p.parentNode.classList.contains("seawave-v") ? seaPathV(ph,t) : seaPathH(ph,t);
   }
+  paths().forEach(seed);
   if(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches){
-    paths.forEach(function(p){ p.setAttribute("d", dgen(p,0)); });
+    paths().forEach(function(p){ p.setAttribute("d", dgen(p,0)); });
     return;
   }
+  if(__seaOn) return; __seaOn=true;   // one loop; it re-queries so async-added waves are animated too
   var t0=Date.now();
   (function tick(){
     var t=(Date.now()-t0)/1000;
-    paths.forEach(function(p){ p.setAttribute("d", dgen(p,t)); });
+    paths().forEach(function(p){ seed(p); p.setAttribute("d", dgen(p,t)); });
     requestAnimationFrame(tick);
   })();
 }

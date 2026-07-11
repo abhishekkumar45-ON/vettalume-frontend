@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
-import MockFrame from "@/components/MockFrame";
+import SectionalMockDashboard from "@/components/mocks/SectionalMockDashboard";
 import { EXAMS, getExam } from "@/app/learn/sectionData";
 import { isExamSlug } from "@/app/examCatalog";
 
@@ -27,17 +28,20 @@ export default async function SectionalMockPage({
 }) {
   const { exam, section } = await params;
   const examData = getExam(exam);
-  if (!isExamSlug(exam) || !examData || !examData.sections.some((s) => s.slug === section)) {
+  const sectionData = examData?.sections.find((s) => s.slug === section);
+  if (!isExamSlug(exam) || !examData || !sectionData) {
     notFound();
   }
   return (
     <>
       <SiteHeader />
-      <MockFrame
-        src={`/full-mock-answer.html?exam=${exam}&section=${section}`}
-        title={`${exam.toUpperCase()} ${section.toUpperCase()} sectional mock`}
-        fill
+      <SectionalMockDashboard
+        exam={exam}
+        section={section}
+        sectionName={sectionData.name}
+        sectionFull={sectionData.full}
       />
+      <SiteFooter />
     </>
   );
 }

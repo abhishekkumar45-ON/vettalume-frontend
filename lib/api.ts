@@ -248,15 +248,126 @@ export type MockResult = {
   id: string;
   name: string;
   type: string;
+  attemptId: string;
   sections: MockSectionScore[];
   overall: Omit<MockSectionScore, "name">;
 };
+
+export type MockAttemptRow = {
+  attemptId: string;
+  mockId: string;
+  mockName: string;
+  score: number;
+  marksTotal: number;
+  raw: number;
+  total: number;
+  attempted: number;
+  accuracy: number;
+  avgTimePerQ: number;
+  completedAt: string | null;
+};
+export type SectionAnalysis = {
+  exam: string;
+  section: string;
+  attempted: number;
+  available: number;
+  latestScore: number;
+  bestScore: number;
+  marksTotal: number;
+  avgAccuracy: number;
+  scoreTrend: { label: string; score: number; marksTotal: number }[];
+  accuracyTrend: { label: string; accuracy: number }[];
+  timeTrend: { label: string; avgTimePerQ: number }[];
+  attempts: MockAttemptRow[];
+};
+
+export type FullAnalysisSection = {
+  avgScore: number;
+  bestScore: number;
+  avgAccuracy: number;
+  scoreTrend: { label: string; score: number; marksTotal: number }[];
+  accuracyTrend: { label: string; accuracy: number }[];
+};
+export type FullAnalysis = {
+  exam: string;
+  attempted: number;
+  available: number;
+  avgScore: number;
+  bestScore: number;
+  lowestScore: number;
+  marksTotal: number;
+  avgAccuracy: number;
+  avgTimePerQ: number;
+  scoreTrend: { label: string; score: number; marksTotal: number }[];
+  accuracyTrend: { label: string; accuracy: number }[];
+  timeTrend: { label: string; avgTimePerQ: number }[];
+  sections: Record<string, FullAnalysisSection>;
+  attempts: (MockAttemptRow & { sections: MockSectionScore[] })[];
+};
+
+export type AttemptQuestion = {
+  id: string;
+  section: string;
+  text: string;
+  options: string[];
+  your_answer: string;
+  correct_answer: string;
+  result: "correct" | "wrong" | "skipped";
+  difficulty: string; // D1..D5
+  solution: string;
+  time_ms: number;
+  benchmark_s: number | null;
+};
+export type AttemptAnalysis = {
+  attemptId: string;
+  mockId: string;
+  mockName: string;
+  exam: string;
+  type: string;
+  section: string | null;
+  completedAt: string | null;
+  timeMs: number;
+  overall: {
+    raw: number;
+    wrong: number;
+    unattempted: number;
+    total: number;
+    attempted: number;
+    accuracy: number;
+    score: number;
+    marks_total: number;
+  };
+  sections: (MockSectionScore & { wrong?: number; unattempted?: number; marks_total?: number })[];
+  difficulty_spread: { band: string; answered: number; correct: number; cleared_pct: number }[];
+  questions: AttemptQuestion[];
+};
+
 export const mockApi = {
   list: (exam: string, type?: "sectional" | "full") =>
     apiGet<MockList>(`/mocks?exam=${encodeURIComponent(exam)}${type ? `&type=${type}` : ""}`),
   paper: (id: string) => apiGet<MockPaper>(`/mocks/${encodeURIComponent(id)}`),
-  submit: (id: string, answers: Record<string, number | string>) =>
-    apiPost<MockResult>(`/mocks/${encodeURIComponent(id)}/submit`, { answers })
+  submit: (
+    id: string,
+    answers: Record<string, number | string>,
+    durations?: Record<string, number>,
+    timeMs?: number
+  ) =>
+    apiPost<MockResult & { attemptId: string }>(`/mocks/${encodeURIComponent(id)}/submit`, {
+      answers,
+      durations: durations || {},
+      timeMs: timeMs || 0
+    }),
+  // Aggregate analytics across every sectional-mock attempt in one section.
+  sectionAnalysis: (exam: string, section: string) =>
+    apiGet<SectionAnalysis>(
+      `/mocks/section-analysis?exam=${encodeURIComponent(exam)}&section=${encodeURIComponent(section)}`
+    ),
+  // Aggregate analytics across every FULL-mock attempt in one exam.
+  fullAnalysis: (exam: string) =>
+    apiGet<FullAnalysis>(`/mocks/full-analysis?exam=${encodeURIComponent(exam)}`),
+  // Full analysis of one completed attempt (per-question review + scores).
+  attemptAnalysis: (attemptId: string) =>
+    apiGet<AttemptAnalysis>(`/mocks/attempts/${encodeURIComponent(attemptId)}`)
 };
 
 // Password strength rules — must mirror the backend (services/security.password_problems).
