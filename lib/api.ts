@@ -359,6 +359,8 @@ export type MockCardsSummary = {
   lastSectional: MockCardData;
   bestFull: MockCardData;
   lastFull: MockCardData;
+  sectionalAttempted: number;
+  fullAttempted: number;
 };
 
 export const mockApi = {

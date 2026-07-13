@@ -146,11 +146,27 @@ export default function DashboardPage() {
     mockCard(mockSummary?.lastFull, "Last Full Length Mock", "gold")
   ];
 
-  // Attempted / available. Attempts aren't tracked yet, so "attempted" is 0; the total is how many
-  // mocks an admin has published (0 until they publish one).
-  const practiceCards: Array<[string, string, string, string]> = [
-    ["Sectional mocks", "0", `/${mockCounts.sectional}`, `/mocks/${activeExam}/sectional`],
-    ["Full mocks", "0", `/${mockCounts.full}`, `/mocks/${activeExam}/full`]
+  // Attempted / available: distinct mocks attempted (from /mocks/summary) over how many an admin has
+  // published. The tile's bar fills to attempted / available.
+  const secDone = mockSummary?.sectionalAttempted ?? 0;
+  const fullDone = mockSummary?.fullAttempted ?? 0;
+  const fillPct = (done: number, total: number) =>
+    total > 0 ? Math.round((Math.min(done, total) / total) * 100) : 0;
+  const practiceCards: Array<[string, string, string, string, number]> = [
+    [
+      "Sectional mocks",
+      String(secDone),
+      `/${mockCounts.sectional}`,
+      `/mocks/${activeExam}/sectional`,
+      fillPct(secDone, mockCounts.sectional)
+    ],
+    [
+      "Full mocks",
+      String(fullDone),
+      `/${mockCounts.full}`,
+      `/mocks/${activeExam}/full`,
+      fillPct(fullDone, mockCounts.full)
+    ]
   ];
 
   return (
@@ -257,7 +273,7 @@ export default function DashboardPage() {
             </div>
 
             <div className="practiceTiles">
-              {practiceCards.map(([title, done, total, href]) => (
+              {practiceCards.map(([title, done, total, href, pct]) => (
                 <article
                   className="practiceTile"
                   key={title}
@@ -270,7 +286,7 @@ export default function DashboardPage() {
                     <strong>{done}</strong>
                     <span>{total}</span>
                   </div>
-                  <i />
+                  <i style={{ "--progress": `${pct}%` } as CSSProperties} />
                   <button
                     type="button"
                     onClick={(event) => {
