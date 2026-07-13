@@ -222,6 +222,7 @@ export type MockQuestion = {
   image: string;
   difficulty: number;
   format: string;
+  passage?: string;
 };
 export type MockPaper = {
   id: string;
