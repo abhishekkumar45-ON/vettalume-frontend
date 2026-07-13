@@ -9,7 +9,7 @@ import SiteHeader from "@/components/SiteHeader";
 import { useUser } from "@/components/UserContext";
 import { EXAM_CATALOG } from "@/app/examCatalog";
 import { getExam } from "@/app/learn/sectionData";
-import { learnApi, mockApi } from "@/lib/api";
+import { learnApi, mockApi, type MockCardsSummary } from "@/lib/api";
 
 const ACCENTS = ["blue", "rose", "green"] as const;
 
@@ -27,6 +27,7 @@ export default function DashboardPage() {
   // Both are 0/empty for a new learner and grow as they learn / as an admin publishes mocks.
   const [secStats, setSecStats] = useState<Record<string, { ability: number; syllabus: number }>>({});
   const [mockCounts, setMockCounts] = useState<{ sectional: number; full: number }>({ sectional: 0, full: 0 });
+  const [mockSummary, setMockSummary] = useState<MockCardsSummary | null>(null);
   const router = useRouter();
 
   const { firstName, activeExam, isOwned } = useUser();
@@ -67,6 +68,12 @@ export default function DashboardPage() {
     Promise.all([mockApi.list(activeExam, "sectional"), mockApi.list(activeExam, "full")])
       .then(([sec, full]) => {
         if (alive) setMockCounts({ sectional: sec.count, full: full.count });
+      })
+      .catch(() => {});
+    mockApi
+      .summary(activeExam)
+      .then((s) => {
+        if (alive) setMockSummary(s);
       })
       .catch(() => {});
     return () => {
@@ -120,14 +127,23 @@ export default function DashboardPage() {
     return `Good progress overall — ${top.name} leads at ${top.ability}, while ${low.name} needs attention at ${low.ability} and is dragging the average.`;
   }, [owned, exam, catalog.label, secStats]);
 
-  const sectionNames = exam?.sections.map((section) => section.name) ?? [];
-  // No mock attempts are tracked yet (post-mock analysis is a later phase), so best/last scores start
-  // empty. They fill once attempt history exists.
+  // Best / last sectional + full mock cards — every value comes from /mocks/summary. Empty until the
+  // learner has attempts. Percentage = round(score / totalMarks * 100); the wave fills to it.
+  const mockCard = (
+    c: MockCardsSummary[keyof MockCardsSummary] | undefined,
+    label: string,
+    tone: string
+  ): [string, string, string, string] => {
+    if (!c || typeof c === "string" || !c.marksTotal) return ["No Attempt Yet", "0%", label, tone];
+    // clamp to 0–100 (a net-negative score → 0%, matching the empty-state behaviour)
+    const pct = Math.max(0, Math.min(100, Math.round((c.score / c.marksTotal) * 100)));
+    return [c.name, `${pct}%`, label, tone];
+  };
   const mockCards: Array<[string, string, string, string]> = [
-    [`${sectionNames[0] ?? "Sectional"} SM-1`, "75%", "Best Sectional Mock", "blue"],
-    ["FLM-1", "74%", "Best Full Length Mock", "gold"],
-    [`${sectionNames[1] ?? "Sectional"} SM-2`, "78%", "Last Sectional Mock", "rose"],
-    ["FLM-2", "68%", "Last Full Length Mock", "gold"]
+    mockCard(mockSummary?.bestSectional, "Best Sectional Mock", "blue"),
+    mockCard(mockSummary?.bestFull, "Best Full Length Mock", "gold"),
+    mockCard(mockSummary?.lastSectional, "Last Sectional Mock", "rose"),
+    mockCard(mockSummary?.lastFull, "Last Full Length Mock", "gold")
   ];
 
   // Attempted / available. Attempts aren't tracked yet, so "attempted" is 0; the total is how many
@@ -229,7 +245,7 @@ export default function DashboardPage() {
               {mockCards.map(([title, value, label, tone]) => (
                 <article
                   className={`mockCard ${tone}`}
-                  key={title}
+                  key={label}
                   style={{ "--v": `${parseInt(value, 10) || 0}%` } as CSSProperties}
                 >
                   <span>{title}</span>

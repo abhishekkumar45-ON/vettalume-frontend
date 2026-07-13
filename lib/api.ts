@@ -343,6 +343,24 @@ export type AttemptAnalysis = {
   questions: AttemptQuestion[];
 };
 
+export type MockCardData = {
+  mockId: string;
+  name: string;
+  type: string;
+  section: string | null;
+  score: number;
+  marksTotal: number;
+  pct: number;
+  date: string | null;
+} | null;
+export type MockCardsSummary = {
+  exam: string;
+  bestSectional: MockCardData;
+  lastSectional: MockCardData;
+  bestFull: MockCardData;
+  lastFull: MockCardData;
+};
+
 export const mockApi = {
   list: (exam: string, type?: "sectional" | "full") =>
     apiGet<MockList>(`/mocks?exam=${encodeURIComponent(exam)}${type ? `&type=${type}` : ""}`),
@@ -366,6 +384,9 @@ export const mockApi = {
   // Aggregate analytics across every FULL-mock attempt in one exam.
   fullAnalysis: (exam: string) =>
     apiGet<FullAnalysis>(`/mocks/full-analysis?exam=${encodeURIComponent(exam)}`),
+  // Best + most-recent sectional/full attempt for the dashboard mock cards.
+  summary: (exam: string) =>
+    apiGet<MockCardsSummary>(`/mocks/summary?exam=${encodeURIComponent(exam)}`),
   // Full analysis of one completed attempt (per-question review + scores).
   attemptAnalysis: (attemptId: string) =>
     apiGet<AttemptAnalysis>(`/mocks/attempts/${encodeURIComponent(attemptId)}`)
