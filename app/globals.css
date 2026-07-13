@@ -4746,6 +4746,36 @@ h3 {
 .maRecBtn:hover { background: color-mix(in srgb, var(--gold) 8%, var(--panel)); }
 @media (max-width: 760px) { .maTopics { grid-template-columns: 1fr; } .maRecRow { flex-wrap: wrap; } }
 
+/* ---- section switcher + scope labels ---- */
+.maScopeLabel { font-family: var(--font-mono, ui-monospace, monospace); font-size: 11px; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); margin: 28px 0 10px; }
+.maSecTabs { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+.maSecTabs button { padding: 12px 22px; border: 1px solid var(--line-strong); border-radius: 10px; background: var(--panel); font-size: 14px; font-weight: 700; color: var(--ink-soft); cursor: pointer; }
+.maSecTabs button:hover { border-color: color-mix(in srgb, var(--gold) 45%, var(--line-strong)); }
+.maSecTabs button.active { border-color: var(--gold); background: color-mix(in srgb, var(--gold) 8%, var(--panel)); color: var(--ink); }
+.maTopicCov { font-style: normal; color: var(--muted); font-weight: 500; font-size: 12px; }
+
+/* ---- time per question chart ---- */
+.maTime { margin-top: 32px; }
+.maTimeChart { display: flex; gap: 12px; }
+.maTimeYaxis { display: flex; flex-direction: column; justify-content: space-between; height: 220px; align-items: flex-end; padding-top: 2px; }
+.maTimeYaxis span { font-family: var(--font-mono, ui-monospace, monospace); font-size: 10px; color: var(--muted); }
+.maTimeBars { flex: 1; min-width: 0; display: flex; align-items: flex-end; gap: 8px; overflow-x: auto; padding-bottom: 2px; }
+.maTimeCol { flex: 1 0 34px; display: flex; flex-direction: column; align-items: center; gap: 8px; --c: var(--green-dark); }
+.maTimeCol.slow { --c: var(--gold); }
+.maTimeCol.wrong { --c: var(--rose); }
+.maTimeCol.skipped { --c: var(--muted); }
+.maTimeTrack { position: relative; width: 100%; max-width: 56px; height: 220px; border: 1px solid color-mix(in srgb, var(--c) 45%, var(--line-strong)); border-radius: 5px; overflow: hidden; background: color-mix(in srgb, var(--gold) 3%, var(--panel)); }
+.maTimeFill { position: absolute; left: 0; right: 0; bottom: 0; background: color-mix(in srgb, var(--c) 55%, var(--panel)); transition: height 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+.maTimeVal { position: absolute; bottom: 8px; left: 0; right: 0; text-align: center; z-index: 1; font-size: 12px; font-weight: 800; color: color-mix(in srgb, var(--c) 80%, var(--ink)); }
+.maTimeLab { font-family: var(--font-mono, ui-monospace, monospace); font-size: 10px; color: var(--muted); }
+.maTimeLegend { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 14px; }
+.maTimeLegend span { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-soft); }
+.maTimeLegend span::before { content: ""; width: 10px; height: 10px; border-radius: 2px; }
+.maTimeLegend .correct::before { background: var(--green-dark); }
+.maTimeLegend .slow::before { background: var(--gold); }
+.maTimeLegend .wrong::before { background: var(--rose); }
+.maTimeLegend .skipped::before { background: var(--muted); }
+
 /* ---- shared loading spinner (keeps the footer down instead of floating up) ---- */
 .loadingState { min-height: 65vh; display: flex; flex-direction: column; align-items: center;
   justify-content: center; gap: 16px; }

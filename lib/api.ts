@@ -326,6 +326,7 @@ export type MockTopic = {
   correct: number;
   total: number;
   accuracy: number;
+  score: number; // correct / total (coverage-aware — drives strong/weak)
 };
 export type MockRecommendation = { name: string; section: string; accuracy: number; tip: string };
 export type AttemptAnalysis = {
