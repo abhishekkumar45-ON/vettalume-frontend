@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Calculator, Maximize2 } from "lucide-react";
 import { mockApi, type MockPaper, type MockQuestion } from "@/lib/api";
+import { useUser } from "@/components/UserContext";
 import Loading from "@/components/Loading";
 import MockCalculator from "@/components/mocks/MockCalculator";
 
@@ -24,6 +25,17 @@ function isTita(q: Q) {
 
 export default function MockRunner({ exam, mockId }: { exam: string; mockId: string }) {
   const router = useRouter();
+  const { firstName, fullName, email } = useUser();
+  const candidateName =
+    fullName || firstName || (email ? email.split("@")[0] : "") || "Candidate";
+  const initials =
+    candidateName
+      .trim()
+      .split(/\s+/)
+      .map((w) => w[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase() || "?";
   const [paper, setPaper] = useState<MockPaper | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -396,9 +408,12 @@ export default function MockRunner({ exam, mockId }: { exam: string; mockId: str
 
         <aside className="mrPalette">
           <div className="mrCandidate">
-            <span className="mrAvatar" aria-hidden="true" />
-            <span className="mrCandName">Candidate</span>
+            <span className="mrAvatar" aria-hidden="true">{initials}</span>
+            <span className="mrCandName">{candidateName}</span>
           </div>
+          <button type="button" className="mrSubmit top" onClick={() => setConfirmSubmit(true)}>
+            Submit
+          </button>
           <div className="mrLegend">
             <span className="mrLeg answered"><i>{counts.answered}</i> Answered</span>
             <span className="mrLeg notAnswered"><i>{counts.notAnswered}</i> Not Answered</span>
@@ -420,9 +435,6 @@ export default function MockRunner({ exam, mockId }: { exam: string; mockId: str
               </button>
             ))}
           </div>
-          <button type="button" className="mrSubmit" onClick={() => setConfirmSubmit(true)}>
-            Submit
-          </button>
         </aside>
       </div>
 

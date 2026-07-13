@@ -4813,8 +4813,9 @@ h3 {
 /* ---- palette ---- */
 .mrPalette { width: 300px; flex: 0 0 300px; border-left: 1px solid var(--line-strong); background: color-mix(in srgb, var(--gold) 3%, var(--panel)); display: flex; flex-direction: column; overflow: auto; }
 .mrCandidate { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--line-strong); }
-.mrAvatar { width: 34px; height: 34px; border-radius: 50%; background: var(--line-strong); }
-.mrCandName { font-weight: 700; font-size: 14px; }
+.mrAvatar { width: 36px; height: 36px; border-radius: 50%; background: var(--gold); color: #1d1f24;
+  display: grid; place-items: center; font-weight: 800; font-size: 14px; flex: 0 0 auto; }
+.mrCandName { font-weight: 700; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .mrLegend { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 10px; padding: 14px 16px; border-bottom: 1px solid var(--line-strong); }
 .mrLegendInstr { border: 1px solid var(--line-strong); border-radius: 10px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
 .mrLeg { display: flex; align-items: center; gap: 7px; font-size: 11.5px; color: var(--ink-soft); }
@@ -4833,7 +4834,8 @@ h3 {
 .mrCell.marked { background: #7d5aa8; color: #fff; border-color: #7d5aa8; }
 .mrCell.markedAnswered { background: #7d5aa8; color: #fff; border-color: #7d5aa8; box-shadow: inset 0 0 0 2px var(--green-dark); }
 .mrCell.cur { outline: 3px solid var(--gold); outline-offset: 1px; }
-.mrSubmit { margin: auto 16px 16px; padding: 12px; border: none; border-radius: 8px; background: var(--gold); color: #1d1f24; font-weight: 800; font-size: 15px; cursor: pointer; }
+.mrSubmit { margin: 12px 16px; padding: 12px; border: none; border-radius: 8px; background: var(--gold); color: #1d1f24; font-weight: 800; font-size: 15px; cursor: pointer; }
+.mrSubmit:hover { background: color-mix(in srgb, var(--gold) 85%, #000); }
 
 .mrFooter { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 18px; border-top: 1px solid var(--line-strong); background: var(--panel); }
 .mrFootLeft { display: flex; gap: 10px; }
