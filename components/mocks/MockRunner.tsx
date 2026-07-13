@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Calculator, Maximize2 } from "lucide-react";
+import { Calculator, Check, Lock, Maximize2 } from "lucide-react";
 import { mockApi, type MockPaper, type MockQuestion } from "@/lib/api";
 import { useUser } from "@/components/UserContext";
 import Loading from "@/components/Loading";
@@ -48,6 +48,7 @@ export default function MockRunner({ exam, mockId }: { exam: string; mockId: str
   const [marked, setMarked] = useState<Record<string, boolean>>({});
   const [visited, setVisited] = useState<Record<string, boolean>>({});
   const [secLeft, setSecLeft] = useState<number[]>([]);
+  const [secDone, setSecDone] = useState<boolean[]>([]); // sections already submitted (CAT: no return)
   const [calcOpen, setCalcOpen] = useState(false);
   const [confirmSubmit, setConfirmSubmit] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -67,6 +68,7 @@ export default function MockRunner({ exam, mockId }: { exam: string; mockId: str
         if (!alive) return;
         setPaper(p);
         setSecLeft((p.sections || []).map((s) => (Number(s.time) || 40) * 60));
+        setSecDone((p.sections || []).map(() => false));
       })
       .catch(() => alive && setError("Could not load this mock."))
       .finally(() => alive && setLoading(false));
@@ -118,27 +120,39 @@ export default function MockRunner({ exam, mockId }: { exam: string; mockId: str
     }
   }, [paper, mockId, answers, exam, router, bankTime]);
 
-  // section timer
+  // CAT full-mock flow: submit the current section, lock it, and move to the next in order — you
+  // can't return. The last section's submit grades the whole test.
+  const advanceSection = useCallback(() => {
+    if (submittedRef.current) return;
+    bankTime();
+    setSecDone((prev) => {
+      const n = [...prev];
+      n[secIdx] = true;
+      return n;
+    });
+    if (secIdx + 1 < sections.length) {
+      setSecIdx(secIdx + 1);
+      setQIdx(0);
+    } else {
+      doSubmit();
+    }
+  }, [secIdx, sections.length, doSubmit, bankTime]);
+  const advanceRef = useRef(advanceSection);
+  advanceRef.current = advanceSection;
+
+  // section timer — the active section counts down; at zero it auto-submits that section.
   useEffect(() => {
     if (phase !== "exam") return;
     const t = setInterval(() => {
       setSecLeft((prev) => {
         const next = [...prev];
         if (next[secIdx] > 0) next[secIdx] -= 1;
-        if (next[secIdx] <= 0) {
-          const other = next.findIndex((v, i) => i !== secIdx && v > 0);
-          if (other >= 0) {
-            setSecIdx(other);
-            setQIdx(0);
-          } else if (!submittedRef.current) {
-            doSubmit();
-          }
-        }
+        if (next[secIdx] <= 0) advanceRef.current();
         return next;
       });
     }, 1000);
     return () => clearInterval(t);
-  }, [phase, secIdx, doSubmit]);
+  }, [phase, secIdx]);
 
   function start() {
     examStartRef.current = Date.now();
@@ -315,6 +329,10 @@ export default function MockRunner({ exam, mockId }: { exam: string; mockId: str
   const tita = current ? isTita(current) : false;
   const passage = current?.passage;
   const twoPane = !!passage;
+  // In a full mock, submitting a non-final section only submits THAT section and advances; the
+  // final section (and any sectional mock) submits the whole test.
+  const isLastSection = secIdx === sections.length - 1;
+  const sectionSubmit = paper.type === "full" && !isLastSection;
 
   return (
     <div className="mrExam">
@@ -340,19 +358,18 @@ export default function MockRunner({ exam, mockId }: { exam: string; mockId: str
       </header>
 
       <nav className="mrTabs">
-        {sections.map((s, i) => (
-          <button
-            key={s.id || s.name}
-            type="button"
-            className={`mrTab${i === secIdx ? " active" : ""}${secLeft[i] <= 0 ? " done" : ""}`}
-            onClick={() => {
-              setSecIdx(i);
-              setQIdx(0);
-            }}
-          >
-            {s.name}
-          </button>
-        ))}
+        {sections.map((s, i) => {
+          // CAT rule: sections are attempted in order — done sections lock, later sections are
+          // locked until you reach them. Only the current section is active. No manual switching.
+          const state = secDone[i] ? "done" : i === secIdx ? "active" : "locked";
+          return (
+            <span key={s.id || s.name} className={`mrTab ${state}`}>
+              {s.name}
+              {state === "done" ? <Check size={13} aria-hidden="true" /> : null}
+              {state === "locked" ? <Lock size={12} aria-hidden="true" /> : null}
+            </span>
+          );
+        })}
       </nav>
 
       <div className="mrMarking">
@@ -412,7 +429,7 @@ export default function MockRunner({ exam, mockId }: { exam: string; mockId: str
             <span className="mrCandName">{candidateName}</span>
           </div>
           <button type="button" className="mrSubmit top" onClick={() => setConfirmSubmit(true)}>
-            Submit
+            {sectionSubmit ? `Submit ${section?.name || "Section"}` : "Submit Test"}
           </button>
           <div className="mrLegend">
             <span className="mrLeg answered"><i>{counts.answered}</i> Answered</span>
@@ -459,17 +476,33 @@ export default function MockRunner({ exam, mockId }: { exam: string; mockId: str
       {confirmSubmit ? (
         <div className="mrOverlay">
           <div className="mrDialog">
-            <h3>Submit the test?</h3>
+            <h3>{sectionSubmit ? `Submit the ${section?.name} section?` : "Submit the test?"}</h3>
             <p>
               You have answered {counts.answered + counts.markedAnswered} of {questions.length} in this
-              section. Once submitted you can&apos;t change your answers.
+              section.{" "}
+              {sectionSubmit
+                ? "You won't be able to return to it — the next section opens once you submit."
+                : "Once submitted you can't change your answers."}
             </p>
             <div className="mrDialogBtns">
               <button type="button" className="mrBtn" onClick={() => setConfirmSubmit(false)}>
                 Keep going
               </button>
-              <button type="button" className="mrBtn primary" disabled={submitting} onClick={doSubmit}>
-                {submitting ? "Submitting…" : "Submit test"}
+              <button
+                type="button"
+                className="mrBtn primary"
+                disabled={submitting}
+                onClick={() => {
+                  setConfirmSubmit(false);
+                  if (sectionSubmit) advanceSection();
+                  else doSubmit();
+                }}
+              >
+                {submitting
+                  ? "Submitting…"
+                  : sectionSubmit
+                    ? `Submit ${section?.name}`
+                    : "Submit test"}
               </button>
             </div>
           </div>
