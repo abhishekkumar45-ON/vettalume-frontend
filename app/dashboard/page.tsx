@@ -98,15 +98,22 @@ export default function DashboardPage() {
 
   const recommendations = useMemo(() => {
     if (!exam) return [];
-    // Show every focus area across sections; the panel scrolls when there are many.
-    return exam.sections.flatMap((section, sIndex) =>
-      section.recommendations.map((rec) => ({
-        title: rec.name,
-        text: `${section.name} · focus area`,
-        width: `${rec.pct}%`,
+    // From every section, nudge the learner to finish the next 2 chapters they left below 50%.
+    // Highest-first among the sub-50% chapters, so the ones closest to done surface as quick wins.
+    return exam.sections.flatMap((section, sIndex) => {
+      const toFinish = section.groups
+        .flatMap((group) => group.chapters)
+        .filter((chapter) => chapter.pct < 50)
+        .sort((a, b) => b.pct - a.pct)
+        .slice(0, 2);
+      return toFinish.map((chapter) => ({
+        key: `${section.slug}-${chapter.name}`,
+        title: chapter.name,
+        text: `${section.name} · ${chapter.pct}% done — finish this chapter`,
+        width: `${chapter.pct}%`,
         tone: ACCENTS[sIndex % ACCENTS.length]
-      }))
-    );
+      }));
+    });
   }, [exam]);
 
   const subtext = useMemo(() => {
@@ -243,7 +250,7 @@ export default function DashboardPage() {
                 <h2>Recommended for you</h2>
                 <div className="recommendList">
                   {recommendations.map((rec) => (
-                    <article className={`recommendItem ${rec.tone}`} key={rec.title}>
+                    <article className={`recommendItem ${rec.tone}`} key={rec.key}>
                       <b>{rec.title}</b>
                       <span>{rec.text}</span>
                       <i style={{ "--progress": rec.width } as CSSProperties} />

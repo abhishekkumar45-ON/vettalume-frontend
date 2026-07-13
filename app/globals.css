@@ -2968,6 +2968,111 @@ h3 {
 .policyInner p strong {
   color: var(--ink);
 }
+.policyInner h3 {
+  margin: 20px 0 6px;
+  font-size: 15px;
+  line-height: 1.35;
+  color: var(--ink);
+}
+.policyInner ul,
+.policyInner ol {
+  margin: 4px 0 12px;
+  padding-left: 22px;
+  max-width: 1000px;
+  color: var(--ink-soft);
+  font-size: 14px;
+  line-height: 1.72;
+}
+.policyInner li {
+  margin: 0 0 4px;
+}
+.policyInner li strong {
+  color: var(--ink);
+}
+
+/* ===================== how it works ===================== */
+.howBody {
+  background: var(--paper);
+  padding: 44px 0 72px;
+}
+.howInner {
+  width: min(1180px, calc(100% - 48px));
+  margin: 0 auto;
+}
+.howLede {
+  max-width: 760px;
+  margin: 0 0 40px;
+  color: var(--ink-soft);
+  font-size: 17px;
+  line-height: 1.7;
+}
+.howSteps {
+  display: grid;
+  gap: 20px;
+}
+.howStep {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: 22px;
+  align-items: start;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 26px 28px;
+  box-shadow: var(--shadow);
+}
+.howStepNum {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--gold-soft);
+  color: var(--gold-dark);
+  font-size: 22px;
+  font-weight: 800;
+}
+.howStep h3 {
+  margin: 4px 0 8px;
+  font-size: 20px;
+  line-height: 1.25;
+  color: var(--ink);
+}
+.howStep p {
+  margin: 0 0 10px;
+  color: var(--ink-soft);
+  font-size: 15px;
+  line-height: 1.7;
+}
+.howStep ul {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--ink-soft);
+  font-size: 14px;
+  line-height: 1.68;
+}
+.howStep li {
+  margin: 0 0 4px;
+}
+.howCta {
+  margin-top: 44px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+}
+@media (max-width: 640px) {
+  .howStep {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    padding: 22px 20px;
+  }
+  .howStepNum {
+    width: 48px;
+    height: 48px;
+    font-size: 19px;
+  }
+}
 
 /* ===================== section dashboard (Enter VARC/DILR/QA) ===================== */
 .sectionDash {

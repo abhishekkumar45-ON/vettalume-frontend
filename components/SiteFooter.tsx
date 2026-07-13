@@ -32,10 +32,10 @@ export default function SiteFooter() {
       </div>
       <div className="legalLinks">
         <Link href="/privacy">Privacy Policy</Link>
-        <Link href="/">Terms &amp; Conditions</Link>
-        <Link href="/">Content License</Link>
-        <Link href="/">Sitemap</Link>
-        <Link href="/">Return &amp; Refund Policy</Link>
+        <Link href="/terms-and-conditions">Terms &amp; Conditions</Link>
+        <Link href="/content-license">Content License</Link>
+        <Link href="/how-it-works">How it works</Link>
+        <Link href="/return-refund-policy">Return &amp; Refund Policy</Link>
         <Link href="/contact">Contact us</Link>
       </div>
     </footer>

@@ -11,9 +11,13 @@ import {
   Target,
   X
 } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import AuthModal, { type AuthModalMode } from "@/components/AuthModal";
 import ExamShowcase, { type ExamKey } from "@/components/ExamShowcase";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
+import { useUser } from "@/components/UserContext";
 
 const featureCards = [
   {
@@ -366,6 +370,18 @@ function DashboardPreview({ exam }: { exam: ExamKey }) {
 export default function Home() {
   const [activeExam, setActiveExam] = useState<ExamKey>("CAT");
   const pricing = pricingByExam[activeExam];
+  const router = useRouter();
+  const { authed, signIn } = useUser();
+  const [authMode, setAuthMode] = useState<AuthModalMode | null>(null);
+
+  // Diagnostic CTA: send signed-in learners to their dashboard; prompt everyone else to log in first.
+  function startDiagnostic() {
+    if (authed) {
+      router.push("/dashboard");
+    } else {
+      setAuthMode("login");
+    }
+  }
 
   return (
     <main id="top">
@@ -383,13 +399,13 @@ export default function Home() {
               your strengths, weaknesses, and available time.
             </p>
             <div className="heroActions">
-              <a className="button primary" href="#trial">
+              <button className="button primary" type="button" onClick={startDiagnostic}>
                 Start diagnostic
                 <ArrowRight size={18} aria-hidden="true" />
-              </a>
-              <a className="button outlineOnDark" href="#how-it-works">
+              </button>
+              <Link className="button outlineOnDark" href="/how-it-works">
                 How it works
-              </a>
+              </Link>
             </div>
           </div>
           <div className="heroVisual" aria-hidden="true">
@@ -592,17 +608,23 @@ export default function Home() {
           <h2 id="trial-heading">Find your fastest route to 99%</h2>
           <p>Take the diagnostic, get a personalized roadmap in minutes.</p>
           <div className="ctaActions">
-            <a className="button primary" href="mailto:hello@vettalume.com">
+            <button className="button primary" type="button" onClick={startDiagnostic}>
               Start free diagnostic
-            </a>
-            <a className="button ghost" href="#how-it-works">
+            </button>
+            <Link className="button ghost" href="/how-it-works">
               See how it works
-            </a>
+            </Link>
           </div>
         </div>
       </section>
 
       <SiteFooter />
+      <AuthModal
+        mode={authMode}
+        onClose={() => setAuthMode(null)}
+        onModeChange={setAuthMode}
+        onSignIn={signIn}
+      />
     </main>
   );
 }
