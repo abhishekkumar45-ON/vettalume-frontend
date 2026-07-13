@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, ChevronDown } from "lucide-react";
+import { ArrowLeft, ArrowRight, ChevronDown } from "lucide-react";
 import { mockApi, type AttemptAnalysis } from "@/lib/api";
 import Loading from "@/components/Loading";
 
@@ -159,6 +159,68 @@ export default function MockAttemptAnalysis({
                 ))}
               </div>
             </section>
+
+            {data.strong.length || data.weak.length ? (
+              <div className="maTopics">
+                <section className="maTopicCard">
+                  <div className="smBoxH">
+                    <h3>Strong topics</h3>
+                  </div>
+                  {data.strong.length ? (
+                    data.strong.map((t) => (
+                      <div className="maTopicRow" key={t.name}>
+                        <span className="maTopicDot strong" aria-hidden="true" />
+                        <span className="maTopicName">{t.name}</span>
+                        <span className="maTopicPct">{pct(t.accuracy)}%</span>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="smNote">No strong topics yet.</p>
+                  )}
+                </section>
+                <section className="maTopicCard">
+                  <div className="smBoxH">
+                    <h3>Weak topics</h3>
+                  </div>
+                  {data.weak.length ? (
+                    data.weak.map((t) => (
+                      <div className="maTopicRow" key={t.name}>
+                        <span className="maTopicDot weak" aria-hidden="true" />
+                        <span className="maTopicName">{t.name}</span>
+                        <span className="maTopicPct">{pct(t.accuracy)}%</span>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="smNote">No weak topics — nice work.</p>
+                  )}
+                </section>
+              </div>
+            ) : null}
+
+            {data.recommendations.length ? (
+              <section className="maRecs">
+                <div className="smBoxH">
+                  <h3>Recommendations</h3>
+                  <span>What to fix before your next mock</span>
+                </div>
+                <div className="maRecList">
+                  {data.recommendations.map((r) => (
+                    <div className="maRecRow" key={r.name}>
+                      <span className="maRecBang" aria-hidden="true">
+                        !
+                      </span>
+                      <p>{r.tip}</p>
+                      <Link
+                        className="maRecBtn"
+                        href={r.section ? `/learn/${exam}/${r.section.toLowerCase()}` : `/mocks/${exam}/full`}
+                      >
+                        Go practice <ArrowRight size={14} aria-hidden="true" />
+                      </Link>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            ) : null}
 
             <section className="maReview">
               <div className="maReviewHead">

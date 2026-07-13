@@ -319,6 +319,15 @@ export type AttemptQuestion = {
   time_ms: number;
   benchmark_s: number | null;
 };
+export type MockTopic = {
+  name: string;
+  section: string;
+  attempted: number;
+  correct: number;
+  total: number;
+  accuracy: number;
+};
+export type MockRecommendation = { name: string; section: string; accuracy: number; tip: string };
 export type AttemptAnalysis = {
   attemptId: string;
   mockId: string;
@@ -328,6 +337,10 @@ export type AttemptAnalysis = {
   section: string | null;
   completedAt: string | null;
   timeMs: number;
+  topics: MockTopic[];
+  strong: MockTopic[];
+  weak: MockTopic[];
+  recommendations: MockRecommendation[];
   overall: {
     raw: number;
     wrong: number;
