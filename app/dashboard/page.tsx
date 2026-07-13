@@ -9,7 +9,7 @@ import SiteHeader from "@/components/SiteHeader";
 import { useUser } from "@/components/UserContext";
 import { EXAM_CATALOG } from "@/app/examCatalog";
 import { getExam } from "@/app/learn/sectionData";
-import { learnApi, mockApi, type MockCardsSummary } from "@/lib/api";
+import { learnApi, mockApi, type MockCardData, type MockCardsSummary } from "@/lib/api";
 
 const ACCENTS = ["blue", "rose", "green"] as const;
 
@@ -130,11 +130,11 @@ export default function DashboardPage() {
   // Best / last sectional + full mock cards — every value comes from /mocks/summary. Empty until the
   // learner has attempts. Percentage = round(score / totalMarks * 100); the wave fills to it.
   const mockCard = (
-    c: MockCardsSummary[keyof MockCardsSummary] | undefined,
+    c: MockCardData | undefined,
     label: string,
     tone: string
   ): [string, string, string, string] => {
-    if (!c || typeof c === "string" || !c.marksTotal) return ["No Attempt Yet", "0%", label, tone];
+    if (!c || !c.marksTotal) return ["No Attempt Yet", "0%", label, tone];
     // clamp to 0–100 (a net-negative score → 0%, matching the empty-state behaviour)
     const pct = Math.max(0, Math.min(100, Math.round((c.score / c.marksTotal) * 100)));
     return [c.name, `${pct}%`, label, tone];
