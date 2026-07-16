@@ -37,9 +37,9 @@ const exams = {
       ["705+", "What we aim at"]
     ],
     rows: [
-      ["QUANT", "Problem solving with timed pattern detection."],
-      ["VERBAL", "Critical reasoning and reading comprehension."],
-      ["DATA", "Data insights from tables, charts and multi-source prompts."]
+      ["QUANTITATIVE REASONING", "Problem solving with timed pattern detection."],
+      ["VERBAL REASONING", "Critical reasoning and reading comprehension."],
+      ["DATA INSIGHTS", "Data insights from tables, charts and multi-source prompts."]
     ],
     trap:
       "Pacing and early accuracy dominate the score, yet most prep ignores how the adaptive engine actually moves.",
@@ -60,9 +60,9 @@ const exams = {
       ["330+", "What we aim at"]
     ],
     rows: [
-      ["VERBAL", "Text completion and sentence equivalence."],
-      ["QUANT", "Quantitative comparison and problem solving."],
-      ["VOCAB", "Adaptive vocabulary review before retention drops."]
+      ["VERBAL REASONING", "Text completion and sentence equivalence."],
+      ["QUANTITATIVE REASONING", "Quantitative comparison and problem solving."],
+      ["ANALYTICAL WRITING", "Adaptive vocabulary review before retention drops."]
     ],
     trap:
       "Vocabulary drilling feels productive but rarely moves the sections that carry the score.",
@@ -152,8 +152,8 @@ export default function ExamShowcase({ active, onChange }: ExamShowcaseProps) {
       <div className="sectionInner">
         <div className="sectionHeader compactHeader">
           <h2 id="exam-heading">
-            Same engine.
-            <br />
+            Same engine,
+    
             Tuned for your test.
           </h2>
           <p>

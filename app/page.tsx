@@ -22,18 +22,18 @@ import { useUser } from "@/components/UserContext";
 const featureCards = [
   {
     icon: <Target size={20} aria-hidden="true" />,
-    title: "One plan for everyone",
-    text: "Identical schedules, whatever your start point."
+    title: "Personalized Study Plan",
+    text: "Your preparation adapts to your strengths, weaknesses, and available time."
   },
   {
     icon: <BookOpen size={20} aria-hidden="true" />,
-    title: "Drilling what you know",
-    text: "More repeats where the score can barely move."
+    title: "Smart Topic Prioritization",
+    text: "Focus on the concepts that will improve your score the most."
   },
   {
     icon: <LockKeyhole size={20} aria-hidden="true" />,
-    title: "No clear next step",
-    text: "You finish a session unsure what to open next."
+    title: "AI-Guided Next Steps",
+    text: "Always know exactly what to study next after every session."
   }
 ];
 
@@ -216,28 +216,7 @@ const metrics = [
   ["184", "topics in the adaptive knowledge graph"]
 ];
 
-function ProgressMeter({
-  label,
-  value,
-  accent
-}: {
-  label: string;
-  value: number;
-  accent: string;
-}) {
-  return (
-    <div className="meter">
-      <span>{label}</span>
-      <div className="meterTrack">
-        <i
-          className={`meterFill ${accent}`}
-          style={{ "--value": `${value}%` } as CSSProperties}
-        />
-      </div>
-      <strong>{value}</strong>
-    </div>
-  );
-}
+type StudentMetric = [subject: string, value: number, tone: "green" | "rose" | "gold"];
 
 function StudentCard({
   name,
@@ -246,33 +225,57 @@ function StudentCard({
   name: string;
   variant: "green" | "rose";
 }) {
-  const scores =
+  // Same subjects, mirrored profiles: Student A is QA-light / DILR-heavy, Student B the reverse.
+  const performance: StudentMetric[] =
     variant === "green"
       ? [
-          ["QA", 2],
-          ["LR", 7],
-          ["VARC", 4]
+          ["QA", 88, "green"],
+          ["DILR", 42, "rose"],
+          ["VARC", 61, "gold"]
         ]
       : [
-          ["QA", 7],
-          ["LR", 2],
-          ["VARC", 4]
+          ["QA", 38, "green"],
+          ["DILR", 81, "rose"],
+          ["VARC", 62, "gold"]
+        ];
+  const weekly: StudentMetric[] =
+    variant === "green"
+      ? [
+          ["QA", 2, "green"],
+          ["DILR", 7, "rose"],
+          ["VARC", 4, "gold"]
+        ]
+      : [
+          ["QA", 7, "green"],
+          ["DILR", 2, "rose"],
+          ["VARC", 4, "gold"]
         ];
 
   return (
     <article className="studentCard">
       <div className="studentHeader">
         <span>{name}</span>
-        <small>Baseline</small>
+        <small>Roadmap</small>
       </div>
-      <ProgressMeter label="Concept retention" value={variant === "green" ? 86 : 74} accent="green" />
-      <ProgressMeter label="Speed" value={variant === "green" ? 63 : 48} accent="rose" />
-      <ProgressMeter label="Risk" value={variant === "green" ? 42 : 56} accent="gold" />
-      <div className="scoreTiles">
-        {scores.map(([label, value]) => (
-          <div className="scoreTile" key={label}>
-            <strong>{value}</strong>
-            <span>{label}</span>
+      <p className="studentSectionLabel">Current performance</p>
+      <div className="perfList">
+        {performance.map(([subject, value, tone]) => (
+          <div className="perfRow" key={subject}>
+            <span className="perfName">{subject}</span>
+            <div className="perfTrack">
+              <i className={`perfFill ${tone}`} style={{ "--value": `${value}%` } as CSSProperties} />
+            </div>
+            <strong className="perfPct">{value}%</strong>
+          </div>
+        ))}
+      </div>
+      <p className="studentSectionLabel">Recommended weekly time</p>
+      <div className="weeklyTiles">
+        {weekly.map(([subject, value, tone]) => (
+          <div className="weeklyTile" key={subject}>
+            <span className="weeklyName">{subject}</span>
+            <strong className={`weeklyNum ${tone}`}>{value}</strong>
+            <span className="weeklyUnit">Hrs / wk</span>
           </div>
         ))}
       </div>
@@ -395,8 +398,7 @@ export default function Home() {
               Fastest path to your <span>target</span> percentile
             </h1>
             <p>
-              Most aspirants follow the same study plan. We build one around
-              your strengths, weaknesses, and available time.
+              Why follow the same study plan as everyone else? We build a personalized strategy based on your strengths, weaknesses, and available time.
             </p>
             <div className="heroActions">
               <button className="button primary" type="button" onClick={startDiagnostic}>
@@ -441,11 +443,9 @@ export default function Home() {
         <div className="roadmapPattern" aria-hidden="true" />
         <div className="sectionInner">
           <div className="roadmapCopy">
-            <p className="eyebrow">Adaptive roadmaps</p>
-            <h2 id="roadmap-heading">Personalised Roadmap for every student</h2>
+            <h2 id="roadmap-heading">A Personalized Roadmap, Built Just for You</h2>
             <p>
-              Two aspirants, same target, different strengths. The engine sends
-              each one somewhere different.
+              Two aspirants. One goal. Two completely different study plans because no two students learn the same way.
             </p>
           </div>
           <div className="studentGrid">
