@@ -430,10 +430,12 @@ export default function SubtopicLearning({
                           Type <b>{currentIsTita ? "Numerical" : "Single correct"}</b>
                         </span>
                       </div>
-                      {current?.image ? (
-                        <img className="qimg" src={mediaUrl(current.image)} alt="" />
-                      ) : null}
-                      <div className="qstem">{current?.stem}</div>
+                      <div className={current?.image ? "qbody hasImg" : "qbody"}>
+                        {current?.image ? (
+                          <img className="qimg" src={mediaUrl(current.image)} alt="" />
+                        ) : null}
+                        <div className="qstem">{current?.stem}</div>
+                      </div>
 
                       {currentIsTita ? (
                         <div className="titaField">

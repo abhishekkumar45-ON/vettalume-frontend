@@ -5370,6 +5370,14 @@ h3 {
 .mrQImg { max-width: 100%; margin-bottom: 14px; border-radius: 6px; }
 /* practice-quiz question image — capped to ~1/3 width (fills on small screens) */
 .qimg { display: block; max-width: min(360px, 100%); margin: 0 0 14px; border-radius: 8px; border: 1px solid var(--line); }
+/* when a question has an image, sit it on the left and let the text fill the space beside it */
+.qbody.hasImg { display: flex; gap: 24px; align-items: flex-start; }
+.qbody.hasImg .qimg { flex: 0 0 auto; margin: 0; }
+.qbody.hasImg .qstem { flex: 1 1 0; min-width: 0; }
+@media (max-width: 720px) {
+  .qbody.hasImg { flex-direction: column; }
+  .qbody.hasImg .qimg { margin: 0 0 14px; }
+}
 .mrQStem { font-size: 15.5px; line-height: 1.6; color: var(--ink); margin-bottom: 20px; white-space: pre-wrap; }
 .mrOptions { display: flex; flex-direction: column; gap: 12px; }
 .mrOpt { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; border: 1px solid var(--line-strong); border-radius: 10px; cursor: pointer; transition: border-color 0.15s, background 0.15s; }
