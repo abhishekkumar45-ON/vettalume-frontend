@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { learnApi, type ConceptDetail, type QuizQuestion } from "@/lib/api";
 import Loading from "@/components/Loading";
-import ProtectedNotes from "@/components/ProtectedNotes";
+import { VirtualNotesViewer } from "@/components/VirtualNotesViewer";
 
 type Mode = "concept" | "video" | "quiz";
 
@@ -290,7 +290,17 @@ export default function SubtopicLearning({
             <>
               {/* CONCEPT */}
               <section className={`panel${mode === "concept" ? " on" : ""}`}>
-                <ProtectedNotes html={concept?.content.body || ""} />
+                {concept ? (
+                  <VirtualNotesViewer
+                    conceptId={concept.concept_id}
+                    initialHtml={concept.content.body || ""}
+                    totalSections={concept.content.totalSections || 1}
+                  />
+                ) : (
+                  <div className="prose">
+                    <p>No concept notes yet.</p>
+                  </div>
+                )}
               </section>
 
               {/* VIDEO */}

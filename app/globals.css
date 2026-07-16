@@ -4137,6 +4137,25 @@ h3 {
   pointer-events: none;
   background-repeat: repeat;
 }
+/* Height-preserving placeholder for a not-yet-loaded / evicted section in the windowed viewer. */
+.notesPlaceholder.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.notesSpinner {
+  width: 30px;
+  height: 30px;
+  border: 3px solid var(--line-strong);
+  border-top-color: var(--gold-dark);
+  border-radius: 50%;
+  animation: notesSpin 0.8s linear infinite;
+}
+@keyframes notesSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 /* Printing while protected notes are open prints a notice, not the content. */
 @media print {
   html.notesProtected body * {

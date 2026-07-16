@@ -168,8 +168,15 @@ export type ConceptDetail = {
   mastery: number;
   learning_progress: number;
   attempts: number;
-  content: { body: string; videos: { title?: string; url?: string; duration?: string }[] };
+  // `body` is only the FIRST notes section; the rest are fetched via conceptSection (chunked delivery).
+  content: {
+    body: string;
+    totalSections: number;
+    videos: { title?: string; url?: string; duration?: string }[];
+  };
 };
+
+export type NotesSection = { index: number; html: string; totalSections: number };
 
 export type QuizQuestion = {
   id: string;
@@ -191,6 +198,8 @@ export type ConceptQuiz = {
 export const learnApi = {
   overview: (exam: string) => apiGet<Overview>(`/learn/overview?exam=${encodeURIComponent(exam)}`),
   concept: (nodeId: string) => apiGet<ConceptDetail>(`/learn/concept/${encodeURIComponent(nodeId)}`),
+  conceptSection: (nodeId: string, index: number) =>
+    apiGet<NotesSection>(`/learn/concept/${encodeURIComponent(nodeId)}/section/${index}`),
   quiz: (nodeId: string) => apiGet<ConceptQuiz>(`/learn/concept/${encodeURIComponent(nodeId)}/quiz`),
   answer: (itemId: string, answerGiven: string) =>
     apiPost<{ correct: boolean }>("/learn/answer", { item_id: itemId, answer_given: answerGiven }),
