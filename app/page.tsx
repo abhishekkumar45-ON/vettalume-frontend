@@ -562,7 +562,7 @@ export default function Home() {
 
       <section className="ctaSection" id="trial" aria-labelledby="trial-heading">
         <div className="sectionInner centered">
-          <Sparkles size={26} aria-hidden="true" />
+          
           <h2 id="trial-heading">Find your fastest route to {ctaTargetByExam[activeExam]}</h2>
           <p>Take the diagnostic, get a personalized roadmap in minutes.</p>
           <div className="ctaActions">

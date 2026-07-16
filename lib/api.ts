@@ -408,6 +408,123 @@ export const mockApi = {
     apiGet<AttemptAnalysis>(`/mocks/attempts/${encodeURIComponent(attemptId)}`)
 };
 
+// ---- Diagnostic test ----------------------------------------------------------------------------
+// A one-per-learner, full-format paper that is SEPARATE from the published mocks. The backend serves
+// it from its own /diagnostic/* endpoints and records a DiagnosticAttempt (unique per learner+exam),
+// never a MockAttempt. The paper is normalized to a MockPaper so the shared MockRunner can present it
+// exactly like a full mock.
+export type DiagnosticState = "available" | "in_progress" | "completed" | "not_configured";
+export type DiagnosticStatus = {
+  exam: string;
+  state: DiagnosticState;
+  diagnosticId: string | null;
+  name: string | null;
+  completedAt: string | null;
+};
+export type DiagnosticSectionAbility = {
+  theta: number;
+  se: number;
+  band_95: number[];
+  raw: number;
+  total: number;
+  n_items: number;
+};
+export type DiagnosticResultData = {
+  exam: string;
+  state: string;
+  sections: Record<string, DiagnosticSectionAbility>;
+  completedAt: string | null;
+};
+
+type RawDiagnosticPaper = {
+  diagnostic_id: string;
+  name: string;
+  exam: string;
+  duration: number;
+  instructions: string;
+  negative: number;
+  sections: {
+    id: string;
+    name: string;
+    time: number;
+    questions: { id: string; text: string; options: string[]; image: string; difficulty: number }[];
+  }[];
+  total_questions: number;
+};
+
+function diagnosticPaperToMock(p: RawDiagnosticPaper): MockPaper {
+  return {
+    id: p.diagnostic_id,
+    name: p.name,
+    type: "full",
+    exam: p.exam,
+    duration: p.duration,
+    instructions: p.instructions || "",
+    negative: p.negative,
+    scoringMarks: 3,
+    scoringNeg: 1,
+    sections: (p.sections || []).map((s) => ({
+      id: s.id,
+      name: s.name,
+      time: s.time,
+      questions: (s.questions || []).map((q) => ({
+        id: q.id,
+        text: q.text,
+        options: q.options || [],
+        image: q.image || "",
+        difficulty: q.difficulty || 0,
+        format: q.options && q.options.length ? "mcq" : "tita"
+      }))
+    })),
+    totalQuestions: p.total_questions
+  };
+}
+
+export const diagnosticApi = {
+  status: (exam: string) =>
+    apiGet<{
+      exam: string;
+      state: DiagnosticState;
+      diagnostic_id: string | null;
+      name: string | null;
+      completed_at: string | null;
+    }>(`/diagnostic/status?exam=${encodeURIComponent(exam)}`).then(
+      (s): DiagnosticStatus => ({
+        exam: s.exam,
+        state: s.state,
+        diagnosticId: s.diagnostic_id,
+        name: s.name,
+        completedAt: s.completed_at
+      })
+    ),
+  start: (exam: string) =>
+    apiPost<RawDiagnosticPaper>(`/diagnostic/start?exam=${encodeURIComponent(exam)}`, {}).then(
+      diagnosticPaperToMock
+    ),
+  submit: (exam: string, answers: Record<string, number | string>) =>
+    apiPost<{
+      exam: string;
+      state: string;
+      completed_at: string;
+      overall: DiagnosticSectionAbility;
+      sections: Record<string, DiagnosticSectionAbility>;
+    }>(`/diagnostic/submit?exam=${encodeURIComponent(exam)}`, { answers }),
+  result: (exam: string) =>
+    apiGet<{
+      exam: string;
+      state: string;
+      sections: Record<string, DiagnosticSectionAbility>;
+      completed_at: string | null;
+    }>(`/diagnostic/result?exam=${encodeURIComponent(exam)}`).then(
+      (r): DiagnosticResultData => ({
+        exam: r.exam,
+        state: r.state,
+        sections: r.sections,
+        completedAt: r.completed_at
+      })
+    )
+};
+
 // Password strength rules — must mirror the backend (services/security.password_problems).
 export function passwordProblems(pw: string): string[] {
   const problems: string[] = [];

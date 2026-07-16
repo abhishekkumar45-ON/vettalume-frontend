@@ -4023,6 +4023,93 @@ h3 {
 .recommendItem.rose { --rc: var(--rose); }
 .recommendItem.green { --rc: var(--green-dark); }
 
+/* Rounded pill style for every dashboard progress bar (syllabus coverage, recommended
+   chapters, sectional/full mock tiles). Colors/fills are unchanged — only the shape. */
+.coverage i,
+.practiceTile i,
+.recommendItem i {
+  height: 12px;
+  border-radius: 999px;
+}
+
+/* ===================== diagnostic result ===================== */
+.diagResult {
+  padding-bottom: 60px;
+}
+.diagOverall {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin: 8px 0 28px;
+}
+.diagOverall strong {
+  font-size: 44px;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--gold-dark);
+}
+.diagOverall span {
+  color: var(--muted);
+  font-size: 14px;
+}
+.diagSecGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 18px;
+}
+.diagSecCard {
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel);
+}
+.diagSecHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.diagSecHead h3 {
+  margin: 0;
+  font-size: 18px;
+}
+.diagSecHead b {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--acc, var(--gold));
+}
+.diagSecBar {
+  height: 12px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(30, 26, 18, 0.1);
+}
+.diagSecBar i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--acc, var(--gold));
+}
+.diagSecMeta {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+.diagCta {
+  margin-top: 34px;
+}
+
+/* dashboard diagnostic box states */
+.diagDone {
+  font-weight: 900;
+  color: var(--green-dark);
+}
+.diagUnavailable {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
 /* diagnostic box: launcher link + saved score */
 .diagnosticBox .diagBtn { text-decoration: none; }
 .diagScore {

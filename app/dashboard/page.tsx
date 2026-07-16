@@ -9,7 +9,14 @@ import SiteHeader from "@/components/SiteHeader";
 import { useUser } from "@/components/UserContext";
 import { EXAM_CATALOG } from "@/app/examCatalog";
 import { getExam } from "@/app/learn/sectionData";
-import { learnApi, mockApi, type MockCardData, type MockCardsSummary } from "@/lib/api";
+import {
+  diagnosticApi,
+  learnApi,
+  mockApi,
+  type DiagnosticState,
+  type MockCardData,
+  type MockCardsSummary
+} from "@/lib/api";
 
 const ACCENTS = ["blue", "rose", "green"] as const;
 
@@ -21,7 +28,7 @@ function timeGreeting(hour: number): string {
 
 export default function DashboardPage() {
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [diagnostic, setDiagnostic] = useState<{ percentile: number } | null>(null);
+  const [diagState, setDiagState] = useState<DiagnosticState | null>(null);
   const [greeting, setGreeting] = useState("Good Evening");
   // Real per-section ability/coverage (from /learn/overview) and published-mock counts (from /mocks).
   // Both are 0/empty for a new learner and grow as they learn / as an admin publishes mocks.
@@ -39,16 +46,21 @@ export default function DashboardPage() {
     setGreeting(timeGreeting(new Date().getHours()));
   }, []);
 
+  // Real diagnostic state for the active exam (available | in_progress | completed | not_configured).
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem("vetta:diagnostic");
-      if (raw) {
-        setDiagnostic(JSON.parse(raw));
-      }
-    } catch {
-      // ignore
+    if (!owned || !activeExam) {
+      setDiagState(null);
+      return;
     }
-  }, []);
+    let alive = true;
+    diagnosticApi
+      .status(activeExam)
+      .then((s) => alive && setDiagState(s.state))
+      .catch(() => alive && setDiagState(null));
+    return () => {
+      alive = false;
+    };
+  }, [owned, activeExam]);
 
   // Pull real ability/coverage + mock availability for the active exam.
   useEffect(() => {
@@ -190,21 +202,20 @@ export default function DashboardPage() {
               <p>{subtext}</p>
             </div>
             <div className="diagnosticBox">
-              <small>PRACTICE</small>
+              <small>ONE-TIME</small>
               <h3>Diagnostic Test</h3>
-              {diagnostic ? (
+              {diagState === "completed" ? (
                 <div className="diagScore">
-                  <strong>
-                    {diagnostic.percentile}
-                    <em>ile</em>
-                  </strong>
-                  <Link className="diagRetake" href={`/mocks/${activeExam}/full/start`}>
-                    Retake
+                  <span className="diagDone">Completed</span>
+                  <Link className="diagRetake" href={`/diagnostic/${activeExam}/result`}>
+                    View result
                   </Link>
                 </div>
+              ) : diagState === "not_configured" ? (
+                <span className="diagUnavailable">Not available yet</span>
               ) : (
-                <Link className="diagBtn" href={`/mocks/${activeExam}/full/start`}>
-                  START MOCK
+                <Link className="diagBtn" href={`/diagnostic/${activeExam}`}>
+                  {diagState === "in_progress" ? "RESUME" : "START"}
                   <ArrowRight size={14} aria-hidden="true" />
                 </Link>
               )}

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Calculator, Check, Lock, Maximize2 } from "lucide-react";
-import { mockApi, type MockPaper, type MockQuestion } from "@/lib/api";
+import { diagnosticApi, mockApi, type MockPaper, type MockQuestion } from "@/lib/api";
 import { useUser } from "@/components/UserContext";
 import Loading from "@/components/Loading";
 import MockCalculator from "@/components/mocks/MockCalculator";
@@ -23,7 +23,17 @@ function isTita(q: Q) {
   return q.format === "tita" || !(q.options && q.options.length);
 }
 
-export default function MockRunner({ exam, mockId }: { exam: string; mockId: string }) {
+export default function MockRunner({
+  exam,
+  mockId,
+  diagnostic = false
+}: {
+  exam: string;
+  mockId: string;
+  // Diagnostic mode: load/submit via the /diagnostic API (a separate, one-time, full-format paper)
+  // and route to the diagnostic result instead of a mock analysis. UI is otherwise identical.
+  diagnostic?: boolean;
+}) {
   const router = useRouter();
   const { firstName, fullName, email } = useUser();
   const candidateName =
@@ -62,20 +72,20 @@ export default function MockRunner({ exam, mockId }: { exam: string; mockId: str
 
   useEffect(() => {
     let alive = true;
-    mockApi
-      .paper(mockId)
+    const load = diagnostic ? diagnosticApi.start(exam) : mockApi.paper(mockId);
+    load
       .then((p) => {
         if (!alive) return;
         setPaper(p);
         setSecLeft((p.sections || []).map((s) => (Number(s.time) || 40) * 60));
         setSecDone((p.sections || []).map(() => false));
       })
-      .catch(() => alive && setError("Could not load this mock."))
+      .catch(() => alive && setError(diagnostic ? "Could not load your diagnostic." : "Could not load this mock."))
       .finally(() => alive && setLoading(false));
     return () => {
       alive = false;
     };
-  }, [mockId]);
+  }, [mockId, diagnostic, exam]);
 
   const sections = paper?.sections || [];
   const section = sections[secIdx];
@@ -105,6 +115,11 @@ export default function MockRunner({ exam, mockId }: { exam: string; mockId: str
     bankTime();
     const timeMs = examStartRef.current ? Date.now() - examStartRef.current : 0;
     try {
+      if (diagnostic) {
+        await diagnosticApi.submit(exam, answers);
+        router.push(`/diagnostic/${exam}/result`);
+        return;
+      }
       const res = await mockApi.submit(mockId, answers, durRef.current, timeMs);
       const attempt = res.attemptId;
       if (paper.type === "sectional") {
@@ -118,7 +133,7 @@ export default function MockRunner({ exam, mockId }: { exam: string; mockId: str
       setSubmitting(false);
       setError("Could not submit — check your connection and try again.");
     }
-  }, [paper, mockId, answers, exam, router, bankTime]);
+  }, [paper, mockId, answers, exam, router, bankTime, diagnostic]);
 
   // CAT full-mock flow: submit the current section, lock it, and move to the next in order — you
   // can't return. The last section's submit grades the whole test.
@@ -222,7 +237,9 @@ export default function MockRunner({ exam, mockId }: { exam: string; mockId: str
     return (
       <main className="mrInstr">
         <div className="sectionInner">
-          <p className="mrInstrKicker">{paper.type === "full" ? "Full Mock" : "Sectional Mock"}</p>
+          <p className="mrInstrKicker">
+            {diagnostic ? "Diagnostic Test" : paper.type === "full" ? "Full Mock" : "Sectional Mock"}
+          </p>
           <h1>{paper.name}</h1>
           <p className="mrInstrLead">
             Read the instructions carefully. The test opens in a CAT-style interface. Your timer
