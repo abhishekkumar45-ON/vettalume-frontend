@@ -198,7 +198,6 @@ export default function SubtopicLearning({
   }
 
   const videos = concept?.content.videos ?? [];
-  const masteryPct = Math.round((concept?.mastery ?? 0) * 100);
 
   const current = questions[qIndex];
   const currentIsTita = current ? isTitaQ(current) : false;
@@ -291,24 +290,7 @@ export default function SubtopicLearning({
             <>
               {/* CONCEPT */}
               <section className={`panel${mode === "concept" ? " on" : ""}`}>
-                <div className="grid2">
-                  <ProtectedNotes html={concept?.content.body || ""} />
-                  <aside className="rail">
-                    <div className="rcard">
-                      <div className="rc-h">Concept mastery</div>
-                      <div className="mastery">
-                        <div className="mv" style={{ color: "var(--course)" }}>
-                          {masteryPct}
-                          <small style={{ fontSize: "20px" }}>%</small>
-                        </div>
-                        <div className="ml">{concept?.attempts ? `${concept.attempts} attempts` : "not started"}</div>
-                      </div>
-                      <div className="mtrack">
-                        <i style={{ width: `${masteryPct}%` }} />
-                      </div>
-                    </div>
-                  </aside>
-                </div>
+                <ProtectedNotes html={concept?.content.body || ""} />
               </section>
 
               {/* VIDEO */}
