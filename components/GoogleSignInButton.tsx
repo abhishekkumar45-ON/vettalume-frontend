@@ -52,6 +52,8 @@ export default function GoogleSignInButton({
         }
       });
       hostRef.current.innerHTML = "";
+      // Match the button width to the form inputs (Google caps renderButton width at 400px).
+      const hostWidth = Math.round(hostRef.current.getBoundingClientRect().width);
       idApi.renderButton(hostRef.current, {
         type: "standard",
         theme: "outline",
@@ -59,7 +61,7 @@ export default function GoogleSignInButton({
         text: "continue_with",
         shape: "rectangular",
         logo_alignment: "left",
-        width: 320
+        width: hostWidth > 0 ? Math.min(400, hostWidth) : 320
       });
     }
 

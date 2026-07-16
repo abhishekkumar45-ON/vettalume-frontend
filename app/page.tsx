@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import AnalysisPreview from "@/components/AnalysisPreview";
 import AuthModal, { type AuthModalMode } from "@/components/AuthModal";
 import ExamShowcase, { type ExamKey } from "@/components/ExamShowcase";
 import SiteFooter from "@/components/SiteFooter";
@@ -46,6 +47,13 @@ type PricingPlan = {
 };
 
 const examTabs: ExamKey[] = ["CAT", "GMAT", "GRE"];
+
+// The CTA target metric shown per exam (CAT is percentile-based; GMAT/GRE are score-based).
+const ctaTargetByExam: Record<ExamKey, string> = {
+  CAT: "99+ percentile",
+  GMAT: "705+ score",
+  GRE: "320+ score"
+};
 
 const pricingByExam: Record<
   ExamKey,
@@ -168,39 +176,6 @@ const pricingByExam: Record<
   }
 };
 
-const dashboardByExam: Record<
-  ExamKey,
-  {
-    plan: string;
-    percentile: string;
-    allocation: string;
-    risk: string;
-    chips: string[];
-  }
-> = {
-  CAT: {
-    plan: "Attempt 2 timed DILR sets, then review para jumbles at 4 PM.",
-    percentile: "91.4",
-    allocation: "DILR focus",
-    risk: "Verbal accuracy",
-    chips: ["Set selection", "Root cause", "Next action"]
-  },
-  GMAT: {
-    plan: "Run 14 Data Insights prompts, then review critical reasoning misses.",
-    percentile: "705",
-    allocation: "Data Insights",
-    risk: "Quant timing",
-    chips: ["DI engine", "Focus edition", "Timing split"]
-  },
-  GRE: {
-    plan: "Review vocab recall queue, then complete 18 quant comparison drills.",
-    percentile: "326",
-    allocation: "Verbal + Quant",
-    risk: "Vocab retention",
-    chips: ["SRS vocab", "Trap patterns", "First section"]
-  }
-};
-
 const comparisonRows = [
   ["Same schedule for everyone", "A roadmap built from your diagnostic"],
   ["Fixed study plans", "A plan that adapts after every session"],
@@ -283,90 +258,53 @@ function StudentCard({
   );
 }
 
+type PracticeSlice = { code: string; hours: number; tone: "green" | "rose" | "gold" };
+
 function PracticeCard({
   title,
-  gain,
+  note,
+  slices,
+  lift,
   variant
 }: {
   title: string;
-  gain: string;
+  note: string;
+  slices: PracticeSlice[];
+  lift: string;
   variant: "even" | "adaptive";
 }) {
+  const total = slices.reduce((sum, s) => sum + s.hours, 0);
   return (
     <article className={`practiceCard ${variant}`}>
       <div className="practiceHeader">
         <span>{title}</span>
-        <small>{variant === "even" ? "Fixed schedule" : "Weighted to gap"}</small>
+        <small>{total} hrs</small>
       </div>
+      <p className="practiceNote">{note}</p>
       <div className="stackedBar">
-        <span style={{ width: variant === "even" ? "33%" : "12%" }} />
-        <span style={{ width: variant === "even" ? "34%" : "20%" }} />
-        <span style={{ width: variant === "even" ? "33%" : "68%" }} />
+        {slices.map((s) => (
+          <span
+            className={`seg ${s.tone}`}
+            key={s.code}
+            style={{ width: `${parseFloat(((s.hours / total) * 100).toFixed(2))}%` }}
+          >
+            {s.hours}
+          </span>
+        ))}
       </div>
-      <div className="gain">Percentile shift {gain}</div>
+      <div className="practiceLegend">
+        {slices.map((s) => (
+          <span className="legendItem" key={s.code}>
+            <i className={`dot ${s.tone}`} aria-hidden="true" />
+            {s.code} {s.hours}h
+          </span>
+        ))}
+      </div>
+      <div className="practiceFoot">
+        <span className="liftLabel">Projected lift</span>
+        <strong className="liftValue">{lift}</strong>
+      </div>
     </article>
-  );
-}
-
-function DashboardPreview({ exam }: { exam: ExamKey }) {
-  const dashboard = dashboardByExam[exam];
-
-  return (
-    <div className="dashboardPreview" aria-label="Adaptive prep dashboard preview">
-      <div className="windowBar">
-        <span>{exam}</span>
-        <b>commander center</b>
-        <small>As of 4:13</small>
-      </div>
-      <div className="dashboardGrid">
-        <div className="dashPanel large">
-          <small>Today plan</small>
-          <strong>{dashboard.plan}</strong>
-          <div className="chipRow">
-            {dashboard.chips.map((chip) => (
-              <span key={chip}>{chip}</span>
-            ))}
-          </div>
-        </div>
-        <div className="dashPanel">
-          <small>{exam === "GMAT" ? "Predicted score" : "Predicted percentile"}</small>
-          <strong>{dashboard.percentile}</strong>
-        </div>
-        <div className="dashPanel">
-          <small>Allocation mix</small>
-          <strong>{dashboard.allocation}</strong>
-        </div>
-        <div className="dashPanel">
-          <small>Risk alert</small>
-          <strong>{dashboard.risk}</strong>
-        </div>
-      </div>
-      <div className="chartPanel">
-        <small>Projected percentile climb</small>
-        <svg viewBox="0 0 660 260" role="img" aria-label="Projected score improvement chart">
-          <defs>
-            <linearGradient id="chartFill" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0" stopColor="var(--gold)" stopOpacity="0.45" />
-              <stop offset="1" stopColor="var(--panel)" stopOpacity="0" />
-            </linearGradient>
-          </defs>
-          <path
-            d="M40 220 C 155 180, 210 148, 320 126 C 430 104, 520 72, 620 48 L620 240 L40 240 Z"
-            fill="url(#chartFill)"
-          />
-          <path
-            d="M40 220 C 155 180, 210 148, 320 126 C 430 104, 520 72, 620 48"
-            fill="none"
-            stroke="var(--gold)"
-            strokeWidth="5"
-            strokeLinecap="round"
-          />
-          {[40, 320, 620].map((x, index) => (
-            <circle key={x} cx={x} cy={[220, 126, 48][index]} r="7" fill="var(--dark)" />
-          ))}
-        </svg>
-      </div>
-    </div>
   );
 }
 
@@ -467,8 +405,28 @@ export default function Home() {
             </p>
           </div>
           <div className="practiceGrid">
-            <PracticeCard title="Traditional prep" gain="+4%" variant="even" />
-            <PracticeCard title="VettaLume" gain="+12%" variant="adaptive" />
+            <PracticeCard
+              title="Traditional prep"
+              note="Effort divided equally. Mostly wasted."
+              slices={[
+                { code: "QA", hours: 33, tone: "green" },
+                { code: "DILR", hours: 33, tone: "rose" },
+                { code: "VARC", hours: 34, tone: "gold" }
+              ]}
+              lift="+4%"
+              variant="even"
+            />
+            <PracticeCard
+              title="VettaLume"
+              note="Weighted to your highest-leverage section."
+              slices={[
+                { code: "QA", hours: 15, tone: "green" },
+                { code: "DILR", hours: 55, tone: "rose" },
+                { code: "VARC", hours: 30, tone: "gold" }
+              ]}
+              lift="+12%"
+              variant="adaptive"
+            />
           </div>
         </div>
       </section>
@@ -505,7 +463,7 @@ export default function Home() {
             <h2 id="dashboard-heading">Know what to do today, and where it leads</h2>
             <p>The day's decision is already made. Below it, a forecast recalibrates.</p>
           </div>
-          <DashboardPreview exam={activeExam} />
+          <AnalysisPreview />
         </div>
       </section>
 
@@ -605,7 +563,7 @@ export default function Home() {
       <section className="ctaSection" id="trial" aria-labelledby="trial-heading">
         <div className="sectionInner centered">
           <Sparkles size={26} aria-hidden="true" />
-          <h2 id="trial-heading">Find your fastest route to 99%</h2>
+          <h2 id="trial-heading">Find your fastest route to {ctaTargetByExam[activeExam]}</h2>
           <p>Take the diagnostic, get a personalized roadmap in minutes.</p>
           <div className="ctaActions">
             <button className="button primary" type="button" onClick={startDiagnostic}>

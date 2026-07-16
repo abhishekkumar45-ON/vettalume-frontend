@@ -152,14 +152,10 @@ export default function ExamShowcase({ active, onChange }: ExamShowcaseProps) {
       <div className="sectionInner">
         <div className="sectionHeader compactHeader">
           <h2 id="exam-heading">
-            Same engine,
-    
-            Tuned for your test.
+           One Platform. Personalized for Every Exam.
           </h2>
           <p>
-            The adaptive core is shared. What changes is the question bank, the
-            section weighting, and the one feature each exam needs. Switch
-            anytime, your profile carries over.
+            Whether you're preparing for CAT, GMAT, or GRE, your study experience adapts to the exam's pattern, syllabus, and scoring. Your progress, strengths, and personalized roadmap stay with you, even if you switch exams.
           </p>
         </div>
       </div>

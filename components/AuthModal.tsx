@@ -156,7 +156,10 @@ export default function AuthModal({ mode, onClose, onModeChange, onSignIn }: Aut
       ) : (
         <>
           <section className="authPanel" aria-labelledby="auth-title">
-            <Image className="authLogo" src="/logo-mark.png" alt="" width={112} height={68} priority />
+            <div className="authBrand">
+              <Image className="authLogo" src="/logo-mark.png" alt="" width={112} height={68} priority />
+              <span className="brandText">VETTA<em>LUME</em></span>
+            </div>
 
             {mode === "login" ? (
               <>
@@ -360,7 +363,18 @@ export default function AuthModal({ mode, onClose, onModeChange, onSignIn }: Aut
           </section>
 
           <div className="authArt" aria-hidden="true">
-            <Image src="/hero-art.png" alt="" width={1204} height={745} priority />
+            <div className="authArtInner">
+              <Image src="/hero-art.png" alt="" width={1204} height={745} priority />
+              <div className="authArtText">
+                <h2>
+                  Fastest path to your <span>target</span> percentile
+                </h2>
+                <p>
+                  Why follow the same study plan as everyone else? We build a personalized strategy
+                  based on your strengths, weaknesses, and available time.
+                </p>
+              </div>
+            </div>
           </div>
         </>
       )}
