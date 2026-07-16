@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { learnApi, type ConceptDetail, type QuizQuestion } from "@/lib/api";
 import Loading from "@/components/Loading";
+import ProtectedNotes from "@/components/ProtectedNotes";
 
 type Mode = "concept" | "video" | "quiz";
 
@@ -291,12 +292,7 @@ export default function SubtopicLearning({
               {/* CONCEPT */}
               <section className={`panel${mode === "concept" ? " on" : ""}`}>
                 <div className="grid2">
-                  <div
-                    className="prose"
-                    dangerouslySetInnerHTML={{
-                      __html: concept?.content.body || "<p>No concept notes yet.</p>"
-                    }}
-                  />
+                  <ProtectedNotes html={concept?.content.body || ""} />
                   <aside className="rail">
                     <div className="rcard">
                       <div className="rc-h">Concept mastery</div>

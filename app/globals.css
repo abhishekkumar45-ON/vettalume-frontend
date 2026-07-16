@@ -4110,6 +4110,48 @@ h3 {
   font-weight: 700;
 }
 
+/* ===================== protected concept notes ===================== */
+.notesShell {
+  position: relative;
+}
+.proseProtected,
+.proseProtected * {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+.proseProtected {
+  position: relative;
+  z-index: 1;
+}
+.proseProtected img {
+  -webkit-user-drag: none;
+  pointer-events: none;
+}
+/* Faint diagonal watermark (learner identity) laid over the notes; never blocks interaction. */
+.notesWatermark {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background-repeat: repeat;
+}
+/* Printing while protected notes are open prints a notice, not the content. */
+@media print {
+  html.notesProtected body * {
+    visibility: hidden !important;
+  }
+  html.notesProtected body::before {
+    content: "Vettalume study material is protected — printing is disabled.";
+    visibility: visible;
+    display: block;
+    padding: 48px;
+    font: 700 18px/1.5 sans-serif;
+    color: #1d1f24;
+  }
+}
+
 /* diagnostic box: launcher link + saved score */
 .diagnosticBox .diagBtn { text-decoration: none; }
 .diagScore {
