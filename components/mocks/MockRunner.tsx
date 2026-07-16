@@ -405,8 +405,10 @@ export default function MockRunner({
             <div className="mrQNo">Question No. {qIdx + 1}</div>
             {current ? (
               <>
-                {current.image ? <img className="mrQImg" src={mediaUrl(current.image)} alt="" /> : null}
-                <div className="mrQStem">{current.text}</div>
+                <div className={current.image && !twoPane ? "mrQTop hasImg" : "mrQTop"}>
+                  {current.image ? <img className="mrQImg" src={mediaUrl(current.image)} alt="" /> : null}
+                  <div className="mrQStem">{current.text}</div>
+                </div>
                 {tita ? (
                   <input
                     className="mrTita"
