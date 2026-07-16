@@ -542,6 +542,17 @@ export const diagnosticApi = {
     )
 };
 
+// "Contact us" form -> stored server-side and read by admins.
+export const contactApi = {
+  send: (body: {
+    firstName: string;
+    lastName: string;
+    phone: string;
+    email: string;
+    message: string;
+  }) => apiPost<{ ok: boolean }>("/contact", body)
+};
+
 // Password strength rules — must mirror the backend (services/security.password_problems).
 export function passwordProblems(pw: string): string[] {
   const problems: string[] = [];
