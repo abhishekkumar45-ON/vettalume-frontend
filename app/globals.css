@@ -5368,6 +5368,8 @@ h3 {
 .mrQuestion { padding: 20px 26px; overflow: auto; }
 .mrQNo { font-weight: 800; font-size: 15px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--line-soft, var(--line-strong)); }
 .mrQImg { max-width: 100%; margin-bottom: 14px; border-radius: 6px; }
+/* practice-quiz question image */
+.qimg { display: block; max-width: 100%; margin: 0 0 14px; border-radius: 8px; border: 1px solid var(--line); }
 .mrQStem { font-size: 15.5px; line-height: 1.6; color: var(--ink); margin-bottom: 20px; white-space: pre-wrap; }
 .mrOptions { display: flex; flex-direction: column; gap: 12px; }
 .mrOpt { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; border: 1px solid var(--line-strong); border-radius: 10px; cursor: pointer; transition: border-color 0.15s, background 0.15s; }

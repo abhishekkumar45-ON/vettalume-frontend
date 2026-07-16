@@ -184,10 +184,18 @@ export type QuizQuestion = {
   difficulty: number;
   stem: string;
   options: string[];
+  image: string;
   correct_answer: string;
   solution: string;
   answered: boolean;
 };
+
+// A question image is either an absolute URL (legacy) or a "/media/{id}" path served by the API.
+// Resolve the latter against the API base so <img> loads it from the backend, not the frontend.
+export function mediaUrl(src: string | undefined | null): string {
+  if (!src) return "";
+  return src.startsWith("/media/") ? `${BASE}${src}` : src;
+}
 export type ConceptQuiz = {
   concept_id: string;
   name: string;

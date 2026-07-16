@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { learnApi, type ConceptDetail, type QuizQuestion } from "@/lib/api";
+import { learnApi, mediaUrl, type ConceptDetail, type QuizQuestion } from "@/lib/api";
 import Loading from "@/components/Loading";
 import { VirtualNotesViewer } from "@/components/VirtualNotesViewer";
 
@@ -430,6 +430,9 @@ export default function SubtopicLearning({
                           Type <b>{currentIsTita ? "Numerical" : "Single correct"}</b>
                         </span>
                       </div>
+                      {current?.image ? (
+                        <img className="qimg" src={mediaUrl(current.image)} alt="" />
+                      ) : null}
                       <div className="qstem">{current?.stem}</div>
 
                       {currentIsTita ? (

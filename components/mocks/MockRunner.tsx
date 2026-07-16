@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Calculator, Check, Lock, Maximize2 } from "lucide-react";
-import { diagnosticApi, mockApi, type MockPaper, type MockQuestion } from "@/lib/api";
+import { diagnosticApi, mediaUrl, mockApi, type MockPaper, type MockQuestion } from "@/lib/api";
 import { useUser } from "@/components/UserContext";
 import Loading from "@/components/Loading";
 import MockCalculator from "@/components/mocks/MockCalculator";
@@ -405,7 +405,7 @@ export default function MockRunner({
             <div className="mrQNo">Question No. {qIdx + 1}</div>
             {current ? (
               <>
-                {current.image ? <img className="mrQImg" src={current.image} alt="" /> : null}
+                {current.image ? <img className="mrQImg" src={mediaUrl(current.image)} alt="" /> : null}
                 <div className="mrQStem">{current.text}</div>
                 {tita ? (
                   <input
