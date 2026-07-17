@@ -6104,3 +6104,52 @@ h3 {
 @media (max-width: 560px) {
   .aboutGrid { grid-template-columns: 1fr; }
 }
+
+/* ============================================================
+   Dashboard trial card
+   ============================================================ */
+.trialCardWrap {
+  width: min(1180px, calc(100% - 32px));
+  margin: 18px auto 0;
+}
+.trialCard {
+  padding: 22px 24px;
+  border: 1px solid var(--line);
+  border-left: 5px solid var(--gold);
+  border-radius: 14px;
+  background: linear-gradient(180deg, var(--panel), var(--panel-2));
+  box-shadow: var(--shadow);
+}
+.trialCard.onTrial { border-left-color: var(--green); }
+.trialCard.ended { border-left-color: var(--rose); }
+.trialHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.trialHead strong { font-size: 18px; }
+.trialBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--gold-soft);
+  color: var(--gold-dark);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.trialCard.onTrial .trialBadge { background: rgba(79, 155, 134, 0.16); color: var(--green-dark); }
+.trialBadge.ended { background: rgba(178, 132, 122, 0.18); color: #9c5a4d; }
+.trialCard p {
+  margin: 0 0 16px;
+  color: var(--muted);
+  line-height: 1.5;
+  font-size: 14.5px;
+}
+.trialCard .button { display: inline-flex; align-items: center; gap: 8px; }
+.trialError { color: #b23b3b !important; font-weight: 700; font-size: 13px !important; }

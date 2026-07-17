@@ -563,11 +563,28 @@ export type CouponResult = {
   description?: string;
 };
 
+export type TrialStatus = {
+  exam: string;
+  tier: "paid" | "trial" | "free" | null;
+  status: string | null;
+  on_trial: boolean;
+  paid: boolean;
+  can_start_trial: boolean;
+  days_left: number | null;
+  expires_at: string | null;
+  limits: { sectional_per_section: number | null; full_mocks: number | null; content: string | null };
+  used: { full_mocks: number; sectional: Record<string, number> };
+};
+
 export const billingApi = {
   // Validate (preview) a coupon against a cart. `amount` is in paise; `exam` limits
   // course-restricted coupons. The backend does NOT consume the coupon here.
   validateCoupon: (body: { code: string; exam?: string; amount: number }) =>
-    apiPost<CouponResult>("/billing/coupon/validate", body)
+    apiPost<CouponResult>("/billing/coupon/validate", body),
+  // Start the one-time 7-day free trial for one exam (after signup).
+  startTrial: (exam: string) => apiPost<TrialStatus>("/billing/start-trial", { exam }),
+  // Trial state for the dashboard banner (days left, quota used, can_start_trial).
+  trialStatus: (exam: string) => apiGet<TrialStatus>(`/billing/trial-status?exam=${encodeURIComponent(exam)}`)
 };
 
 // Password strength rules — must mirror the backend (services/security.password_problems).

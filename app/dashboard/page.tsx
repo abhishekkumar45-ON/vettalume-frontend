@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { ArrowRight, Lock, X } from "lucide-react";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
+import TrialCard from "@/components/TrialCard";
 import { useUser } from "@/components/UserContext";
 import { EXAM_CATALOG } from "@/app/examCatalog";
 import { getExam } from "@/app/learn/sectionData";
@@ -222,6 +223,10 @@ export default function DashboardPage() {
             </div>
           </div>
         </section>
+
+        <div className="sectionInner trialCardWrap">
+          <TrialCard />
+        </div>
 
         {owned ? (
           <section className="dashboardBody sectionInner">

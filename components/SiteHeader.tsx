@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ShoppingCart, UserRound } from "lucide-react";
 import ExamSwitcher from "@/components/ExamSwitcher";
 import Logo from "@/components/Logo";
@@ -18,6 +19,10 @@ export default function SiteHeader({
 }: SiteHeaderProps) {
   const { authed, hydrated, openAuth } = useUser();
   const { count } = useCart();
+  const router = useRouter();
+
+  // Signed-in users go to the dashboard (the trial card starts/tracks it); everyone else signs up first.
+  const startFreeTrial = () => (authed ? router.push("/dashboard") : openAuth("trial"));
 
   return (
     <>
@@ -36,7 +41,7 @@ export default function SiteHeader({
                 Log in
               </button>
             ) : null}
-            <button className="button primary navButton" type="button" onClick={() => openAuth("trial")}>
+            <button className="button primary navButton" type="button" onClick={startFreeTrial}>
               Start Free Trial
             </button>
             <Link className="iconButton cartIconButton" href="/cart" aria-label="Cart">
