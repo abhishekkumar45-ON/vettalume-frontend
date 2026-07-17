@@ -9,7 +9,7 @@ import {
   type ReactNode
 } from "react";
 import { EXAM_SLUGS, isExamSlug, type ExamSlug } from "@/app/examCatalog";
-import { authApi, clearToken, getToken } from "@/lib/api";
+import { ApiError, authApi, clearToken, getToken } from "@/lib/api";
 import type { AuthModalMode } from "@/components/AuthModal";
 
 type UserState = {
@@ -91,6 +91,12 @@ export function UserProvider({ children }: { children: ReactNode }) {
     setAuthed(true);
   }
 
+  function signOutLocal() {
+    clearToken();
+    setAuthed(false);
+    setState((prev) => ({ ...prev, firstName: null, fullName: null, email: null }));
+  }
+
   // Hydrate from localStorage, then confirm the session against the backend.
   useEffect(() => {
     try {
@@ -118,17 +124,44 @@ export function UserProvider({ children }: { children: ReactNode }) {
       setHydrated(true);
       return;
     }
-    // Have a token — verify it and load the real account. If it's invalid/expired, sign out.
+    // Have a token — verify it and load the real account. Only a real 401 (expired/invalid session)
+    // signs out; a network blip (e.g. cold backend) keeps the stored session so active users aren't
+    // dropped — the next reachable request will 401 if it truly expired.
     authApi
       .me()
       .then((me) => applyAccount({ email: me.email, display_name: me.display_name }))
-      .catch(() => {
-        clearToken();
-        setAuthed(false);
-        setState((prev) => ({ ...prev, firstName: null, fullName: null, email: null }));
+      .catch((err) => {
+        if (err instanceof ApiError && err.status === 401) signOutLocal();
+        else setAuthed(true);
       })
       .finally(() => setHydrated(true));
   }, []);
+
+  // Re-check the session whenever the tab regains focus (notably after the device wakes from sleep).
+  // If the session hit the 24h idle window or the 7-day cap, the backend 401s and we sign out here.
+  useEffect(() => {
+    if (!authed) return;
+    if (process.env.NEXT_PUBLIC_DEV_BYPASS_AUTH === "true") return;
+    let lastCheck = Date.now();
+    const revalidate = () => {
+      if (document.visibilityState !== "visible") return;
+      if (Date.now() - lastCheck < 30_000) return; // throttle rapid focus/blur churn
+      lastCheck = Date.now();
+      authApi
+        .me()
+        .then((me) => applyAccount({ email: me.email, display_name: me.display_name }))
+        .catch((err) => {
+          if (err instanceof ApiError && err.status === 401) signOutLocal();
+        });
+    };
+    document.addEventListener("visibilitychange", revalidate);
+    window.addEventListener("focus", revalidate);
+    return () => {
+      document.removeEventListener("visibilitychange", revalidate);
+      window.removeEventListener("focus", revalidate);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authed]);
 
   // Persist profile on change.
   useEffect(() => {
