@@ -5446,6 +5446,9 @@ h3 {
 .mrDialog h3 { margin: 0 0 10px; font-size: 19px; }
 .mrDialog p { margin: 0 0 18px; font-size: 14.5px; line-height: 1.55; color: var(--ink-soft); }
 .mrDialogBtns { display: flex; justify-content: flex-end; gap: 10px; }
+.mrDialog.mrProctor { border-top: 4px solid #d98a1f; }
+.mrDialog.mrProctor h3 { color: #b23b3b; }
+.mrProctorCount { font-weight: 700; color: var(--ink) !important; }
 
 @media (max-width: 900px) {
   .mrBody { flex-direction: column; }
@@ -5662,4 +5665,442 @@ h3 {
   .apStats { grid-template-columns: repeat(2, 1fr); }
   .apTopicRow { grid-template-columns: 120px 1fr 30px; gap: 10px; }
   .apTopicName { font-size: 12.5px; }
+}
+
+/* ============================================================
+   Footer mock-link buttons (gated Sectional / Full mock)
+   ============================================================ */
+.footerLinkButton {
+  border: 0;
+  background: none;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+  color: var(--ink-soft);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.footerLinkButton:hover {
+  color: var(--gold-dark);
+}
+
+/* ============================================================
+   Header cart badge
+   ============================================================ */
+.cartIconButton {
+  position: relative;
+}
+.cartCount {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--gold);
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 18px;
+  text-align: center;
+}
+
+/* ============================================================
+   Testimonials carousel ("Proof, not promises") — cream/gold theme
+   ============================================================ */
+.testimonialsSection {
+  background:
+    radial-gradient(120% 80% at 50% 0%, rgba(201, 162, 78, 0.1), transparent 60%),
+    var(--cream);
+  border-top: 1px solid var(--line);
+  overflow: hidden;
+}
+.tStage {
+  position: relative;
+  margin-top: 40px;
+  min-height: 440px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1500px;
+}
+.tCard {
+  position: absolute;
+  width: min(360px, 80vw);
+  min-height: 350px;
+  padding: 28px 26px 22px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  transition: transform 0.55s ease, opacity 0.55s ease;
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+}
+.tCard.active {
+  position: relative;
+  z-index: 5;
+  transform: none;
+  opacity: 1;
+  min-height: 372px;
+  border: 2px solid var(--gold);
+  background: linear-gradient(180deg, var(--panel), var(--panel-2));
+}
+.tCard.prev {
+  transform: translateX(-56%) scale(0.86) rotateY(20deg);
+  opacity: 0.6;
+  z-index: 4;
+  cursor: pointer;
+}
+.tCard.next {
+  transform: translateX(56%) scale(0.86) rotateY(-20deg);
+  opacity: 0.6;
+  z-index: 4;
+  cursor: pointer;
+}
+.tCard.farPrev {
+  transform: translateX(-104%) scale(0.72) rotateY(24deg);
+  opacity: 0.28;
+  z-index: 3;
+  cursor: pointer;
+}
+.tCard.farNext {
+  transform: translateX(104%) scale(0.72) rotateY(-24deg);
+  opacity: 0.28;
+  z-index: 3;
+  cursor: pointer;
+}
+.tCard.farPrev:hover,
+.tCard.farNext:hover {
+  opacity: 0.5;
+}
+.tCard.prev:hover,
+.tCard.next:hover {
+  opacity: 0.7;
+}
+.tQuoteMark {
+  color: var(--gold);
+  opacity: 0.9;
+  margin-bottom: 12px;
+}
+.tCard.accent-green .tQuoteMark { color: var(--green); }
+.tCard.accent-rose .tQuoteMark { color: var(--rose); }
+.tCard.accent-blue .tQuoteMark { color: var(--blue); }
+.tQuote {
+  margin: 0 0 18px;
+  font-size: 18px;
+  line-height: 1.42;
+  font-weight: 700;
+  color: var(--ink);
+}
+.tPerson {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: auto;
+}
+.tAvatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  background: var(--gold);
+  color: var(--ink);
+  font-weight: 900;
+  font-size: 15px;
+  flex: 0 0 auto;
+}
+.tCard.accent-green .tAvatar { background: var(--green); color: #fff; }
+.tCard.accent-rose .tAvatar { background: var(--rose); color: #fff; }
+.tCard.accent-blue .tAvatar { background: var(--blue); color: #fff; }
+.tPerson strong {
+  display: block;
+  font-size: 16px;
+  color: var(--ink);
+}
+.tTag {
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--gold-dark);
+}
+.tControls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 34px;
+}
+.tArrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  background: var(--panel);
+  color: var(--ink);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.tArrow:hover {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--ink);
+}
+.tDots {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.tDot {
+  width: 9px;
+  height: 9px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--line-strong);
+  transition: width 0.25s ease, background 0.25s ease;
+}
+.tDot.active {
+  width: 26px;
+  background: var(--gold);
+}
+@media (max-width: 1000px) {
+  /* Not enough width for the outer pair — drop to three cards. */
+  .tCard.farPrev,
+  .tCard.farNext { display: none; }
+  .tCard.prev { transform: translateX(-52%) scale(0.84) rotateY(18deg); }
+  .tCard.next { transform: translateX(52%) scale(0.84) rotateY(-18deg); }
+}
+@media (max-width: 680px) {
+  .tStage { min-height: 400px; }
+  .tCard { min-height: 330px; padding: 26px 22px 22px; }
+  .tCard.active { min-height: 350px; }
+  .tCard.prev,
+  .tCard.next { display: none; }
+  .tQuote { font-size: 17px; }
+}
+
+/* ============================================================
+   Cart — coupon box, empty / placed states, remove button
+   ============================================================ */
+.couponBox {
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+.couponBox > label {
+  font-weight: 900;
+  font-size: 15px;
+}
+.couponRow {
+  display: flex;
+  gap: 8px;
+}
+.couponRow input {
+  flex: 1;
+  min-height: 46px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  padding: 0 12px;
+  background: var(--panel);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.couponRow button {
+  min-height: 46px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--dark);
+  color: #fff;
+  font-weight: 800;
+}
+.couponRow button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.couponApplied {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: rgba(79, 155, 134, 0.14);
+  border: 1px solid rgba(79, 155, 134, 0.4);
+  font-weight: 800;
+  color: var(--green-dark);
+}
+.couponApplied span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.couponApplied button {
+  border: 0;
+  background: none;
+  color: var(--green-dark);
+  font-weight: 800;
+  text-decoration: underline;
+}
+.couponError {
+  margin: 0;
+  color: #b23b3b;
+  font-size: 12.5px !important;
+  font-weight: 700;
+}
+.couponOk {
+  margin: 0;
+  color: var(--green-dark);
+  font-size: 12.5px !important;
+}
+.removeButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 8px;
+  padding: 0 12px;
+}
+.cartItem small {
+  color: var(--faint);
+  font-size: 13px;
+  font-weight: 700;
+}
+.cartEmpty {
+  width: min(1320px, calc(100% - 32px));
+  margin: 40px auto 120px;
+  display: flex;
+  justify-content: center;
+}
+.cartPlacedCard {
+  max-width: 560px;
+  padding: 44px 40px;
+  text-align: center;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+}
+.cartPlacedCard h2 {
+  margin: 12px 0 10px;
+  font-size: 28px;
+}
+.cartPlacedCard p {
+  margin: 0 auto 24px;
+  max-width: 440px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.cartPlacedIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  background: rgba(79, 155, 134, 0.16);
+  color: var(--green-dark);
+}
+.spin {
+  animation: cartSpin 0.8s linear infinite;
+}
+@keyframes cartSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================================
+   About page
+   ============================================================ */
+.aboutBlock {
+  margin-top: 30px;
+}
+.aboutBlock h2,
+.aboutGridTitle {
+  font-size: 26px;
+  margin: 0 0 12px;
+}
+.aboutGridTitle {
+  margin-top: 46px;
+}
+.aboutBlock p {
+  color: var(--muted);
+  line-height: 1.6;
+  font-size: 16px;
+}
+.aboutGrid {
+  margin-top: 22px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+.aboutCard {
+  padding: 24px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+}
+.aboutCardIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--gold-soft);
+  color: var(--gold-dark);
+  margin-bottom: 14px;
+}
+.aboutCard h3 {
+  margin: 0 0 8px;
+  font-size: 17px;
+}
+.aboutCard p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.aboutStats {
+  margin-top: 46px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+.aboutStat {
+  padding: 24px;
+  text-align: center;
+  background: var(--dark);
+  border-radius: 16px;
+  color: #fff;
+}
+.aboutStat strong {
+  display: block;
+  font-size: 34px;
+  color: var(--gold);
+}
+.aboutStat span {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.78);
+}
+@media (max-width: 860px) {
+  .aboutGrid { grid-template-columns: 1fr 1fr; }
+  .aboutStats { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 560px) {
+  .aboutGrid { grid-template-columns: 1fr; }
 }

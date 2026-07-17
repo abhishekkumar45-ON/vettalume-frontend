@@ -2,9 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { ArrowRight } from "lucide-react";
-import AuthModal, { type AuthModalMode } from "@/components/AuthModal";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import { useUser } from "@/components/UserContext";
@@ -74,14 +72,13 @@ const steps = [
 
 export default function HowItWorksPage() {
   const router = useRouter();
-  const { authed, signIn } = useUser();
-  const [authMode, setAuthMode] = useState<AuthModalMode | null>(null);
+  const { authed, openAuth } = useUser();
 
   function startDiagnostic() {
     if (authed) {
       router.push("/dashboard");
     } else {
-      setAuthMode("login");
+      openAuth("login");
     }
   }
 
@@ -93,7 +90,7 @@ export default function HowItWorksPage() {
           <div className="pageHeroInner">
             <h1>How Vettalume works</h1>
             <p>
-              Diagnose, learn, practise, and mock &mdash; on a plan built around your strengths, weaknesses, and the
+              Diagnose, learn, practise, and mock on a plan built around your strengths, weaknesses, and the
               time you actually have.
             </p>
           </div>
@@ -137,12 +134,6 @@ export default function HowItWorksPage() {
         </section>
       </main>
       <SiteFooter />
-      <AuthModal
-        mode={authMode}
-        onClose={() => setAuthMode(null)}
-        onModeChange={setAuthMode}
-        onSignIn={signIn}
-      />
     </>
   );
 }

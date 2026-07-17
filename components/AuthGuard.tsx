@@ -13,7 +13,7 @@ function isProtected(pathname: string): boolean {
 }
 
 export default function AuthGuard() {
-  const { authed, hydrated } = useUser();
+  const { authed, hydrated, openAuth } = useUser();
   const pathname = usePathname();
   const router = useRouter();
 
@@ -23,8 +23,10 @@ export default function AuthGuard() {
       // replace() so the protected URL is removed from history — the back button
       // after logout lands on a public page, not the cached authed screen.
       router.replace("/");
+      // Prompt sign-in so a bounced learner sees the login modal, not a silent redirect.
+      openAuth("login");
     }
-  }, [authed, hydrated, pathname, router]);
+  }, [authed, hydrated, pathname, router, openAuth]);
 
   return null;
 }

@@ -1,26 +1,47 @@
+"use client";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Logo from "@/components/Logo";
+import { useUser } from "@/components/UserContext";
 
 export default function SiteFooter() {
+  const router = useRouter();
+  const { authed, hydrated, activeExam, openAuth } = useUser();
+
+  // Mock areas are gated: signed-in learners go straight to the mock page for their
+  // active exam; everyone else is prompted to log in first.
+  function goMock(kind: "sectional" | "full") {
+    if (hydrated && authed) {
+      router.push(`/mocks/${activeExam}/${kind}`);
+    } else {
+      openAuth("login");
+    }
+  }
+
   return (
     <footer className="footer">
       <div className="footerInner">
         <div className="footerIntro">
           <Logo />
-          <p>Prep that tells you the truth. CAT, GMAT and GRE, into the top B-schools.</p>
+          <p>Prep that tells you the truth. Personalized for CAT, GMAT, and GRE. Built to get you into the world&apos;s top B-schools.</p>
         </div>
         <div className="footerLinks">
           <div>
             <strong>For Students</strong>
             <Link href="/dashboard">Learner Dashboard</Link>
-            <Link href="/dashboard">Sectional Mock</Link>
-            <Link href="/dashboard">Full Length Mock</Link>
+            <button type="button" className="footerLinkButton" onClick={() => goMock("sectional")}>
+              Sectional Mock
+            </button>
+            <button type="button" className="footerLinkButton" onClick={() => goMock("full")}>
+              Full Length Mock
+            </button>
           </div>
           <div>
             <strong>Vettalume</strong>
-            <Link href="/">About us</Link>
+            <Link href="/about">About us</Link>
             <Link href="/contact">Contact us</Link>
-            <Link href="/pricing">Testimonials</Link>
+            <Link href="/#testimonials">Testimonials</Link>
           </div>
           <div>
             <strong>Courses</strong>

@@ -3,12 +3,12 @@ import {
   BookOpen,
   Brain,
   ClipboardList,
-  ShoppingCart,
   Target,
   type LucideIcon
 } from "lucide-react";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
+import AddToCartButton from "@/components/AddToCartButton";
 import { EXAM_SLUGS, getCatalog } from "@/app/examCatalog";
 
 const includedItems: Array<{ icon: LucideIcon; title: string; text: string }> = [
@@ -50,9 +50,8 @@ export default async function ProductListingPage({
     <>
       <SiteHeader showExamSwitcher />
       <main className="coursesPage">
-        <section className={`courseColorBand ${data.band}`} aria-label={`${data.label} course theme`} />
         <section className="courseListing">
-          {data.plans.map(({ name, tag, price }) => (
+          {data.plans.map(({ name, tag, price, period }) => (
             <article className="courseProduct" key={`${data.label}-${name}`}>
               <div className="courseProductIntro">
                 <h2>{name} <span>— {tag}</span></h2>
@@ -60,10 +59,15 @@ export default async function ProductListingPage({
                 <strong>{price}<small>/once</small></strong>
                 <div className="courseProductActions">
                   <Link className="button primary" href="/pricing">Explore</Link>
-                  <Link className="button ghost" href="/cart">
-                    <ShoppingCart size={18} aria-hidden="true" />
-                    Add to cart
-                  </Link>
+                  <AddToCartButton
+                    exam={data.slug}
+                    examLabel={data.label}
+                    name={name}
+                    tag={tag}
+                    period={period}
+                    priceLabel={price}
+                    className="button ghost"
+                  />
                 </div>
                 <p>
                   Start your preparation journey with focused learning, practice tools,

@@ -553,6 +553,23 @@ export const contactApi = {
   }) => apiPost<{ ok: boolean }>("/contact", body)
 };
 
+export type CouponResult = {
+  valid: boolean;
+  reason?: string;
+  code?: string;
+  type?: "percentage" | "fixed";
+  discount?: number; // paise
+  final?: number; // paise
+  description?: string;
+};
+
+export const billingApi = {
+  // Validate (preview) a coupon against a cart. `amount` is in paise; `exam` limits
+  // course-restricted coupons. The backend does NOT consume the coupon here.
+  validateCoupon: (body: { code: string; exam?: string; amount: number }) =>
+    apiPost<CouponResult>("/billing/coupon/validate", body)
+};
+
 // Password strength rules — must mirror the backend (services/security.password_problems).
 export function passwordProblems(pw: string): string[] {
   const problems: string[] = [];

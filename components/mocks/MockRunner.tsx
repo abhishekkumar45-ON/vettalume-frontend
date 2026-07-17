@@ -7,6 +7,7 @@ import { diagnosticApi, mediaUrl, mockApi, type MockPaper, type MockQuestion } f
 import { useUser } from "@/components/UserContext";
 import Loading from "@/components/Loading";
 import MockCalculator from "@/components/mocks/MockCalculator";
+import { useExamProctor } from "@/components/mocks/useExamProctor";
 
 type Q = MockQuestion & { passage?: string };
 type Status = "answered" | "markedAnswered" | "marked" | "notAnswered" | "notVisited";
@@ -169,6 +170,15 @@ export default function MockRunner({
     return () => clearInterval(t);
   }, [phase, secIdx]);
 
+  // Exam integrity: full-screen enforced, tab-switching / full-screen-exit counted as warnings
+  // (auto-submit after 3), and leaving the page blocked until the test is submitted.
+  const proctor = useExamProctor({
+    active: phase === "exam",
+    maxWarnings: 3,
+    onAutoSubmit: doSubmit,
+    submittedRef
+  });
+
   function start() {
     examStartRef.current = Date.now();
     setPhase("exam");
@@ -321,6 +331,14 @@ export default function MockRunner({
             )}
             <li>A basic <b>Calculator</b> is available from the header (top-right).</li>
             <li>When the timer expires the test is <b>submitted automatically</b>. You can also submit any time with <b>Submit</b>.</li>
+          </ul>
+
+          <h3>Test security &amp; proctoring</h3>
+          <ul className="mrInstrList">
+            <li>The test runs in <b>full-screen</b>. Stay in full-screen for the entire test — a “Fullscreen” button is in the header if you need to re-enter.</li>
+            <li>Do <b>not switch tabs, windows or apps</b>, and do not exit full-screen while the test is running.</li>
+            <li>Each time you switch away or leave full-screen you get a <b>warning</b>. After <b>3 warnings the test is submitted automatically</b>.</li>
+            <li>You <b>cannot leave this page without submitting</b> — refreshing, closing the tab, or using the back button is blocked and will prompt a warning.</li>
           </ul>
 
           <label className="mrAgree">
@@ -522,6 +540,28 @@ export default function MockRunner({
                   : sectionSubmit
                     ? `Submit ${section?.name}`
                     : "Submit test"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {proctor.overlayOpen ? (
+        <div className="mrOverlay">
+          <div className="mrDialog mrProctor">
+            <h3>{proctor.counted ? "Warning" : "You can't leave the test"}</h3>
+            <p>{proctor.reason}</p>
+            {proctor.counted ? (
+              <p className="mrProctorCount">
+                Warning <b>{proctor.warnings}</b> of <b>{proctor.maxWarnings}</b>. After{" "}
+                {proctor.maxWarnings} warnings the test is submitted automatically.
+              </p>
+            ) : (
+              <p className="mrProctorCount">Finish and submit the test to leave this page.</p>
+            )}
+            <div className="mrDialogBtns">
+              <button type="button" className="mrBtn primary" onClick={proctor.resume}>
+                Return to full-screen
               </button>
             </div>
           </div>

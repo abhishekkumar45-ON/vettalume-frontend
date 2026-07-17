@@ -10,6 +10,7 @@ import {
 } from "react";
 import { EXAM_SLUGS, isExamSlug, type ExamSlug } from "@/app/examCatalog";
 import { authApi, clearToken, getToken } from "@/lib/api";
+import type { AuthModalMode } from "@/components/AuthModal";
 
 type UserState = {
   firstName: string | null;
@@ -48,6 +49,11 @@ type UserContextValue = UserState & {
   signIn: (account: Account) => void;
   logout: () => void;
   purchase: (exam: ExamSlug) => void;
+  // Global auth modal — lets any component (footer, guards, header) prompt login.
+  authModalMode: AuthModalMode | null;
+  openAuth: (mode?: AuthModalMode) => void;
+  setAuthModalMode: (mode: AuthModalMode) => void;
+  closeAuth: () => void;
 };
 
 const UserContext = createContext<UserContextValue | null>(null);
@@ -73,6 +79,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<UserState>(DEFAULT_STATE);
   const [authed, setAuthed] = useState(false);
   const [hydrated, setHydrated] = useState(false);
+  const [authModalMode, setAuthModalMode] = useState<AuthModalMode | null>(null);
 
   function applyAccount(account: Account) {
     setState((prev) => ({
@@ -142,6 +149,10 @@ export function UserProvider({ children }: { children: ReactNode }) {
         setState((prev) => (prev.activeExam === exam ? prev : { ...prev, activeExam: exam })),
       // Called on any successful authentication (login / verified signup / Google / reset).
       signIn: (account: Account) => applyAccount(account),
+      authModalMode,
+      openAuth: (mode: AuthModalMode = "login") => setAuthModalMode(mode),
+      setAuthModalMode: (mode: AuthModalMode) => setAuthModalMode(mode),
+      closeAuth: () => setAuthModalMode(null),
       logout: () => {
         clearToken();
         setAuthed(false);
@@ -155,7 +166,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         }))
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state, authed, hydrated]);
+  }, [state, authed, hydrated, authModalMode]);
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 }

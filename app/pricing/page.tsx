@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { Check } from "lucide-react";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
+import AddToCartButton from "@/components/AddToCartButton";
 import { EXAM_CATALOG } from "@/app/examCatalog";
 import { useUser } from "@/components/UserContext";
 
@@ -32,9 +32,17 @@ export default function PricingPage() {
               <p>{plan.name}</p>
               <strong>{plan.price}</strong>
               <span>{plan.period}</span>
-              <Link className="button priceButton" href="/cart">
-                Choose {plan.name}
-              </Link>
+              <AddToCartButton
+                exam={catalog.slug}
+                examLabel={catalog.label}
+                name={plan.name}
+                tag={plan.tag}
+                period={plan.period}
+                priceLabel={plan.price}
+                className="button priceButton"
+                label={`Choose ${plan.name}`}
+                withIcon={false}
+              />
               <ul>
                 {plan.features.map((feature) => (
                   <li key={feature}>

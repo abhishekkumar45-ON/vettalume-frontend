@@ -14,10 +14,10 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import AnalysisPreview from "@/components/AnalysisPreview";
-import AuthModal, { type AuthModalMode } from "@/components/AuthModal";
 import ExamShowcase, { type ExamKey } from "@/components/ExamShowcase";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
+import Testimonials from "@/components/Testimonials";
 import { useUser } from "@/components/UserContext";
 
 const featureCards = [
@@ -312,15 +312,14 @@ export default function Home() {
   const [activeExam, setActiveExam] = useState<ExamKey>("CAT");
   const pricing = pricingByExam[activeExam];
   const router = useRouter();
-  const { authed, signIn } = useUser();
-  const [authMode, setAuthMode] = useState<AuthModalMode | null>(null);
+  const { authed, openAuth } = useUser();
 
   // Diagnostic CTA: send signed-in learners to their dashboard; prompt everyone else to log in first.
   function startDiagnostic() {
     if (authed) {
       router.push("/dashboard");
     } else {
-      setAuthMode("login");
+      openAuth("login");
     }
   }
 
@@ -539,9 +538,9 @@ export default function Home() {
                 <p>{plan.name}</p>
                 <strong>{plan.price}</strong>
                 <span>{plan.period}</span>
-                <button className="button priceButton" type="button">
+                <Link className="button priceButton" href="/pricing">
                   Choose {plan.name}
-                </button>
+                </Link>
                 <ul>
                   {plan.features.map((feature) => (
                     <li key={feature}>
@@ -576,13 +575,9 @@ export default function Home() {
         </div>
       </section>
 
+      <Testimonials />
+
       <SiteFooter />
-      <AuthModal
-        mode={authMode}
-        onClose={() => setAuthMode(null)}
-        onModeChange={setAuthMode}
-        onSignIn={signIn}
-      />
     </main>
   );
 }

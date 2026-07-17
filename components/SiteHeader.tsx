@@ -1,12 +1,11 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { ShoppingCart, UserRound } from "lucide-react";
-import AuthModal, { type AuthModalMode } from "@/components/AuthModal";
 import ExamSwitcher from "@/components/ExamSwitcher";
 import Logo from "@/components/Logo";
 import { useUser } from "@/components/UserContext";
+import { useCart } from "@/components/CartContext";
 
 type SiteHeaderProps = {
   showAnnouncement?: boolean;
@@ -17,8 +16,8 @@ export default function SiteHeader({
   showAnnouncement = false,
   showExamSwitcher = false
 }: SiteHeaderProps) {
-  const [authMode, setAuthMode] = useState<AuthModalMode | null>(null);
-  const { signIn, authed, hydrated } = useUser();
+  const { authed, hydrated, openAuth } = useUser();
+  const { count } = useCart();
 
   return (
     <>
@@ -33,15 +32,16 @@ export default function SiteHeader({
           <div className="navActions">
             {showExamSwitcher && authed ? <ExamSwitcher /> : null}
             {hydrated && !authed ? (
-              <button className="button ghost navButton" type="button" onClick={() => setAuthMode("login")}>
+              <button className="button ghost navButton" type="button" onClick={() => openAuth("login")}>
                 Log in
               </button>
             ) : null}
-            <button className="button primary navButton" type="button" onClick={() => setAuthMode("trial")}>
+            <button className="button primary navButton" type="button" onClick={() => openAuth("trial")}>
               Start Free Trial
             </button>
-            <Link className="iconButton" href="/cart" aria-label="Cart">
+            <Link className="iconButton cartIconButton" href="/cart" aria-label="Cart">
               <ShoppingCart size={24} aria-hidden="true" />
+              {count > 0 ? <span className="cartCount">{count}</span> : null}
             </Link>
             <Link
               className="iconButton"
@@ -50,7 +50,7 @@ export default function SiteHeader({
               onClick={(event) => {
                 if (!authed) {
                   event.preventDefault();
-                  setAuthMode("login");
+                  openAuth("login");
                 }
               }}
             >
@@ -64,12 +64,6 @@ export default function SiteHeader({
           </Link>
         ) : null}
       </header>
-      <AuthModal
-        mode={authMode}
-        onClose={() => setAuthMode(null)}
-        onModeChange={setAuthMode}
-        onSignIn={signIn}
-      />
     </>
   );
 }
