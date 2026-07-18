@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { Lock } from "lucide-react";
 import Loading from "@/components/Loading";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
@@ -130,22 +131,45 @@ export default function SectionDashboardPage() {
                 </p>
               ) : (
                 <div className="barList">
-                  {section.chapters.map((chapter, index) => (
-                    <Link
-                      key={chapter.id}
-                      href={`/learn/${exam}/${sectionSlug}/${slugify(chapter.name)}`}
-                      className="chapterLink"
-                    >
-                      <div className={`progressBar chapter ${TONES[index % TONES.length]} clickable`}>
-                        <i className="progressFill" style={{ width: `${chapter.pct}%` }} aria-hidden="true" />
-                        <span className="progressName">{chapter.name}</span>
-                        <span className="progressPct">{chapter.pct}%</span>
-                        <span className="progressGo" aria-hidden="true">
-                          →
-                        </span>
-                      </div>
-                    </Link>
-                  ))}
+                  {section.chapters.map((chapter, index) => {
+                    const tone = TONES[index % TONES.length];
+                    // Locked chapters (not on the learner's plan) show a lock and go to pricing.
+                    if (chapter.locked) {
+                      return (
+                        <Link
+                          key={chapter.id}
+                          href="/pricing"
+                          className="chapterLink locked"
+                          title="Upgrade to unlock this chapter"
+                        >
+                          <div className={`progressBar chapter ${tone} locked`}>
+                            <i className="progressFill" style={{ width: `${chapter.pct}%` }} aria-hidden="true" />
+                            <span className="progressName">{chapter.name}</span>
+                            <span className="progressPct">{chapter.pct}%</span>
+                            <span className="progressGo lockGo" aria-hidden="true">
+                              <Lock size={15} />
+                            </span>
+                          </div>
+                        </Link>
+                      );
+                    }
+                    return (
+                      <Link
+                        key={chapter.id}
+                        href={`/learn/${exam}/${sectionSlug}/${slugify(chapter.name)}`}
+                        className="chapterLink"
+                      >
+                        <div className={`progressBar chapter ${tone} clickable`}>
+                          <i className="progressFill" style={{ width: `${chapter.pct}%` }} aria-hidden="true" />
+                          <span className="progressName">{chapter.name}</span>
+                          <span className="progressPct">{chapter.pct}%</span>
+                          <span className="progressGo" aria-hidden="true">
+                            →
+                          </span>
+                        </div>
+                      </Link>
+                    );
+                  })}
                 </div>
               )}
             </>

@@ -6176,6 +6176,11 @@ h3 {
 .lockCard h3 { margin: 12px 0 8px; font-size: 19px; }
 .lockCard p { margin: 0 auto 18px; max-width: 380px; color: var(--muted); line-height: 1.5; }
 
+/* Locked chapter rows (learn section list) */
+.progressBar.chapter.locked { opacity: 0.6; }
+.chapterLink.locked:hover .progressBar.chapter.locked { opacity: 0.8; }
+.progressGo.lockGo { display: inline-flex; align-items: center; justify-content: center; color: var(--gold-dark); }
+
 /* Free-trial confirmation badge (on the dark page hero) */
 .trialConfirmBadge {
   display: inline-flex;

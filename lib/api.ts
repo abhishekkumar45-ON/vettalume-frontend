@@ -143,7 +143,7 @@ export type Profile = {
   target_exam: string;
 };
 
-export type OverviewSubtopic = { id: string; name: string; pct: number };
+export type OverviewSubtopic = { id: string; name: string; pct: number; locked?: boolean };
 export type DifficultyBand = { band: string; accuracy: number; answered: number; total: number };
 export type OverviewChapter = {
   id: string;
@@ -151,6 +151,7 @@ export type OverviewChapter = {
   pct: number;
   difficulty: DifficultyBand[];
   subtopics: OverviewSubtopic[];
+  locked?: boolean; // not openable on the learner's current plan
 };
 export type OverviewSection = {
   key: string;
