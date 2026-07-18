@@ -6153,3 +6153,11 @@ h3 {
 }
 .trialCard .button { display: inline-flex; align-items: center; gap: 8px; }
 .trialError { color: #b23b3b !important; font-weight: 700; font-size: 13px !important; }
+
+.recommendEmpty {
+  margin: 0;
+  padding: 6px 2px;
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.5;
+}

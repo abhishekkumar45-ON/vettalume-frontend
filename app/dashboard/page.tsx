@@ -16,7 +16,8 @@ import {
   mockApi,
   type DiagnosticState,
   type MockCardData,
-  type MockCardsSummary
+  type MockCardsSummary,
+  type OverviewSection
 } from "@/lib/api";
 
 const ACCENTS = ["blue", "rose", "green"] as const;
@@ -34,6 +35,9 @@ export default function DashboardPage() {
   // Real per-section ability/coverage (from /learn/overview) and published-mock counts (from /mocks).
   // Both are 0/empty for a new learner and grow as they learn / as an admin publishes mocks.
   const [secStats, setSecStats] = useState<Record<string, { ability: number; syllabus: number }>>({});
+  // Full per-learner learning tree (sections -> chapters -> subtopics with real progress %), used to
+  // build the "Recommended for you" list from actual subtopic progress.
+  const [ovSections, setOvSections] = useState<OverviewSection[]>([]);
   const [mockCounts, setMockCounts] = useState<{ sectional: number; full: number }>({ sectional: 0, full: 0 });
   const [mockSummary, setMockSummary] = useState<MockCardsSummary | null>(null);
   const router = useRouter();
@@ -76,6 +80,7 @@ export default function DashboardPage() {
           map[s.key.toLowerCase()] = { ability: s.ability, syllabus: s.syllabus };
         });
         setSecStats(map);
+        setOvSections(ov.sections || []);
       })
       .catch(() => {});
     Promise.all([mockApi.list(activeExam, "sectional"), mockApi.list(activeExam, "full")])
@@ -110,24 +115,28 @@ export default function DashboardPage() {
   }, [exam, activeExam, secStats]);
 
   const recommendations = useMemo(() => {
-    if (!exam) return [];
-    // From every section, nudge the learner to finish the next 2 chapters they left below 50%.
-    // Highest-first among the sub-50% chapters, so the ones closest to done surface as quick wins.
-    return exam.sections.flatMap((section, sIndex) => {
-      const toFinish = section.groups
-        .flatMap((group) => group.chapters)
-        .filter((chapter) => chapter.pct < 50)
-        .sort((a, b) => b.pct - a.pct)
-        .slice(0, 2);
-      return toFinish.map((chapter) => ({
-        key: `${section.slug}-${chapter.name}`,
-        title: chapter.name,
-        text: `${section.name} · ${chapter.pct}% done — finish this chapter`,
-        width: `${chapter.pct}%`,
-        tone: ACCENTS[sIndex % ACCENTS.length]
+    // Real per-learner subtopic progress from /learn/overview. Per section, recommend up to 2 subtopics:
+    // started ones (nudged "until 80% done", closest-to-80 first), topped up with not-yet-started ones so
+    // each section always contributes 2. Subtopics at/over 80% are treated as done and drop off.
+    return ovSections.flatMap((section, sIndex) => {
+      const subs = section.chapters.flatMap((ch) => ch.subtopics);
+      const started = subs.filter((s) => s.pct > 0 && s.pct < 80).sort((a, b) => b.pct - a.pct);
+      const notStarted = subs.filter((s) => s.pct <= 0);
+      const picks = [...started, ...notStarted].slice(0, 2);
+      const sectionSlug = section.key.toLowerCase();
+      return picks.map((sub) => ({
+        key: `${section.key}-${sub.id}`,
+        title: sub.name,
+        text:
+          sub.pct > 0
+            ? `${section.name} · ${sub.pct}% done — finish this subtopic`
+            : `${section.name} · not started — begin this subtopic`,
+        width: `${Math.max(sub.pct, 4)}%`, // floor so the bar is visible even at 0–3%
+        tone: ACCENTS[sIndex % ACCENTS.length],
+        href: `/learn/${activeExam}/${sectionSlug}`
       }));
     });
-  }, [exam]);
+  }, [ovSections, activeExam]);
 
   const subtext = useMemo(() => {
     if (!owned) {
@@ -265,13 +274,24 @@ export default function DashboardPage() {
               <aside className="recommendPanel">
                 <h2>Recommended for you</h2>
                 <div className="recommendList">
-                  {recommendations.map((rec) => (
-                    <article className={`recommendItem ${rec.tone}`} key={rec.key}>
-                      <b>{rec.title}</b>
-                      <span>{rec.text}</span>
-                      <i style={{ "--progress": rec.width } as CSSProperties} />
-                    </article>
-                  ))}
+                  {recommendations.length === 0 ? (
+                    <p className="recommendEmpty">
+                      Start a subtopic in any section and your next steps will show up here.
+                    </p>
+                  ) : (
+                    recommendations.map((rec) => (
+                      <article
+                        className={`recommendItem ${rec.tone}`}
+                        key={rec.key}
+                        onClick={() => router.push(rec.href)}
+                        style={{ cursor: "pointer" }}
+                      >
+                        <b>{rec.title}</b>
+                        <span>{rec.text}</span>
+                        <i style={{ "--progress": rec.width } as CSSProperties} />
+                      </article>
+                    ))
+                  )}
                 </div>
               </aside>
             </div>
