@@ -39,6 +39,8 @@ export default function PricingPage() {
                 tag={plan.tag}
                 period={plan.period}
                 priceLabel={plan.price}
+                planCode={plan.code}
+                months={plan.months}
                 className="button priceButton"
                 label={`Choose ${plan.name}`}
                 withIcon={false}

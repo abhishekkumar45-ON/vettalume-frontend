@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Calculator, Check, Lock, Maximize2 } from "lucide-react";
-import { diagnosticApi, mediaUrl, mockApi, type MockPaper, type MockQuestion } from "@/lib/api";
+import { diagnosticApi, mediaUrl, mockApi, ApiError, type MockPaper, type MockQuestion } from "@/lib/api";
 import { useUser } from "@/components/UserContext";
 import Loading from "@/components/Loading";
 import MockCalculator from "@/components/mocks/MockCalculator";
@@ -50,6 +50,7 @@ export default function MockRunner({
   const [paper, setPaper] = useState<MockPaper | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [accessLocked, setAccessLocked] = useState(false); // 402: mock quota reached / plan expired
   const [phase, setPhase] = useState<"instructions" | "exam">("instructions");
   const [agreed, setAgreed] = useState(false);
 
@@ -81,7 +82,19 @@ export default function MockRunner({
         setSecLeft((p.sections || []).map((s) => (Number(s.time) || 40) * 60));
         setSecDone((p.sections || []).map(() => false));
       })
-      .catch(() => alive && setError(diagnostic ? "Could not load your diagnostic." : "Could not load this mock."))
+      .catch((err) => {
+        if (!alive) return;
+        if (err instanceof ApiError && err.status === 402) {
+          setAccessLocked(true);
+          setError(
+            typeof err.message === "string" && err.message
+              ? err.message
+              : "You've reached your plan's mock limit. Upgrade to keep going."
+          );
+        } else {
+          setError(diagnostic ? "Could not load your diagnostic." : "Could not load this mock.");
+        }
+      })
       .finally(() => alive && setLoading(false));
     return () => {
       alive = false;
@@ -232,6 +245,25 @@ export default function MockRunner({
   }, [questions, answers, marked, visited]);
 
   if (loading) return <Loading label="Loading the mock…" />;
+  if (accessLocked && !paper) {
+    return (
+      <main className="mrInstr">
+        <div className="sectionInner">
+          <div className="cartPlacedCard" style={{ margin: "40px auto" }}>
+            <span className="trialBadge ended">Locked</span>
+            <h2 style={{ marginTop: 12 }}>Mock locked on your plan</h2>
+            <p>{error}</p>
+            <div className="mrInstrBtns" style={{ justifyContent: "center" }}>
+              <button type="button" className="mrBtn" onClick={() => router.back()}>Back</button>
+              <button type="button" className="mrBtn primary" onClick={() => router.push("/pricing")}>
+                See plans
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
+    );
+  }
   if (error && !paper) return <p className="smNote sectionInner">{error}</p>;
   if (!paper) return null;
 

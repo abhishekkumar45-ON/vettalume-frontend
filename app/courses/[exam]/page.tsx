@@ -51,12 +51,12 @@ export default async function ProductListingPage({
       <SiteHeader showExamSwitcher />
       <main className="coursesPage">
         <section className="courseListing">
-          {data.plans.map(({ name, tag, price, period }) => (
+          {data.plans.map(({ code, name, tag, price, period, months }) => (
             <article className="courseProduct" key={`${data.label}-${name}`}>
               <div className="courseProductIntro">
                 <h2>{name} <span>— {tag}</span></h2>
-                <p className="priceLabel">Pricing starts from:</p>
-                <strong>{price}<small>/once</small></strong>
+                <p className="priceLabel">Pricing:</p>
+                <strong>{price}<small>/{period}</small></strong>
                 <div className="courseProductActions">
                   <Link className="button primary" href="/pricing">Explore</Link>
                   <AddToCartButton
@@ -66,6 +66,8 @@ export default async function ProductListingPage({
                     tag={tag}
                     period={period}
                     priceLabel={price}
+                    planCode={code}
+                    months={months}
                     className="button ghost"
                   />
                 </div>

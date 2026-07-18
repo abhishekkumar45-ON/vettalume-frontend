@@ -22,6 +22,8 @@ export type CartItem = {
   period: string;
   priceLabel: string;
   priceInr: number;
+  planCode: string; // backend PricePlan code — what checkout charges
+  months?: number;
 };
 
 const STORAGE_KEY = "vetta:cart:v1";

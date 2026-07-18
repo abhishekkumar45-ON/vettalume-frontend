@@ -12,6 +12,8 @@ type AddToCartButtonProps = {
   tag?: string;
   period: string;
   priceLabel: string;
+  planCode: string;
+  months?: number;
   className?: string;
   label?: string;
   withIcon?: boolean;
@@ -26,6 +28,8 @@ export default function AddToCartButton({
   tag,
   period,
   priceLabel,
+  planCode,
+  months,
   className = "button ghost",
   label = "Add to cart",
   withIcon = true
@@ -45,7 +49,9 @@ export default function AddToCartButton({
         tag,
         period,
         priceLabel,
-        priceInr: priceLabelToInr(priceLabel)
+        priceInr: priceLabelToInr(priceLabel),
+        planCode,
+        months
       };
       addItem(item);
     }

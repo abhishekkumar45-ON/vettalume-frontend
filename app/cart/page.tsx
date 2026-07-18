@@ -5,19 +5,37 @@ import Link from "next/link";
 import { Check, Loader2, Tag, Trash2 } from "lucide-react";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
-import { useCart, formatInr } from "@/components/CartContext";
+import { useCart, formatInr, type CartItem } from "@/components/CartContext";
 import { useUser } from "@/components/UserContext";
-import { billingApi, ApiError, type CouponResult } from "@/lib/api";
+import { billingApi, paymentsApi, ApiError, type CouponResult } from "@/lib/api";
+
+// Loads Razorpay Checkout once (used only if the gateway is configured).
+declare global {
+  interface Window { Razorpay?: new (options: Record<string, unknown>) => { open: () => void } }
+}
+function loadRazorpay(): Promise<boolean> {
+  return new Promise((resolve) => {
+    if (typeof window === "undefined") return resolve(false);
+    if (window.Razorpay) return resolve(true);
+    const s = document.createElement("script");
+    s.src = "https://checkout.razorpay.com/v1/checkout.js";
+    s.onload = () => resolve(true);
+    s.onerror = () => resolve(false);
+    document.body.appendChild(s);
+  });
+}
 
 export default function CartPage() {
   const { items, subtotalInr, removeItem, clear, hydrated } = useCart();
-  const { authed, openAuth } = useUser();
+  const { authed, openAuth, email } = useUser();
 
   const [code, setCode] = useState("");
   const [coupon, setCoupon] = useState<CouponResult | null>(null);
   const [couponMsg, setCouponMsg] = useState<string | null>(null);
   const [applying, setApplying] = useState(false);
   const [placed, setPlaced] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [payError, setPayError] = useState<string | null>(null);
 
   // Any change to the cart contents invalidates a previously applied coupon.
   useEffect(() => {
@@ -64,14 +82,66 @@ export default function CartPage() {
     setCode("");
   }
 
-  function purchase() {
+  // Pay for one plan via Razorpay Checkout: create an order, open the popup, verify on success.
+  function payForItem(item: CartItem, keyId: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      paymentsApi
+        .createOrder(item.planCode)
+        .then((order) => {
+          const rzp = new window.Razorpay!({
+            key: keyId,
+            order_id: order.order_id,
+            amount: order.amount,
+            currency: order.currency,
+            name: "Vettalume",
+            description: `${item.examLabel} · ${item.name}`,
+            prefill: email ? { email } : undefined,
+            handler: (resp: {
+              razorpay_order_id: string;
+              razorpay_payment_id: string;
+              razorpay_signature: string;
+            }) => {
+              paymentsApi.verify(resp).then(() => resolve()).catch(reject);
+            },
+            modal: { ondismiss: () => reject(new Error("Payment cancelled")) }
+          });
+          rzp.open();
+        })
+        .catch(reject);
+    });
+  }
+
+  async function purchase() {
     if (!authed) {
       openAuth("login");
       return;
     }
-    // Payments gateway isn't live yet — record the intent and confirm to the shopper.
-    setPlaced(true);
-    clear();
+    if (!items.length || busy) return;
+    setBusy(true);
+    setPayError(null);
+    try {
+      const info = await paymentsApi.plans(items[0].exam.toUpperCase());
+      // Gateway not live yet (no Razorpay keys) — record the intent and confirm to the shopper.
+      if (!info.configured || !info.razorpay_key_id) {
+        setPlaced(true);
+        clear();
+        return;
+      }
+      const ok = await loadRazorpay();
+      if (!ok || !window.Razorpay) throw new Error("Couldn't load the payment window. Try again.");
+      // Charge each plan in the cart (one Razorpay order per plan).
+      for (const item of items) {
+        if (item.planCode) await payForItem(item, info.razorpay_key_id);
+      }
+      clear();
+      setPlaced(true);
+    } catch (err) {
+      setPayError(
+        err instanceof ApiError ? err.message : err instanceof Error ? err.message : "Payment failed. Try again."
+      );
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
@@ -182,8 +252,9 @@ export default function CartPage() {
                 </div>
                 <b>{formatInr(totalInr)}</b>
               </div>
-              <button className="purchaseButton" type="button" onClick={purchase}>
-                {authed ? "Purchase" : "Log in to purchase"}
+              {payError ? <p className="couponError">{payError}</p> : null}
+              <button className="purchaseButton" type="button" onClick={purchase} disabled={busy}>
+                {busy ? "Processing…" : authed ? "Purchase" : "Log in to purchase"}
               </button>
               <p>Secured by Razorpay | Your payment information is encrypted and secure</p>
             </aside>

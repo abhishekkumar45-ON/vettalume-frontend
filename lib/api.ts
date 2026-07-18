@@ -587,6 +587,34 @@ export const billingApi = {
   trialStatus: (exam: string) => apiGet<TrialStatus>(`/billing/trial-status?exam=${encodeURIComponent(exam)}`)
 };
 
+export type PaymentsPlans = {
+  plans: { code: string; exam: string; name: string; currency: string; amount: number; amount_paise: number; months: number }[];
+  razorpay_key_id: string | null;
+  configured: boolean;
+};
+export type PaymentOrder = {
+  order_id: string;
+  amount: number; // paise
+  currency: string;
+  key_id: string;
+  plan: { code: string; name?: string };
+  name?: string;
+  email?: string;
+};
+
+export const paymentsApi = {
+  // Subscription plans + whether Razorpay keys are configured on the backend.
+  plans: (exam: string) => apiGet<PaymentsPlans>(`/payments/plans?exam=${encodeURIComponent(exam)}`),
+  // Create a Razorpay order for a plan (requires the gateway to be configured).
+  createOrder: (planCode: string) => apiPost<PaymentOrder>("/payments/order", { plan_code: planCode }),
+  // Verify the payment signature after Razorpay Checkout succeeds -> grants the subscription.
+  verify: (body: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) =>
+    apiPost<{ status: string; granted: { exam: string; expires_at: string }[]; months: number }>(
+      "/payments/verify",
+      body
+    )
+};
+
 // Password strength rules — must mirror the backend (services/security.password_problems).
 export function passwordProblems(pw: string): string[] {
   const problems: string[] = [];
