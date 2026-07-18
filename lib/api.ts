@@ -593,11 +593,13 @@ export type PaymentsPlans = {
   configured: boolean;
 };
 export type PaymentOrder = {
-  order_id: string;
-  amount: number; // paise
-  currency: string;
-  key_id: string;
+  order_id?: string;
+  amount?: number; // paise
+  currency?: string;
+  key_id?: string;
   plan: { code: string; name?: string };
+  coupon?: { code: string; discount: number } | null;
+  free?: boolean; // a 100%-off coupon granted the plan directly — no Razorpay charge
   name?: string;
   email?: string;
 };
@@ -605,8 +607,9 @@ export type PaymentOrder = {
 export const paymentsApi = {
   // Subscription plans + whether Razorpay keys are configured on the backend.
   plans: (exam: string) => apiGet<PaymentsPlans>(`/payments/plans?exam=${encodeURIComponent(exam)}`),
-  // Create a Razorpay order for a plan (requires the gateway to be configured).
-  createOrder: (planCode: string) => apiPost<PaymentOrder>("/payments/order", { plan_code: planCode }),
+  // Create a Razorpay order for a plan, optionally applying a coupon (charges the discounted amount).
+  createOrder: (planCode: string, coupon?: string) =>
+    apiPost<PaymentOrder>("/payments/order", { plan_code: planCode, coupon: coupon || undefined }),
   // Verify the payment signature after Razorpay Checkout succeeds -> grants the subscription.
   verify: (body: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) =>
     apiPost<{ status: string; granted: { exam: string; expires_at: string }[]; months: number }>(

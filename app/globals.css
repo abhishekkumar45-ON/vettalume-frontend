@@ -6162,6 +6162,20 @@ h3 {
   line-height: 1.5;
 }
 
+/* Locked-content upgrade card (learn/practice when a plan doesn't include it) */
+.lockCard {
+  max-width: 460px;
+  margin: 30px auto;
+  padding: 28px 26px;
+  text-align: center;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+}
+.lockCard h3 { margin: 12px 0 8px; font-size: 19px; }
+.lockCard p { margin: 0 auto 18px; max-width: 380px; color: var(--muted); line-height: 1.5; }
+
 /* Free-trial confirmation badge (on the dark page hero) */
 .trialConfirmBadge {
   display: inline-flex;

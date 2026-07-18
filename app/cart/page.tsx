@@ -82,12 +82,18 @@ export default function CartPage() {
     setCode("");
   }
 
-  // Pay for one plan via Razorpay Checkout: create an order, open the popup, verify on success.
+  // Pay for one plan via Razorpay Checkout: create an order (applying the coupon), open the popup,
+  // verify on success. A 100%-off coupon grants the plan directly with no charge.
   function payForItem(item: CartItem, keyId: string): Promise<void> {
+    const couponCode = coupon?.valid ? coupon.code : undefined;
     return new Promise((resolve, reject) => {
       paymentsApi
-        .createOrder(item.planCode)
+        .createOrder(item.planCode, couponCode)
         .then((order) => {
+          if (order.free) {
+            resolve();
+            return;
+          }
           const rzp = new window.Razorpay!({
             key: keyId,
             order_id: order.order_id,

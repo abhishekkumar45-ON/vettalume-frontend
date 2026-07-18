@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { learnApi, mediaUrl, type ConceptDetail, type QuizQuestion } from "@/lib/api";
+import { learnApi, mediaUrl, ApiError, type ConceptDetail, type QuizQuestion } from "@/lib/api";
 import Loading from "@/components/Loading";
 import { VirtualNotesViewer } from "@/components/VirtualNotesViewer";
 
@@ -119,6 +119,7 @@ export default function SubtopicLearning({
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [locked, setLocked] = useState(false); // 402: content locked on the learner's plan
   const [revealed, setRevealed] = useState(false);
   // resolved display names (start from the title-cased fallbacks)
   const [names, setNames] = useState({ subtopic: chapterName, chapter: sectionName, section: groupTitle });
@@ -139,6 +140,7 @@ export default function SubtopicLearning({
     let alive = true;
     setLoading(true);
     setError(null);
+    setLocked(false);
     // Resolve the real node id from the backend (works for admin-created content with any id scheme),
     // then load that concept's content + quiz.
     learnApi
@@ -171,7 +173,13 @@ export default function SubtopicLearning({
         }
       })
       .catch((err) => {
-        if (alive) setError(err instanceof Error ? err.message : "Could not load this subtopic.");
+        if (!alive) return;
+        if (err instanceof ApiError && err.status === 402) {
+          setLocked(true);
+          setError(err.message || "This subtopic is available on a paid plan.");
+        } else {
+          setError(err instanceof Error ? err.message : "Could not load this subtopic.");
+        }
       })
       .finally(() => {
         if (alive) {
@@ -284,6 +292,13 @@ export default function SubtopicLearning({
         <div className="panels">
           {loading ? (
             <Loading label="Loading…" compact />
+          ) : locked ? (
+            <div className="lockCard">
+              <span className="trialBadge ended">Locked</span>
+              <h3>This subtopic is locked on your plan</h3>
+              <p>{error}</p>
+              <Link className="button primary" href="/pricing">See plans</Link>
+            </div>
           ) : error ? (
             <p className="prose" style={{ padding: "20px 0" }}>{error}</p>
           ) : (
