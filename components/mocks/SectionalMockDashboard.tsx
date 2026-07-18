@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, ChevronDown, Lock } from "lucide-react";
-import { mockApi, type MockSummary, type SectionAnalysis } from "@/lib/api";
+import { mockApi, billingApi, type MockSummary, type SectionAnalysis } from "@/lib/api";
 import Loading from "@/components/Loading";
 import TrendChart from "@/components/mocks/TrendChart";
 
@@ -39,12 +39,23 @@ export default function SectionalMockDashboard({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showAnalysis, setShowAnalysis] = useState(false);
+  const [sectionLocked, setSectionLocked] = useState(false); // sectional quota reached for this section
   const accent = ACCENT[section.toLowerCase()] || "var(--gold)";
 
   useEffect(() => {
     let alive = true;
     setLoading(true);
     setError(null);
+    // Whether the learner can still start a sectional mock in THIS section (quota not exhausted).
+    billingApi
+      .trialStatus(exam)
+      .then((s) => {
+        if (!alive) return;
+        const lim = s.limits.sectional_per_section;
+        const used = s.used.sectional[section.toUpperCase()] || 0;
+        setSectionLocked(lim != null && used >= lim);
+      })
+      .catch(() => {});
     Promise.all([
       mockApi.sectionAnalysis(exam, section),
       mockApi.list(exam, "sectional").catch(() => ({ mocks: [] as MockSummary[] }))
@@ -235,6 +246,15 @@ export default function SectionalMockDashboard({
                             }
                           >
                             View analysis <ArrowRight size={14} aria-hidden="true" />
+                          </button>
+                        ) : sectionLocked ? (
+                          <button
+                            type="button"
+                            className="smMockBtn lock"
+                            onClick={() => router.push("/pricing")}
+                            title="Upgrade to unlock more sectional mocks"
+                          >
+                            <Lock size={13} aria-hidden="true" /> Locked
                           </button>
                         ) : (
                           <button

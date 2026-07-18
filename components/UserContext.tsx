@@ -54,6 +54,10 @@ type UserContextValue = UserState & {
   openAuth: (mode?: AuthModalMode) => void;
   setAuthModalMode: (mode: AuthModalMode) => void;
   closeAuth: () => void;
+  // Global free-trial popup.
+  trialOpen: boolean;
+  openTrial: () => void;
+  closeTrial: () => void;
 };
 
 const UserContext = createContext<UserContextValue | null>(null);
@@ -80,6 +84,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [authed, setAuthed] = useState(false);
   const [hydrated, setHydrated] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<AuthModalMode | null>(null);
+  const [trialOpen, setTrialOpen] = useState(false);
 
   function applyAccount(account: Account) {
     setState((prev) => ({
@@ -186,6 +191,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
       openAuth: (mode: AuthModalMode = "login") => setAuthModalMode(mode),
       setAuthModalMode: (mode: AuthModalMode) => setAuthModalMode(mode),
       closeAuth: () => setAuthModalMode(null),
+      trialOpen,
+      openTrial: () => setTrialOpen(true),
+      closeTrial: () => setTrialOpen(false),
       logout: () => {
         clearToken();
         setAuthed(false);
@@ -199,7 +207,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         }))
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state, authed, hydrated, authModalMode]);
+  }, [state, authed, hydrated, authModalMode, trialOpen]);
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 }

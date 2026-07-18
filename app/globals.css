@@ -6181,6 +6181,93 @@ h3 {
 .chapterLink.locked:hover .progressBar.chapter.locked { opacity: 0.8; }
 .progressGo.lockGo { display: inline-flex; align-items: center; justify-content: center; color: var(--gold-dark); }
 
+/* Locked mock "Start" button (full / sectional lists) */
+.smMockBtn.lock {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid var(--line-strong);
+  color: var(--muted);
+}
+.smMockBtn.lock:hover { border-color: var(--gold); color: var(--gold-dark); }
+
+/* ============================================================
+   Free-trial popup
+   ============================================================ */
+.trialModalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(25, 21, 16, 0.5);
+  backdrop-filter: blur(3px);
+}
+.trialModalCard {
+  position: relative;
+  width: min(460px, 100%);
+  padding: 30px 28px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+.trialModalClose {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: inline-flex;
+  border: 0;
+  background: none;
+  color: var(--faint);
+}
+.trialModalCard h2 { margin: 12px 0 14px; font-size: 23px; }
+.trialFine { margin: 0 auto 18px; max-width: 360px; color: var(--muted); font-size: 14px; line-height: 1.5; }
+.trialBenefits {
+  list-style: none;
+  margin: 0 auto 20px;
+  padding: 0;
+  max-width: 340px;
+  text-align: left;
+  display: grid;
+  gap: 10px;
+}
+.trialBenefits li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14.5px;
+  color: var(--ink-soft);
+}
+.trialBenefits li svg { color: var(--green-dark); flex: 0 0 auto; margin-top: 2px; }
+.trialExamLabel { display: block; font-weight: 800; font-size: 13px; margin-bottom: 8px; }
+.trialExamPick { display: flex; gap: 8px; justify-content: center; margin-bottom: 18px; }
+.trialExamPick button {
+  padding: 8px 18px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--panel);
+  font-weight: 800;
+  color: var(--ink-soft);
+}
+.trialExamPick button.active { border-color: var(--gold); background: var(--gold-soft); color: var(--gold-dark); }
+.trialCta { width: 100%; justify-content: center; }
+.trialModalBtns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.trialPlacedIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  background: var(--gold-soft);
+  color: var(--gold-dark);
+}
+
 /* Free-trial confirmation badge (on the dark page hero) */
 .trialConfirmBadge {
   display: inline-flex;

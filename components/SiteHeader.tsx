@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { ShoppingCart, UserRound } from "lucide-react";
 import ExamSwitcher from "@/components/ExamSwitcher";
 import Logo from "@/components/Logo";
@@ -17,13 +16,11 @@ export default function SiteHeader({
   showAnnouncement = false,
   showExamSwitcher = false
 }: SiteHeaderProps) {
-  const { authed, hydrated, openAuth } = useUser();
+  const { authed, hydrated, openAuth, openTrial } = useUser();
   const { count } = useCart();
-  const router = useRouter();
 
-  // Trial is a simple, no-auth landing for now: confirm the trial + show free resources.
-  // (Sign-in / real trial authorization is wired in later.)
-  const startFreeTrial = () => router.push("/free-trial");
+  // Opens the free-trial popup: starts the one-time 7-day trial (prompts sign-up if needed).
+  const startFreeTrial = () => openTrial();
 
   return (
     <>

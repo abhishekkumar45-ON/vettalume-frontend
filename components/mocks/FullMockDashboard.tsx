@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, ChevronDown, Lock } from "lucide-react";
-import { mockApi, type FullAnalysis, type MockSummary } from "@/lib/api";
+import { mockApi, billingApi, type FullAnalysis, type MockSummary } from "@/lib/api";
 import Loading from "@/components/Loading";
 import TrendChart from "@/components/mocks/TrendChart";
 
@@ -29,11 +29,21 @@ export default function FullMockDashboard({ exam }: { exam: string }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showAnalysis, setShowAnalysis] = useState(false);
+  const [fullLocked, setFullLocked] = useState(false); // full-mock quota reached on this plan
 
   useEffect(() => {
     let alive = true;
     setLoading(true);
     setError(null);
+    // Whether the learner can still START a full mock (quota not exhausted / unlimited).
+    billingApi
+      .trialStatus(exam)
+      .then((s) => {
+        if (!alive) return;
+        const lim = s.limits.full_mocks;
+        setFullLocked(lim != null && s.used.full_mocks >= lim);
+      })
+      .catch(() => {});
     Promise.all([
       mockApi.fullAnalysis(exam),
       mockApi.list(exam, "full").catch(() => ({ mocks: [] as MockSummary[] }))
@@ -242,6 +252,15 @@ export default function FullMockDashboard({ exam }: { exam: string }) {
                             onClick={() => router.push(`/mocks/${exam}/full/${at.attemptId}`)}
                           >
                             View analysis <ArrowRight size={14} aria-hidden="true" />
+                          </button>
+                        ) : fullLocked ? (
+                          <button
+                            type="button"
+                            className="smMockBtn lock"
+                            onClick={() => router.push("/pricing")}
+                            title="Upgrade to unlock more full mocks"
+                          >
+                            <Lock size={13} aria-hidden="true" /> Locked
                           </button>
                         ) : (
                           <button
