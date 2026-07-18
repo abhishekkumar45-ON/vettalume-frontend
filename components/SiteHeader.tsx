@@ -21,8 +21,9 @@ export default function SiteHeader({
   const { count } = useCart();
   const router = useRouter();
 
-  // Signed-in users go to the dashboard (the trial card starts/tracks it); everyone else signs up first.
-  const startFreeTrial = () => (authed ? router.push("/dashboard") : openAuth("trial"));
+  // Trial is a simple, no-auth landing for now: confirm the trial + show free resources.
+  // (Sign-in / real trial authorization is wired in later.)
+  const startFreeTrial = () => router.push("/free-trial");
 
   return (
     <>

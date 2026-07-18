@@ -6161,3 +6161,20 @@ h3 {
   font-size: 13.5px;
   line-height: 1.5;
 }
+
+/* Free-trial confirmation badge (on the dark page hero) */
+.trialConfirmBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(201, 162, 78, 0.18);
+  border: 1px solid rgba(201, 162, 78, 0.5);
+  color: var(--gold);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
