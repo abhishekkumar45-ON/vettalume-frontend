@@ -141,6 +141,7 @@ export default function SubtopicLearning({
     setLoading(true);
     setError(null);
     setLocked(false);
+    setRevealed(true);   // show the title/lede immediately so loading isn't an empty band up top
     // Resolve the real node id from the backend (works for admin-created content with any id scheme),
     // then load that concept's content + quiz.
     learnApi

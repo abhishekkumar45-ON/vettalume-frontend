@@ -1844,11 +1844,11 @@ h3 {
 }
 
 .recommendList {
+  /* fill down to the Enter-QA button line and scroll internally. The cap keeps
+     the panel from inflating the row while reaching the ability card's inner bottom. */
   flex: 1 1 auto;
   min-height: 0;
-  /* cap sized to the ability card's inner height so many items scroll here
-     instead of stretching the whole row taller than the QA card */
-  max-height: 340px;
+  max-height: 362px;
   display: grid;
   gap: 10px;
   align-content: start;
@@ -4409,7 +4409,9 @@ h3 {
 .subtopicPage .mode.on .mdot.todo { background: var(--text-4); }
 
 /* panel body */
-.subtopicPage .panels { padding: 28px 0 90px; }
+.subtopicPage .panels { padding: 20px 0 90px; }
+/* keep the loading spinner close to the tabs instead of a tall empty box */
+.subtopicPage .panels .loadingState.compact { min-height: 150px; }
 .subtopicPage .panel { display: none; }
 .subtopicPage .panel.on { display: block; animation: stpFade 0.4s ease; }
 @keyframes stpFade {
@@ -6283,4 +6285,302 @@ h3 {
   font-weight: 800;
   letter-spacing: 0.03em;
   text-transform: uppercase;
+}
+
+/* ============================================================
+   Profile dropdown (header person icon) — themed via tokens
+   ============================================================ */
+.profileMenu {
+  position: relative;
+  display: inline-flex;
+}
+.profileMenu > .iconButton {
+  cursor: pointer;
+}
+.profileMenuList {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 60;
+  min-width: 188px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+.profileMenuItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 12px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.profileMenuItem svg {
+  color: var(--muted);
+  flex: none;
+}
+.profileMenuItem:hover {
+  background: var(--gold-soft);
+  color: var(--ink);
+}
+.profileMenuItem:hover svg {
+  color: var(--gold-dark);
+}
+
+/* ============================================================
+   Appearance settings — Light / Dark chooser
+   ============================================================ */
+.themeChoice {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  max-width: 620px;
+}
+.themeOption {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  background: var(--panel);
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+.themeOption:hover {
+  border-color: var(--gold);
+}
+.themeOption.on {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 1px var(--gold);
+  background: var(--gold-soft);
+}
+.themeOptionIcon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: var(--panel-2);
+  color: var(--gold-dark);
+  flex: none;
+}
+.themeOptionText {
+  display: grid;
+  gap: 3px;
+  flex: 1 1 auto;
+}
+.themeOptionText b {
+  font-size: 15px;
+}
+.themeOptionText span {
+  font-size: 13px;
+  color: var(--muted);
+}
+.themeOptionRadio {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--line-strong);
+  flex: none;
+}
+.themeOption.on .themeOptionRadio {
+  border-color: var(--gold);
+}
+.themeOption.on .themeOptionRadio::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: var(--gold);
+}
+@media (max-width: 560px) {
+  .themeChoice {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================================
+   DARK THEME
+   Default is Light. Setting data-theme="dark" on <html> flips the
+   design tokens (covers everything using var()), then the rules
+   below fix up the surfaces that hardcoded a light color.
+   ============================================================ */
+[data-theme="dark"] {
+  color-scheme: dark;
+  --ink: #e9e7e1;
+  --ink-soft: #c4c6cc;
+  --muted: #a5a8b0;
+  --faint: #85888f;
+  --paper: #14161a;
+  --cream: #181a1f;
+  --panel: #1e2126;
+  --panel-2: #262a31;
+  --line: rgba(255, 255, 255, 0.12);
+  --line-strong: rgba(255, 255, 255, 0.2);
+  --gold: #d1a559;
+  --gold-dark: #d9b768;
+  --gold-soft: rgba(201, 162, 78, 0.18);
+  --tan: #c0a97f;
+  --green: #5aa88f;
+  --green-dark: #57a58e;
+  --rose: #c1948a;
+  --blue: #9297c0;
+  --dark: #0f1114;
+  --shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+}
+
+/* translucent light bars -> translucent dark */
+[data-theme="dark"] .siteHeader {
+  background: rgba(20, 22, 26, 0.85);
+}
+[data-theme="dark"] .examTabsShell {
+  background: rgba(30, 33, 38, 0.92);
+}
+
+/* cards / panels that hardcoded a light background */
+[data-theme="dark"] .practiceCard.even {
+  background: var(--panel-2);
+}
+[data-theme="dark"] .practiceCard.adaptive {
+  background: linear-gradient(140deg, #2b2721, #262219);
+}
+[data-theme="dark"] .comparisonTable {
+  background: rgba(30, 33, 38, 0.9);
+}
+[data-theme="dark"] .dashboardGreeting {
+  background: var(--panel-2);
+}
+[data-theme="dark"] .includedGrid {
+  background: #22252b;
+}
+[data-theme="dark"] .includedItem {
+  background: var(--panel);
+}
+[data-theme="dark"] .cartHeaderRow {
+  background: #2b2f36;
+}
+[data-theme="dark"] .cartSummary label {
+  background: #23262c;
+}
+[data-theme="dark"] .notificationsPanel {
+  background: rgba(30, 33, 38, 0.5);
+}
+[data-theme="dark"] .notificationsPanel h1 {
+  color: var(--ink);
+}
+[data-theme="dark"] .examInsights {
+  background: var(--panel);
+}
+[data-theme="dark"] .diagnosticBox {
+  background: rgba(30, 33, 38, 0.55);
+}
+[data-theme="dark"] .apPreview {
+  background: #23262c;
+}
+
+/* progress/gauge tracks that used dark-ink over light -> light over dark */
+[data-theme="dark"] .perfTrack,
+[data-theme="dark"] .diagSecBar,
+[data-theme="dark"] .apBarTrack,
+[data-theme="dark"] .apTopicTrack {
+  background: rgba(255, 255, 255, 0.1);
+}
+[data-theme="dark"] .gaugeTrack {
+  stroke: rgba(255, 255, 255, 0.16);
+}
+[data-theme="dark"] .gaugeText strong {
+  color: var(--ink);
+}
+
+/* ability + recommend panels (were light-gray boxes) */
+[data-theme="dark"] .abilityCard,
+[data-theme="dark"] .recommendPanel {
+  background: var(--panel);
+}
+[data-theme="dark"] .abilityCard.blue {
+  background: #212430;
+}
+[data-theme="dark"] .abilityCard.rose {
+  background: #2a2321;
+}
+[data-theme="dark"] .abilityCard.green {
+  background: #1e2624;
+}
+[data-theme="dark"] .abilityCard button {
+  background: var(--panel-2);
+}
+[data-theme="dark"] .recommendItem {
+  background: var(--panel-2);
+}
+
+/* coverage / progress bar "empty" track color -> light on dark */
+[data-theme="dark"] .abilityCard.blue .coverage i {
+  background: linear-gradient(90deg, var(--blue) 0 var(--cov, 0%), rgba(255, 255, 255, 0.14) var(--cov, 0%));
+}
+[data-theme="dark"] .abilityCard.rose .coverage i {
+  background: linear-gradient(90deg, var(--rose) 0 var(--cov, 0%), rgba(255, 255, 255, 0.14) var(--cov, 0%));
+}
+[data-theme="dark"] .abilityCard.green .coverage i {
+  background: linear-gradient(90deg, var(--green-dark) 0 var(--cov, 0%), rgba(255, 255, 255, 0.14) var(--cov, 0%));
+}
+[data-theme="dark"] .recommendItem i {
+  background: linear-gradient(
+    90deg,
+    var(--rc, var(--green-dark)) 0 var(--progress, 52%),
+    rgba(255, 255, 255, 0.14) var(--progress, 52%)
+  );
+}
+[data-theme="dark"] .practiceTile i {
+  background: linear-gradient(90deg, var(--green-dark) 0 var(--progress), rgba(255, 255, 255, 0.14) var(--progress));
+}
+
+/* sectional metric pastel cards */
+[data-theme="dark"] .secMetricCard.rose {
+  background: #2a2321;
+}
+[data-theme="dark"] .secMetricCard.green {
+  background: #1e2624;
+}
+[data-theme="dark"] .secMetricCard.purple {
+  background: #23222b;
+}
+
+/* warm tan borders + active settings link */
+[data-theme="dark"] .googleButton,
+[data-theme="dark"] .settingsField select,
+[data-theme="dark"] .subscriptionCard,
+[data-theme="dark"] .progressBar.rec {
+  border-color: var(--line-strong);
+}
+[data-theme="dark"] .settingsSidebar a.active {
+  background: var(--gold-soft);
+  border-color: rgba(201, 162, 78, 0.4);
+}
+
+/* Dark bands (hero / dashboard preview / contact) use a var(--dark) background
+   with var(--panel) text for light-on-dark. --dark stays dark in dark mode, so
+   keep their text light instead of letting --panel flip it dark. */
+[data-theme="dark"] .darkHero,
+[data-theme="dark"] .hero,
+[data-theme="dark"] .dashboardPreview,
+[data-theme="dark"] .contactHero,
+[data-theme="dark"] .contactCopy p {
+  color: #f0f1ee;
 }

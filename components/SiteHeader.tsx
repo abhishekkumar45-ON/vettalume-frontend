@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { ShoppingCart, UserRound } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import ExamSwitcher from "@/components/ExamSwitcher";
 import Logo from "@/components/Logo";
+import ProfileMenu from "@/components/ProfileMenu";
 import { useUser } from "@/components/UserContext";
 import { useCart } from "@/components/CartContext";
 
@@ -26,7 +27,7 @@ export default function SiteHeader({
     <>
       <header className="siteHeader">
         <nav className="navShell" aria-label="Main navigation">
-          <Logo compact />
+          <Logo />
           <div className="navLinks">
             <Link href="/dashboard">Dashboard</Link>
             <Link href="/courses/cat">Explore courses</Link>
@@ -46,19 +47,7 @@ export default function SiteHeader({
               <ShoppingCart size={24} aria-hidden="true" />
               {count > 0 ? <span className="cartCount">{count}</span> : null}
             </Link>
-            <Link
-              className="iconButton"
-              href={authed ? "/account" : "#"}
-              aria-label="Account"
-              onClick={(event) => {
-                if (!authed) {
-                  event.preventDefault();
-                  openAuth("login");
-                }
-              }}
-            >
-              <UserRound size={24} aria-hidden="true" />
-            </Link>
+            <ProfileMenu />
           </div>
         </nav>
         {showAnnouncement ? (
