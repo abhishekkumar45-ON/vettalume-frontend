@@ -55,6 +55,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 .diff-d3{color:var(--gold-ink);border-color:color-mix(in srgb,var(--course) 42%,var(--line));background:color-mix(in srgb,var(--course) 9%,var(--panel))}
 .diff-d4,.diff-d5{color:var(--err);border-color:color-mix(in srgb,var(--err) 42%,var(--line));background:color-mix(in srgb,var(--err) 9%,var(--panel))}
 .qstem{font-size:18px;font-weight:600;color:var(--text);line-height:1.5;margin-bottom:20px}
+.qimg{display:block;max-width:100%;height:auto;margin:0 0 20px;border:1px solid var(--line);border-radius:8px}
 .opts{display:flex;flex-direction:column;gap:11px;margin-top:auto}
 .opt{display:flex;align-items:center;gap:15px;padding:15px 18px;border:1px solid var(--line);border-radius:10px;background:var(--panel);cursor:pointer;transition:border-color .16s,transform .14s,background .16s}
 .opt:hover{border-color:color-mix(in srgb,var(--course) 42%,var(--line));transform:translateX(2px)}
@@ -152,6 +153,7 @@ function renderQ(){
   var subnm=curSub?esc(curSub.name):'Practice';
   var html='<div class="qcard"><div class="qtop"><span class="qn">Subtopic · '+subnm+'</span><span class="diff-tag diff-d'+dt.band+'">'+dt.text+'</span></div>';
   html+='<div class="qstem">'+esc(q.stem)+'</div>';
+  if(q.image){ var isrc=/^https?:\/\//.test(q.image)?q.image:(api+q.image); html+='<img class="qimg" src="'+esc(isrc)+'" alt="">'; }
   if(isTita(q)){
     html+='<div class="tita"><input id="titaInput" type="text" placeholder="Type your answer" value="'+esc(typed)+'"><span class="thint">Numerical answer — press Check when ready.</span></div>';
   }else{
