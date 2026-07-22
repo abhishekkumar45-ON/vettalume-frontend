@@ -29,6 +29,20 @@ export function clearToken(): void {
   }
 }
 
+// Fire-and-forget wake-up for the backend. On a spun-down free-tier host the first request eats a
+// cold start; pinging /health (no DB work) the moment the app mounts wakes the container while the
+// user is still reading the page, so the first real request lands on a warm server.
+let _warmed = false;
+export function warmup(): void {
+  if (_warmed || typeof window === "undefined") return;
+  _warmed = true;
+  try {
+    void fetch(`${BASE}/health`, { cache: "no-store" }).catch(() => {});
+  } catch {
+    // ignore
+  }
+}
+
 export class ApiError extends Error {
   status: number;
   code?: string;

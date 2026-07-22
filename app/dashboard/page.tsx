@@ -40,6 +40,8 @@ export default function DashboardPage() {
   const [ovSections, setOvSections] = useState<OverviewSection[]>([]);
   const [mockCounts, setMockCounts] = useState<{ sectional: number; full: number }>({ sectional: 0, full: 0 });
   const [mockSummary, setMockSummary] = useState<MockCardsSummary | null>(null);
+  // false until the first /learn/overview settles, so the cards pulse instead of flashing stark 0s.
+  const [statsLoaded, setStatsLoaded] = useState(false);
   const router = useRouter();
 
   const { firstName, activeExam, isOwned } = useUser();
@@ -71,6 +73,7 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!owned || !activeExam) return;
     let alive = true;
+    setStatsLoaded(false);
     learnApi
       .overview(activeExam)
       .then((ov) => {
@@ -82,7 +85,10 @@ export default function DashboardPage() {
         setSecStats(map);
         setOvSections(ov.sections || []);
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => {
+        if (alive) setStatsLoaded(true);
+      });
     Promise.all([mockApi.list(activeExam, "sectional"), mockApi.list(activeExam, "full")])
       .then(([sec, full]) => {
         if (alive) setMockCounts({ sectional: sec.count, full: full.count });
@@ -239,7 +245,7 @@ export default function DashboardPage() {
 
         {owned ? (
           <section className="dashboardBody sectionInner">
-            <div className="abilityGrid">
+            <div className={statsLoaded ? "abilityGrid" : "abilityGrid loading"}>
               {abilityCards.map((card) => (
                 <article className={`abilityCard ${card.accent}`} key={card.title}>
                   <div className="abilityGauge">

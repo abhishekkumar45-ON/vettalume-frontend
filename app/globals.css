@@ -1710,6 +1710,23 @@ h3 {
   gap: 12px;
 }
 
+/* While the first /learn/overview is still loading, gently pulse the cards so a cold/slow
+   backend reads as "loading" instead of a finished dashboard full of zeros. */
+@keyframes dashPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+.abilityGrid.loading .abilityCard,
+.abilityGrid.loading .recommendPanel {
+  animation: dashPulse 1.3s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .abilityGrid.loading .abilityCard,
+  .abilityGrid.loading .recommendPanel {
+    animation: none;
+  }
+}
+
 .abilityCard,
 .recommendPanel,
 .mockCard,
